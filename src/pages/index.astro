@@ -1,7 +1,10 @@
 ---
+import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import VideoBanner from '../components/VideoBanner.astro';
 import VideoHeadline from '../components/VideoHeadline.astro';
+import ScrollFX from '../components/ScrollFX.astro';
 
 /**
  * Home.
@@ -37,15 +40,11 @@ const clips = [
   { after: 2, src: '/v/banamex.mp4', poster: '/v/banamex.png', label: '03', size: 'md' as const },
 ];
 
-// Marcas de relleno. La curaduria real (8-12 casos) sigue abierta.
-const casos = [
-  { marca: 'Modelo', campana: 'Por Nuestro México', img: '/v/case-modelo.png', slug: 'modelo-por-nuestro-mexico', destacado: true },
-  { marca: 'Pepsi', campana: 'Sabor Sin Reglas', img: '/v/case-pepsi.png', slug: 'pepsi-sabor-sin-reglas' },
-  { marca: 'Banamex', campana: 'Cuenta Con Nosotros', img: '/v/case-banamex.png', slug: 'banamex-cuenta-con-nosotros' },
-  { marca: 'Bimbo', campana: 'Del Horno A Tu Mesa', img: '/v/case-bimbo.png', slug: 'bimbo-del-horno-a-tu-mesa' },
-  { marca: 'Telcel', campana: 'Sin Señal No Hay Historia', img: '/v/case-telcel.png', slug: 'telcel-sin-senal-no-hay-historia' },
-  { marca: 'Victoria', campana: 'La Nuestra', img: '/v/case-cerveza.png', slug: 'victoria-la-nuestra' },
-];
+// Los casos salen de la coleccion, no de un array a mano: una sola fuente de
+// verdad compartida con /work/. `destacado` decide cuales suben al home.
+const casos = (await getCollection('work', ({ data }) => !data.borrador && data.destacado))
+  .sort((a, b) => a.data.orden - b.data.orden)
+  .slice(0, 6);
 
 /**
  * Roster REAL, leido del muro de clientes de bbdomexico.com. Sustituye a la
@@ -58,9 +57,22 @@ const casos = [
  * antes de publicar: un cliente que ya no lo es no puede aparecer aqui.
  */
 const clientes = [
-  'Modelo', 'Pepsi', 'Mirinda', 'Tostitos', 'Yoplait', 'Pedigree',
-  'Oscar Mayer', 'San Rafael', 'Norteñita', 'Olé', 'Saba', 'Finamex',
-  'BMW', 'MINI', "Buchanan's", 'Johnnie Walker',
+  'Modelo',
+  'Pepsi',
+  'Mirinda',
+  'Tostitos',
+  'Yoplait',
+  'Pedigree',
+  'Oscar Mayer',
+  'San Rafael',
+  'Norteñita',
+  'Olé',
+  'Saba',
+  'Finamex',
+  'BMW',
+  'MINI',
+  "Buchanan's",
+  'Johnnie Walker',
 ];
 
 // Cifras de relleno. Hay que confirmarlas con marketing antes de publicar.
@@ -72,9 +84,28 @@ const premios = [
 ];
 
 const noticias = [
-  { titulo: 'BBDO México, reconocida como Agencia Transformadora del Año', fecha: '2024-11-26', slug: 'bbdo-premio-agencia-transformadora', img: '/v/case-modelo.png', extracto: 'El único contenido real que hoy existe en el sitio actual. Se migra tal cual.' },
-  { titulo: 'Titular de noticia pendiente de curaduría', fecha: '2025-06-01', slug: 'placeholder-2', img: '/v/case-telcel.png', extracto: 'Texto de relleno. El índice de noticias hoy no existe: el menú NEWS apunta a un post suelto.' },
-  { titulo: 'Titular de noticia pendiente de curaduría', fecha: '2025-09-15', slug: 'placeholder-3', img: '/v/case-cerveza.png', extracto: 'Texto de relleno.' },
+  {
+    titulo: 'BBDO México, reconocida como Agencia Transformadora del Año',
+    fecha: '2024-11-26',
+    slug: 'bbdo-premio-agencia-transformadora',
+    img: '/v/case-modelo.png',
+    extracto: 'El único contenido real que hoy existe en el sitio actual. Se migra tal cual.',
+  },
+  {
+    titulo: 'Titular de noticia pendiente de curaduría',
+    fecha: '2025-06-01',
+    slug: 'placeholder-2',
+    img: '/v/case-telcel.png',
+    extracto:
+      'Texto de relleno. El índice de noticias hoy no existe: el menú NEWS apunta a un post suelto.',
+  },
+  {
+    titulo: 'Titular de noticia pendiente de curaduría',
+    fecha: '2025-09-15',
+    slug: 'placeholder-3',
+    img: '/v/case-cerveza.png',
+    extracto: 'Texto de relleno.',
+  },
 ];
 
 /**
@@ -99,10 +130,12 @@ function fechaLarga(iso: string) {
   description="BBDO México es una de las agencias de publicidad más premiadas del país y forma parte de BBDO Worldwide, red creativa de Omnicom Group."
 >
   <main id="content">
-    {/* En ingles y partida en las dos esquinas, igual que el global: "Do Big
+    {
+      /* En ingles y partida en las dos esquinas, igual que el global: "Do Big
         Things" es campaña global y el banner la deja en su idioma. El video
         que queda en medio es la palabra que falta, "BIG".
-        La localizacion al español vive en el titular de abajo, no aqui. */}
+        La localizacion al español vive en el titular de abajo, no aqui. */
+    }
     <VideoBanner
       izquierda="Do"
       derecha="Things"
@@ -111,53 +144,68 @@ function fechaLarga(iso: string) {
       logo="/v/logo-bbdo.png"
     />
 
-    {/* Envoltorio del contenido. El banner va en sticky, y sticky es un
+    {
+      /* Envoltorio del contenido. El banner va en sticky, y sticky es un
         elemento posicionado: pinta por encima de todo lo que no lo esta.
         Sin este contenedor, work / premios / news (que son static y sin
         fondo) quedaban DEBAJO del banner y no se veian al hacer scroll.
-        El global hace lo mismo con section.main-content-container. */}
+        El global hace lo mismo con section.main-content-container. */
+    }
     <div class="contenido">
-
       <section class="claim">
+        {
+          /* El '|' fuerza el salto: así "Do Big Things" queda en una sola línea
+            en vez de partirse por donde caiga el ancho. */
+        }
         <VideoHeadline
-          words={['Somos', 'BBDO', 'México', 'Do', 'Big', 'Things']}
+          words={['Somos', 'BBDO', 'México', '|', 'Do', 'Big', 'Things']}
           accentIndex={-1}
           clips={clips}
-          as="h1"
+          etiqueta="h1"
         />
-        <p class="claim__texto">
-          Resolvemos problemas grandes con estrategia e ideas que dejan huella.
-          Trabajamos con las marcas más ambiciosas de México. Contratamos talento
-          grande y le damos oportunidades grandes.
+        <p class="claim__texto" data-fx="subir">
+          Resolvemos problemas grandes con estrategia e ideas que dejan huella. Trabajamos con las
+          marcas más ambiciosas de México. Contratamos talento grande y le damos oportunidades
+          grandes.
         </p>
-        <a class="claim__cta" href="/contact/">¿Quieres hacer cosas grandes?</a>
+        <a class="claim__cta" data-fx="subir" data-fx-delay="0.15" href="/contact/"
+          >¿Quieres hacer cosas grandes?</a
+        >
       </section>
 
       <section class="work" aria-labelledby="work-title">
         <header class="section-head">
-          <h2 id="work-title">Work</h2>
-          <a class="section-link" href="/work/">Ver todo el trabajo</a>
+          <h2 id="work-title" data-fx="subir">The Work</h2>
+          <a class="section-link" href="/the-work/">Ver todo The Work</a>
         </header>
 
-        <ul class="grid">
-          {casos.map((c) => (
-            <li class:list={['card', c.destacado && 'card--wide']}>
-              <a href={`/work/${c.slug}/`}>
-                <img src={c.img} alt="" width="800" height="450" loading="lazy" decoding="async" />
-                <h3 class="card__brand">{c.marca}</h3>
-                <p class="card__campaign">{c.campana}</p>
-              </a>
-            </li>
-          ))}
+        <ul class="grid" data-fx-stagger>
+          {
+            casos.map((c, i) => (
+              <li class:list={['card', i === 0 && 'card--wide']}>
+                <a href={`/the-work/${c.id}/`}>
+                  <Image
+                    src={c.data.imagen}
+                    alt={c.data.imagenAlt}
+                    widths={[400, 800, 1200]}
+                    sizes="(max-width: 40rem) 100vw, (max-width: 60rem) 50vw, 33vw"
+                    loading="lazy"
+                  />
+                  <h3 class="card__brand">{c.data.marca}</h3>
+                  <p class="card__campaign">{c.data.campana}</p>
+                </a>
+              </li>
+            ))
+          }
         </ul>
       </section>
 
       <section class="clientes" aria-labelledby="clientes-title">
         <div class="clientes__inner">
           <header class="section-head section-head--dark">
-            <h2 id="clientes-title">Nuestros clientes</h2>
+            <h2 id="clientes-title" data-fx="subir">Nuestros clientes</h2>
           </header>
-          <ul class="roster">
+          <ul class="roster" data-fx-stagger>
             {clientes.map((c) => <li>{c}</li>)}
           </ul>
         </div>
@@ -165,41 +213,54 @@ function fechaLarga(iso: string) {
 
       <section class="premios" aria-labelledby="premios-title">
         <header class="section-head">
-          <h2 id="premios-title">Premios</h2>
+          <h2 id="premios-title" data-fx="subir">Premios</h2>
         </header>
-        <ul class="premios__lista">
-          {premios.map((p) => (
-            <li>
-              <span class="premios__cifra">{p.cifra}</span>
-              <span class="premios__nombre">{p.nombre}</span>
-              <span class="premios__nota">{p.nota}</span>
-            </li>
-          ))}
+        <ul class="premios__lista" data-fx-stagger>
+          {
+            premios.map((p) => (
+              <li>
+                <span class="premios__cifra">{p.cifra}</span>
+                <span class="premios__nombre">{p.nombre}</span>
+                <span class="premios__nota">{p.nota}</span>
+              </li>
+            ))
+          }
         </ul>
       </section>
 
       <section class="news" aria-labelledby="news-title">
         <header class="section-head">
-          <h2 id="news-title">Do Big Things</h2>
+          <h2 id="news-title" data-fx="subir">Do Big Things</h2>
           <a class="section-link" href="/news/">Ver todas las noticias</a>
         </header>
 
-        <ul class="news-list">
-          {noticias.map((n) => (
-            <li>
-              <a href={`/news/${n.slug}/`}>
-                <img src={n.img} alt="" width="800" height="450" loading="lazy" decoding="async" />
-                <div class="news-list__cuerpo">
-                  <time datetime={n.fecha}>{fechaLarga(n.fecha)}</time>
-                  <h3>{n.titulo}</h3>
-                  <p>{n.extracto}</p>
-                </div>
-              </a>
-            </li>
-          ))}
+        <ul class="news-list" data-fx-stagger>
+          {
+            noticias.map((n) => (
+              <li>
+                <a href={`/news/${n.slug}/`}>
+                  <img
+                    src={n.img}
+                    alt=""
+                    width="800"
+                    height="450"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <div class="news-list__cuerpo">
+                    <time datetime={n.fecha}>{fechaLarga(n.fecha)}</time>
+                    <h3>{n.titulo}</h3>
+                    <p>{n.extracto}</p>
+                  </div>
+                </a>
+              </li>
+            ))
+          }
         </ul>
       </section>
     </div>
+
+    <ScrollFX />
   </main>
 </Base>
 
@@ -262,7 +323,9 @@ function fechaLarga(iso: string) {
     padding-bottom: var(--space-s);
     margin-bottom: var(--space-xl);
   }
-  .section-head--dark { border-bottom-color: rgba(250, 250, 250, 0.18); }
+  .section-head--dark {
+    border-bottom-color: rgba(250, 250, 250, 0.18);
+  }
 
   .section-head h2 {
     font-family: var(--font-display);
@@ -279,7 +342,9 @@ function fechaLarga(iso: string) {
     border-bottom: 1px solid currentColor;
     padding-bottom: 2px;
   }
-  .section-link:hover { color: var(--color-red); }
+  .section-link:hover {
+    color: var(--color-red);
+  }
 
   /* --- Work: rejilla asimetrica ----------------------------------------- */
   .grid {
@@ -291,9 +356,14 @@ function fechaLarga(iso: string) {
     gap: var(--space-l) var(--space-m);
   }
   /* El primer caso ocupa dos columnas: rompe la cuadricula plana. */
-  .card--wide { grid-column: span 2; }
+  .card--wide {
+    grid-column: span 2;
+  }
 
-  .card a { text-decoration: none; display: block; }
+  .card a {
+    text-decoration: none;
+    display: block;
+  }
   .card img {
     width: 100%;
     height: auto;
@@ -302,16 +372,24 @@ function fechaLarga(iso: string) {
     border-radius: 4px;
     background: var(--color-dark);
   }
-  .card--wide img { aspect-ratio: 21 / 9; }
+  .card--wide img {
+    aspect-ratio: 21 / 9;
+  }
   .card__brand {
     font-family: var(--font-display);
-    font-weight: 400;              /* el global usa 400 aqui, no 600 */
+    font-weight: 400; /* el global usa 400 aqui, no 600 */
     font-size: var(--size-case-brand);
     line-height: 1.1;
     margin: var(--space-s) 0 var(--space-2xs);
   }
-  .card__campaign { margin: 0; color: var(--color-dim); font-size: 0.95rem; }
-  .card a:hover .card__brand { color: var(--color-red); }
+  .card__campaign {
+    margin: 0;
+    color: var(--color-dim);
+    font-size: 0.95rem;
+  }
+  .card a:hover .card__brand {
+    color: var(--color-red);
+  }
 
   /* --- Clientes: banda oscura ------------------------------------------- */
   .clientes {
@@ -354,7 +432,11 @@ function fechaLarga(iso: string) {
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
     gap: var(--space-l) var(--space-m);
   }
-  .premios__lista li { display: flex; flex-direction: column; gap: 2px; }
+  .premios__lista li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
   .premios__cifra {
     font-family: var(--font-display);
     font-weight: var(--weight-display);
@@ -363,8 +445,13 @@ function fechaLarga(iso: string) {
     line-height: 1;
     color: var(--color-red);
   }
-  .premios__nombre { font-size: 1.05rem; }
-  .premios__nota { font-size: 0.8rem; color: var(--color-dim); }
+  .premios__nombre {
+    font-size: 1.05rem;
+  }
+  .premios__nota {
+    font-size: 0.8rem;
+    color: var(--color-dim);
+  }
 
   /* --- Noticias ---------------------------------------------------------- */
   .news-list {
@@ -375,7 +462,10 @@ function fechaLarga(iso: string) {
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
     gap: var(--space-l) var(--space-m);
   }
-  .news-list a { text-decoration: none; display: block; }
+  .news-list a {
+    text-decoration: none;
+    display: block;
+  }
   .news-list img {
     width: 100%;
     height: auto;
@@ -384,8 +474,13 @@ function fechaLarga(iso: string) {
     border-radius: 4px;
     background: var(--color-dark);
   }
-  .news-list__cuerpo { padding-top: var(--space-s); }
-  .news-list time { color: var(--color-dim); font-size: 0.85rem; }
+  .news-list__cuerpo {
+    padding-top: var(--space-s);
+  }
+  .news-list time {
+    color: var(--color-dim);
+    font-size: 0.85rem;
+  }
   .news-list h3 {
     margin: var(--space-2xs) 0 var(--space-xs);
     font-family: var(--font-display);
@@ -393,8 +488,15 @@ function fechaLarga(iso: string) {
     font-size: clamp(1.1rem, 1.8vw, 1.45rem);
     line-height: 1.2;
   }
-  .news-list p { margin: 0; color: var(--color-dim); font-size: 0.92rem; line-height: 1.5; }
-  .news-list a:hover h3 { color: var(--color-red); }
+  .news-list p {
+    margin: 0;
+    color: var(--color-dim);
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+  .news-list a:hover h3 {
+    color: var(--color-red);
+  }
 
   /* Pantallas bajas (movil apaisado): 96px de padding arriba y abajo se comen
      la mitad de un viewport de 390px de alto. */
@@ -406,17 +508,31 @@ function fechaLarga(iso: string) {
     }
     .work,
     .premios,
-    .news { padding-block: var(--space-xl); }
-    .clientes__inner { padding-block: var(--space-xl); }
+    .news {
+      padding-block: var(--space-xl);
+    }
+    .clientes__inner {
+      padding-block: var(--space-xl);
+    }
   }
 
   @media (max-width: 60rem) {
-    .grid { grid-template-columns: repeat(2, 1fr); }
-    .card--wide { grid-column: span 2; }
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .card--wide {
+      grid-column: span 2;
+    }
   }
   @media (max-width: 40rem) {
-    .grid { grid-template-columns: 1fr; }
-    .card--wide { grid-column: span 1; }
-    .card--wide img { aspect-ratio: 16 / 9; }
+    .grid {
+      grid-template-columns: 1fr;
+    }
+    .card--wide {
+      grid-column: span 1;
+    }
+    .card--wide img {
+      aspect-ratio: 16 / 9;
+    }
   }
 </style>

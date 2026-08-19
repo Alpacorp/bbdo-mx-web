@@ -16,8 +16,8 @@
   --color-red: #ff0000;
   --color-accent: var(--color-red);
 
-  --color-paper: #fafafa;   /* fondo general del sitio: claro */
-  --color-ink: #404040;     /* texto sobre claro */
+  --color-paper: #fafafa; /* fondo general del sitio: claro */
+  --color-ink: #404040; /* texto sobre claro */
   --color-dark: #161616;
   --color-dark-alt: #212121;
   --color-on-dark: #fafafa; /* texto sobre rojo u oscuro */
@@ -39,7 +39,7 @@
      negativo y sin text-transform: las mayusculas vienen del texto fuente. */
   --lh-display: 1.02;
   --size-display: clamp(2.6rem, 9.2vw, 8.6rem);
-  --size-case-brand: clamp(1.5rem, 2.4vw, 2rem);   /* 32px en el global */
+  --size-case-brand: clamp(1.5rem, 2.4vw, 2rem); /* 32px en el global */
 
   /* --- Espaciado -------------------------------------------------------- */
   --space-2xs: 0.25rem;

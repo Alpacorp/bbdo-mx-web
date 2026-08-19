@@ -1,0 +1,177 @@
+---
+/**
+ * ScrollFX.astro — la capa de movimiento por scroll.
+ *
+ * No pinta nada. Se monta una vez por página y anima todo lo que lleve un
+ * atributo `data-fx`, así el marcado queda declarativo y no hay un script por
+ * vista.
+ *
+ * POR QUÉ NO USA GSAP
+ *   La versión anterior usaba GSAP + ScrollTrigger: 43,5 KB comprimidos para
+ *   unos revelados. Esto hace lo mismo con IntersectionObserver (~1 KB) y
+ *   transiciones CSS, y el parallax con `animation-timeline: view()`, que es
+ *   scroll nativo sin una sola línea de JS. GSAP se queda solo donde aporta
+ *   algo que CSS no da: el titular del home.
+ *
+ * VOCABULARIO
+ *   data-fx="subir"      entra desde abajo con fundido
+ *   data-fx="izq"|"der"  entra desde un lado (el gesto del global)
+ *   data-fx="escala"     entra soltando un zoom: sensación de material
+ *   data-fx="lineas"     revela sus hijos por líneas, tras una máscara
+ *   data-fx="parallax"   se desplaza más lento que el scroll
+ *   data-fx-stagger      escalona los hijos directos
+ *   data-fx-delay="200"  retraso en milisegundos
+ *
+ * REGLAS QUE NO SE NEGOCIAN
+ *   1. El estado por defecto es VISIBLE. Lo oculto cuelga de html.js, así que
+ *      si el bundle no llega a ejecutarse no queda nada invisible.
+ *   2. prefers-reduced-motion desactiva todo.
+ *   3. El parallax se apaga en pantallas estrechas: en móvil marea.
+ */
+---
+
+<style is:global>
+  /* --- Estados iniciales, SOLO con JS disponible ------------------------- */
+  html.js [data-fx]:not([data-fx='parallax']),
+  html.js [data-fx-stagger] > * {
+    opacity: 0;
+    transition:
+      opacity 0.9s var(--ease),
+      transform 0.9s var(--ease);
+    transition-delay: var(--fx-delay, 0ms);
+  }
+
+  html.js [data-fx='subir'] {
+    transform: translateY(2.5rem);
+  }
+  html.js [data-fx='izq'] {
+    transform: translateX(-3rem);
+  }
+  html.js [data-fx='der'] {
+    transform: translateX(3rem);
+  }
+  html.js [data-fx='escala'] {
+    transform: scale(1.06);
+  }
+  html.js [data-fx-stagger] > * {
+    transform: translateY(1.5rem);
+  }
+
+  /* Revelado por líneas: cada hijo sube tras su propia máscara. */
+  [data-fx='lineas'] > * {
+    display: block;
+    /* clip-path y no overflow:hidden: overflow cambia la línea base de los
+       inline-block y recorta la tinta que sobresale de la caja de línea. */
+    clip-path: inset(-0.35em 0 -0.2em 0);
+  }
+  html.js [data-fx='lineas'] > * {
+    opacity: 0;
+    transform: translateY(105%);
+    transition:
+      opacity 1s var(--ease),
+      transform 1s var(--ease);
+    transition-delay: calc(var(--i, 0) * 90ms);
+  }
+
+  /* --- Revelado -------------------------------------------------------- */
+  html.js [data-fx].fx-visible,
+  html.js [data-fx-stagger].fx-visible > *,
+  html.js [data-fx='lineas'].fx-visible > * {
+    opacity: 1;
+    transform: none;
+  }
+  html.js [data-fx-stagger].fx-visible > * {
+    transition-delay: calc(var(--i, 0) * 80ms);
+  }
+
+  /* --- Parallax: scroll nativo, cero JS --------------------------------- */
+  @media (min-width: 48rem) {
+    @supports (animation-timeline: view()) {
+      [data-fx='parallax'] {
+        animation: fxParallax linear both;
+        animation-timeline: view();
+        animation-range: entry 0% exit 100%;
+      }
+      @keyframes fxParallax {
+        from {
+          transform: translateY(-8%);
+        }
+        to {
+          transform: translateY(8%);
+        }
+      }
+    }
+  }
+
+  /* --- Sin animación: todo visible -------------------------------------- */
+  /* Tres vías al mismo sitio: reduced-motion, el failsafe, y el estado normal
+     una vez revelado. */
+  @media (prefers-reduced-motion: reduce) {
+    html.js [data-fx],
+    html.js [data-fx-stagger] > *,
+    html.js [data-fx='lineas'] > * {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+
+  html.fx-fallback [data-fx],
+  html.fx-fallback [data-fx-stagger] > *,
+  html.fx-fallback [data-fx='lineas'] > * {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+</style>
+
+<script is:inline>
+  /**
+   * Failsafe, y va inline a propósito: si el bundle no llega a ejecutarse
+   * -error de red, CSP, un throw en otro módulo- los estados iniciales se
+   * quedan puestos y el contenido no aparece nunca. Un script dentro del
+   * propio módulo no serviría: no correría tampoco.
+   */
+  setTimeout(function () {
+    const h = document.documentElement;
+    if (!h.classList.contains('fx-listo')) h.classList.add('fx-fallback');
+  }, 3000);
+</script>
+
+<script>
+  document.documentElement.classList.add('fx-listo'); // desarma el failsafe inline
+
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!reduce) {
+    // Índice de cada hijo, para escalonar desde CSS sin un timer por elemento.
+    document
+      .querySelectorAll<HTMLElement>('[data-fx-stagger], [data-fx="lineas"]')
+      .forEach((cont) => {
+        [...cont.children].forEach((hijo, i) => {
+          (hijo as HTMLElement).style.setProperty('--i', String(i));
+        });
+      });
+
+    document.querySelectorAll<HTMLElement>('[data-fx-delay]').forEach((el) => {
+      el.style.setProperty('--fx-delay', `${el.dataset.fxDelay}ms`);
+    });
+
+    const vistos = new IntersectionObserver(
+      (entradas) => {
+        entradas.forEach((e) => {
+          if (!e.isIntersecting) return;
+          e.target.classList.add('fx-visible');
+          vistos.unobserve(e.target); // una vez visto, no vuelve a esconderse
+        });
+      },
+      // Se dispara un poco antes de que el elemento llegue al borde inferior:
+      // así el movimiento acompaña al scroll en vez de ir a rebufo.
+      { rootMargin: '0px 0px -12% 0px', threshold: 0 }
+    );
+
+    document
+      .querySelectorAll('[data-fx]:not([data-fx="parallax"]), [data-fx-stagger]')
+      .forEach((el) => vistos.observe(el));
+  }
+</script>

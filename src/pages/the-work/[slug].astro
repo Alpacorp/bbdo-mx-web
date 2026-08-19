@@ -1,0 +1,497 @@
+---
+import { getCollection, render } from 'astro:content';
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import ScrollFX from '../../components/ScrollFX.astro';
+import VideoBanner from '../../components/VideoBanner.astro';
+import BloqueCaso from '../../components/BloqueCaso.astro';
+import { estiloDeTema } from '../../temas';
+
+/**
+ * /the-work/[slug] — el caso individual. Es EL activo SEO del proyecto.
+ *
+ * Estructura tomada del caso del global (bbdo.com/work/whiskas/):
+ *   h1 = nombre de la campaña   (el sitio actual pone <h1>Portfolio</h1> en
+ *                                los 19 casos, que es el defecto a corregir)
+ *   marca encima, como antetítulo
+ *   h2 = el resultado en cifras
+ *   cuerpo + "More work" al final
+ */
+export async function getStaticPaths() {
+  const casos = await getCollection('work', ({ data }) => !data.borrador);
+  const ordenados = casos.sort((a, b) => a.data.orden - b.data.orden);
+
+  return ordenados.map((caso, i) => ({
+    params: { slug: caso.id },
+    props: {
+      caso,
+      // los tres siguientes, en bucle: nunca quedan menos de tres
+      relacionados: [1, 2, 3].map((n) => ordenados[(i + n) % ordenados.length]),
+    },
+  }));
+}
+
+const { caso, relacionados } = Astro.props;
+const { data } = caso;
+const { Content } = await render(caso);
+
+/**
+ * Tema del caso. Las custom properties se inyectan en el propio <main>, así
+ * que todo lo de dentro -bloques incluidos- las hereda sin tocar sus estilos.
+ * Las paletas y su validación de contraste viven en src/temas.ts.
+ */
+const estiloTema = estiloDeTema(data.tema);
+
+const SITE_URL = 'https://bbdomexico.com';
+const url = `${SITE_URL}/the-work/${caso.id}/`;
+
+/**
+ * JSON-LD por caso, la plantilla CreativeWork de jsonld-bbdo-mexico.html.
+ * Se omiten los campos sin dato real en vez de rellenarlos: un `datePublished`
+ * inventado es peor que ninguno.
+ */
+const jsonLd: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  '@id': `${url}#case`,
+  name: data.campana,
+  headline: data.campana,
+  url,
+  inLanguage: 'es-MX',
+  creator: { '@id': `${SITE_URL}/#organization` },
+  sponsor: { '@type': 'Organization', name: data.cliente },
+  about: { '@type': 'Brand', name: data.marca },
+  image: new URL(data.imagen.src, SITE_URL).href,
+};
+if (data.resumen) jsonLd.description = data.resumen;
+if (data.anio) jsonLd.datePublished = String(data.anio);
+if (data.premios.length) jsonLd.award = data.premios;
+---
+
+<Base
+  title={`${data.campana} — ${data.marca}`}
+  path={`/the-work/${caso.id}/`}
+  description={data.resumen || `${data.campana}, campaña de BBDO México para ${data.marca}.`}
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
+  </Fragment>
+
+  {
+    /* El global usa en sus casos el MISMO banner enmascarado del home. Reusamos
+      el componente, pero con el key visual del propio caso de poster: cada
+      campaña entra con su imagen, no con una genérica.
+
+      El video sigue siendo el compartido. Los videos de campaña de MX viven en
+      Vimeo (el id está en `vimeo`), y un embed de Vimeo no sirve como fondo en
+      bucle: haría falta un mp4 mudo por campaña. */
+  }
+  <VideoBanner
+    izquierda="Do"
+    derecha="Things"
+    src="/v/banner-home.mp4"
+    poster={data.imagen.src}
+    logo="/v/logo-bbdo.png"
+  />
+
+  <main id="content" class="caso" style={estiloTema} data-tema={data.tema}>
+    <nav class="miga" aria-label="Ruta">
+      <a href="/the-work/">The Work</a>
+      <span aria-hidden="true">/</span>
+      <span>{data.marca}</span>
+    </nav>
+
+    <header class="caso__cabecera">
+      <p class="caso__marca" data-fx="subir">{data.marca}</p>
+      {
+        /* El titular se revela por líneas, cada una tras su máscara. Es el
+          mismo gesto del titular del home, en pequeño. */
+      }
+      <h1 class="caso__titulo" data-fx="lineas"><span>{data.campana}</span></h1>
+      {
+        data.resultado && (
+          <h2 class="caso__resultado" data-fx="subir" data-fx-delay="0.15">
+            {data.resultado}
+          </h2>
+        )
+      }
+      {
+        data.resumen && (
+          <p class="caso__resumen" data-fx="subir" data-fx-delay="0.25">
+            {data.resumen}
+          </p>
+        )
+      }
+    </header>
+
+    {/* El key visual, con parallax dentro de un marco que recorta el sobrante. */}
+    <figure class="caso__marco" data-fx="escala">
+      <Image
+        src={data.imagen}
+        alt={data.imagenAlt}
+        widths={[600, 1200, 1800]}
+        sizes="(max-width: 60rem) 100vw, 1200px"
+        loading="eager"
+        class="caso__visual"
+        data-fx="parallax"
+      />
+    </figure>
+
+    <section class="descripcion" aria-labelledby="desc-titulo">
+      <h2 id="desc-titulo" class="descripcion__titulo" data-fx="subir">La campaña</h2>
+
+      {
+        data.descripcion && (
+          <p class="descripcion__entrada" data-fx="subir" data-fx-delay="80">
+            {data.descripcion}
+          </p>
+        )
+      }
+
+      <div class="caso__cuerpo" data-fx="subir" data-fx-delay="140">
+        <Content />
+      </div>
+
+      {
+        data.creditos.length > 0 && (
+          <ul class="creditos" data-fx-stagger>
+            {data.creditos.map((c) => (
+              <li>
+                <span class="creditos__rol">{c.rol}</span>
+                <span class="creditos__nombre">{c.nombre}</span>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </section>
+
+    {
+      /* Bloques flexibles: tiras de imágenes, citas, cifras, texto y video.
+        Alternan el lado de entrada, como en el global. */
+    }
+    {
+      data.bloques.map((bloque, i) => (
+        <BloqueCaso bloque={bloque} lado={i % 2 === 0 ? 'izq' : 'der'} />
+      ))
+    }
+
+    <dl class="ficha" data-fx-stagger>
+      <div><dt>Cliente</dt><dd>{data.cliente}</dd></div>
+      <div><dt>Marca</dt><dd>{data.marca}</dd></div>
+      {
+        data.anio && (
+          <div>
+            <>
+              <dt>Año</dt>
+              <dd>{data.anio}</dd>
+            </>
+          </div>
+        )
+      }
+      {
+        data.industria && (
+          <div>
+            <>
+              <dt>Industria</dt>
+              <dd>{data.industria}</dd>
+            </>
+          </div>
+        )
+      }
+      {
+        data.capacidades.length > 0 && (
+          <div>
+            <>
+              <dt>Capacidades</dt>
+              <dd>{data.capacidades.join(', ')}</dd>
+            </>
+          </div>
+        )
+      }
+      {
+        data.premios.length > 0 && (
+          <div>
+            <>
+              <dt>Premios</dt>
+              <dd>{data.premios.join(' · ')}</dd>
+            </>
+          </div>
+        )
+      }
+    </dl>
+
+    <section class="mas" aria-labelledby="mas-titulo">
+      <h2 id="mas-titulo" data-fx="subir">Más The Work</h2>
+      <ul class="mas__lista">
+        {
+          relacionados.map((otro, i) => (
+            <li data-fx={i % 2 === 0 ? 'izq' : 'der'} data-fx-scrub>
+              <a href={`/the-work/${otro.id}/`}>
+                <Image
+                  src={otro.data.imagen}
+                  alt={otro.data.imagenAlt}
+                  widths={[400, 800]}
+                  sizes="(max-width: 40rem) 100vw, 33vw"
+                  loading="lazy"
+                />
+                <h3>{otro.data.marca}</h3>
+                <p>{otro.data.campana}</p>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <ScrollFX />
+  </main>
+</Base>
+
+<style>
+  .caso {
+    /* Por encima del banner sticky: es lo que hace que el contenido le pase
+       por encima en vez de dejarlo asomar. */
+    position: relative;
+    z-index: 1;
+    /* Reaplicar `color` aquí es imprescindible: body ya resolvió
+       `color: var(--color-fg)` a un valor concreto y los descendientes heredan
+       ESE valor, no la variable. Redefinir --color-fg en el tema no bastaba. */
+    color: var(--color-fg);
+    padding-inline: var(--gutter);
+    padding-block: var(--space-xl);
+    max-width: var(--max-width);
+    margin-inline: auto;
+  }
+
+  /* El fondo va en un pseudo a todo el ancho, no en .caso: .caso está limitado
+     por max-width y su fondo dejaba asomar el banner por los costados. */
+  .caso::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    background: var(--caso-fondo, var(--color-paper));
+    z-index: -1;
+  }
+
+  .miga {
+    display: flex;
+    gap: var(--space-xs);
+    font-size: 0.9rem;
+    color: var(--color-dim);
+    margin-bottom: var(--space-l);
+  }
+  .miga a {
+    text-decoration: none;
+    border-bottom: 1px solid currentColor;
+  }
+  .miga a:hover {
+    color: var(--color-accent);
+  }
+
+  .caso__cabecera {
+    margin-bottom: var(--space-l);
+  }
+  .caso__marca {
+    /* Se probó en sticky para anclar la marca durante la lectura y se
+       descartó: al despegarse se solapaba con el resultado y con el resumen.
+       Un antetítulo quieto se lee mejor que uno flotando encima del texto. */
+    margin: 0 0 var(--space-2xs);
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-dim);
+  }
+  .caso__titulo {
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    font-size: clamp(2.2rem, 7vw, 5rem);
+    line-height: var(--lh-display);
+    text-transform: uppercase;
+    margin: 0;
+    max-width: 20ch;
+  }
+  .caso__resultado {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.3rem, 3vw, 2.2rem);
+    line-height: 1.15;
+    color: var(--color-accent);
+    margin: var(--space-m) 0 0;
+    max-width: 24ch;
+  }
+  .caso__resumen {
+    margin: var(--space-m) 0 0;
+    max-width: 52ch;
+    font-size: clamp(1rem, 1.5vw, 1.2rem);
+    line-height: 1.5;
+  }
+
+  /* El marco recorta; la imagen de dentro es más alta que el marco para que
+     el parallax tenga recorrido sin descubrir el fondo. */
+  .caso__marco {
+    margin: 0 0 var(--space-l);
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--color-dark);
+    aspect-ratio: 16 / 9;
+  }
+  .caso__visual {
+    width: 100%;
+    height: 118%;
+    margin-top: -9%;
+    object-fit: cover;
+    display: block;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    /* Sin parallax no hace falta el sobrante, y así no se recorta el encuadre. */
+    .caso__visual {
+      height: 100%;
+      margin-top: 0;
+    }
+  }
+  @media (max-width: 48rem) {
+    /* El parallax se apaga en móvil, así que tampoco aquí hace falta sobrante. */
+    .caso__visual {
+      height: 100%;
+      margin-top: 0;
+    }
+  }
+
+  .caso__cuerpo {
+    max-width: var(--measure);
+    line-height: 1.6;
+  }
+  .caso__cuerpo :global(h2) {
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    text-transform: uppercase;
+    margin-top: var(--space-l);
+  }
+
+  /* --- Descripción de la campaña ---------------------------------------- */
+  .descripcion {
+    margin-top: var(--space-xl);
+  }
+  .descripcion__titulo {
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    text-transform: uppercase;
+    line-height: 1.1;
+    margin: 0 0 var(--space-m);
+    padding-bottom: var(--space-s);
+    border-bottom: 1px solid var(--color-line);
+  }
+  .descripcion__entrada {
+    max-width: var(--measure);
+    margin: 0 0 var(--space-m);
+    font-size: clamp(1.1rem, 1.8vw, 1.4rem);
+    line-height: 1.45;
+  }
+
+  .creditos {
+    list-style: none;
+    margin: var(--space-l) 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+    gap: var(--space-m);
+  }
+  .creditos li {
+    display: grid;
+    gap: 2px;
+  }
+  .creditos__rol {
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-dim);
+  }
+
+  .ficha {
+    margin: var(--space-xl) 0 0;
+    padding-top: var(--space-m);
+    border-top: 1px solid var(--color-line);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-m);
+  }
+  .ficha div {
+    display: grid;
+    gap: 2px;
+  }
+  .ficha dt {
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-dim);
+  }
+  .ficha dd {
+    margin: 0;
+  }
+
+  .mas {
+    margin-top: var(--space-2xl);
+  }
+  .mas h2 {
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    font-size: clamp(1.6rem, 4vw, 2.6rem);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--color-line);
+    padding-bottom: var(--space-s);
+    margin: 0 0 var(--space-l);
+  }
+  .mas__lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-l) var(--space-m);
+  }
+  .mas__lista a {
+    text-decoration: none;
+    display: block;
+  }
+  .mas__lista img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: 4px;
+    background: var(--color-dark);
+  }
+  .mas__lista h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.3rem;
+    margin: var(--space-s) 0 2px;
+  }
+  .mas__lista p {
+    margin: 0;
+    color: var(--color-dim);
+    font-size: 0.9rem;
+  }
+  .mas__lista a:hover h3 {
+    color: var(--color-accent);
+  }
+
+  @media (min-width: 40rem) {
+    .ficha {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .mas__lista {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  @media (max-height: 32rem) {
+    .caso {
+      padding-block: var(--space-l);
+    }
+  }
+</style>

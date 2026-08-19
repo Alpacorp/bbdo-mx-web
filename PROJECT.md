@@ -52,6 +52,7 @@ encima, y partes de la demo nunca se retiraron.
 - TypeScript strict.
 
 ### Por qué Astro (argumento de negocio, no de dev)
+
 - Zero-JS por defecto → carga instantánea vs. RevSlider + jQuery + plugins actuales.
 - El titular es **texto HTML real** → indexable, con la animación encima.
   (Hoy el H1 vive dentro del slider y no es texto.)
@@ -66,8 +67,8 @@ Alineada con la estructura del global (respaldo político):
 
 ```
 /                    Home — plataforma "Do Big Things" localizada a MX
-/work/               Índice filtrable (marca / industria / capacidad / año)
-/work/[slug]         Case study individual  <- EL activo SEO real
+/the-work/           Índice filtrable (marca / industria / capacidad / año)
+/the-work/[slug]     Case study individual  <- EL activo SEO real
 /about/              Quiénes somos + liderazgo + pertenencia a Omnicom
 /people/             (ex BBDOERS) cultura + talento
 /news/               Índice real de noticias/premios  <- hoy no existe
@@ -77,8 +78,13 @@ Alineada con la estructura del global (respaldo político):
 ```
 
 Decisiones a defender:
+
 - **Matar `/services/` y `/our-process/`** (el global no los tiene; una agencia vende con trabajo).
-- **Cada caso = una URL** (hoy todo "The Work" vive en una sola página -> cero páginas indexables por marca).
+- **Cada caso = una URL**. Matiz sobre el diagnóstico original: los 19 casos SÍ
+  tienen URL propia hoy, en `/portfolio/[slug]/`. Lo que falla es el contenido
+  (37 palabras y `<h1>Portfolio</h1>` en los 19). Ver `docs/auditoria-sitio-actual.md`.
+- **La sección se llama `/the-work/`**, confirmado por el cliente el 2026-08-19.
+  No `/work/` como decía este brief: es el nombre que usa BBDO México.
 - **Un idioma por defecto (es-MX)**, decisión explícita sobre versión EN.
 - **`/news/` como índice real.**
 

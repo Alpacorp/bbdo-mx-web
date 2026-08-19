@@ -1,0 +1,14 @@
+dist/
+.astro/
+node_modules/
+public/
+package-lock.json
+
+# El contenido son datos redactados a mano, no código: el formateo automático
+# reordenaría comentarios y saltos que están puestos a propósito.
+src/content/
+
+# Artefacto de la fase de propuesta. Su formato -líneas en blanco agrupando
+# campos, checklist en el comentario de cabecera- está puesto a mano y es parte
+# de cómo se lee.
+jsonld-bbdo-mexico.html

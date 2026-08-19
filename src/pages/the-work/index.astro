@@ -1,0 +1,150 @@
+---
+import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import ScrollFX from '../../components/ScrollFX.astro';
+
+/**
+ * /the-work/ — índice de casos.
+ *
+ * La URL es /the-work/ y no /work/ por confirmación del cliente: es el nombre
+ * que usa BBDO México, y coincide con el /portfolio-page/the-work/ actual.
+ * La colección y la carpeta de assets siguen llamándose `work` a propósito:
+ * son nombres internos y renombrarlos no aporta nada.
+ *
+ * Estructura del global: un h1 "Work" y una rejilla de tarjetas con marca
+ * (h2) y campaña (h3). Su indice NO tiene filtros, aunque la seccion 4 del
+ * brief los propone (marca / industria / capacidad / año).
+ *
+ * No los monto todavia, y no por pereza: hoy no hay datos detras. Los 19
+ * casos del sitio actual comparten categoria (Branding) y fecha (10 feb
+ * 2024, la de la carga masiva). Un filtro con un solo valor es ruido. En
+ * cuanto la curaduria rellene industria, capacidades y año, la coleccion ya
+ * tiene los campos y el filtro es trabajo de una tarde.
+ */
+const casos = (await getCollection('work', ({ data }) => !data.borrador)).sort(
+  (a, b) => a.data.orden - b.data.orden
+);
+---
+
+<Base
+  title="The Work"
+  path="/the-work/"
+  description="El trabajo de BBDO México: campañas para Pepsi, Uber, Bayer, Pedigree, EA Sports, Tostitos y más."
+>
+  <main id="content" class="pagina">
+    <header class="cabecera">
+      <h1 data-fx="lineas"><span>The Work</span></h1>
+      <p class="cabecera__nota" data-fx="subir" data-fx-delay="0.2">{casos.length} casos</p>
+    </header>
+
+    <ul class="rejilla" data-fx-stagger>
+      {
+        casos.map((caso, i) => (
+          <li class="tarjeta">
+            <a href={`/the-work/${caso.id}/`}>
+              <Image
+                src={caso.data.imagen}
+                alt={caso.data.imagenAlt}
+                widths={[400, 800, 1200]}
+                sizes="(max-width: 40rem) 100vw, (max-width: 60rem) 50vw, 33vw"
+                loading={i < 3 ? 'eager' : 'lazy'}
+                class="tarjeta__img"
+              />
+              <h2 class="tarjeta__marca">{caso.data.marca}</h2>
+              <p class="tarjeta__campana">{caso.data.campana}</p>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <ScrollFX />
+  </main>
+</Base>
+
+<style>
+  .pagina {
+    padding-inline: var(--gutter);
+    padding-block: var(--space-2xl);
+    max-width: var(--max-width);
+    margin-inline: auto;
+  }
+
+  .cabecera {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-m);
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--color-line);
+    padding-bottom: var(--space-s);
+    margin-bottom: var(--space-xl);
+  }
+  .cabecera h1 {
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    font-size: clamp(2.5rem, 8vw, 6rem);
+    line-height: var(--lh-display);
+    text-transform: uppercase;
+    margin: 0;
+  }
+  .cabecera__nota {
+    margin: 0;
+    color: var(--color-dim);
+    font-size: 0.95rem;
+  }
+
+  .rejilla {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-l) var(--space-m);
+  }
+
+  .tarjeta a {
+    text-decoration: none;
+    display: block;
+  }
+  .tarjeta__img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: 4px;
+    background: var(--color-dark);
+  }
+  .tarjeta__marca {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: var(--size-case-brand);
+    line-height: 1.1;
+    margin: var(--space-s) 0 var(--space-2xs);
+  }
+  .tarjeta__campana {
+    margin: 0;
+    color: var(--color-dim);
+    font-size: 0.95rem;
+  }
+  .tarjeta a:hover .tarjeta__marca {
+    color: var(--color-accent);
+  }
+
+  @media (min-width: 40rem) {
+    .rejilla {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 60rem) {
+    .rejilla {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  @media (max-height: 32rem) {
+    .pagina {
+      padding-block: var(--space-xl);
+    }
+  }
+</style>
