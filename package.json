@@ -9,11 +9,30 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "check": "astro check",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "verify": "astro check && eslint . && prettier --check ."
   },
   "dependencies": {
     "astro": "^7.2.3",
     "gsap": "^3.15.0"
   },
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@eslint/config-helpers": "^0.7.0",
+    "@eslint/js": "^10.0.1",
+    "astro-eslint-parser": "^3.1.0",
+    "eslint": "^10.8.1",
+    "eslint-plugin-astro": "^3.1.0",
+    "prettier": "^3.9.6",
+    "prettier-plugin-astro": "^0.14.1",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.67.0",
+    "zod": "^4.4.3"
+  }
 }

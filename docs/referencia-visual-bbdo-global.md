@@ -11,13 +11,13 @@ que juzgar tú a ojo.
 
 ## Tipografía
 
-| | Global (bbdo.com) | Nuestro scaffold hoy |
-|---|---|---|
-| Display | **Outfit**, weight 600 | Anton, weight 400 |
-| Texto | Inter / InterVariable | Inter |
-| Titular | 137px, line-height 140px (~1.02) | 139px, line-height 0.88 |
-| letter-spacing | `normal` | `-0.015em` |
-| text-transform | `none` (las mayúsculas vienen del texto) | `uppercase` |
+|                | Global (bbdo.com)                        | Nuestro scaffold hoy    |
+| -------------- | ---------------------------------------- | ----------------------- |
+| Display        | **Outfit**, weight 600                   | Anton, weight 400       |
+| Texto          | Inter / InterVariable                    | Inter                   |
+| Titular        | 137px, line-height 140px (~1.02)         | 139px, line-height 0.88 |
+| letter-spacing | `normal`                                 | `-0.015em`              |
+| text-transform | `none` (las mayúsculas vienen del texto) | `uppercase`             |
 
 **Outfit es el cambio más grande.** El prototipo eligió Anton como parecido,
 pero el global usa Outfit 600, que es bastante menos condensada. Outfit está
@@ -31,13 +31,13 @@ Con 1.02 el problema desaparece solo.
 
 ## Color
 
-| Rol | Valor |
-|---|---|
-| Rojo de marca | `rgb(255, 0, 0)` — rojo puro |
-| Fondo claro | `#FAFAFA` |
-| Texto sobre claro | `rgb(64, 64, 64)` |
-| Oscuros | `#161616`, `#212121` |
-| Texto sobre rojo/oscuro | `#FAFAFA` |
+| Rol                     | Valor                        |
+| ----------------------- | ---------------------------- |
+| Rojo de marca           | `rgb(255, 0, 0)` — rojo puro |
+| Fondo claro             | `#FAFAFA`                    |
+| Texto sobre claro       | `rgb(64, 64, 64)`            |
+| Oscuros                 | `#161616`, `#212121`         |
+| Texto sobre rojo/oscuro | `#FAFAFA`                    |
 
 Nuestro `tokens.css` usa `#E4002B`, heredado del prototipo. **No coincide.**
 Antes de cambiarlo hay que confirmar con el director creativo cuál es el rojo
@@ -57,7 +57,7 @@ intercalados en el texto:
   WE ARE
   <span class="contact-video open-modal" data-video="...chase-cars-preview-home_Opt.mp4">
     <video autoplay loop muted playsinline>
-      <source src="...chase-cars-preview-home_Opt.mp4" type="video/mp4">
+      <source src="...chase-cars-preview-home_Opt.mp4" type="video/mp4" />
     </video>
   </span>
   <span class="contact-video large-wide open-modal" data-video="...">...</span>
@@ -67,11 +67,11 @@ intercalados en el texto:
 
 Medidas de los slots, con el titular a 137px:
 
-| Slot | Medida | En `em` |
-|---|---|---|
-| normal | 233 × 111 px | 1.70 × 0.81 em |
+| Slot         | Medida       | En `em`        |
+| ------------ | ------------ | -------------- |
+| normal       | 233 × 111 px | 1.70 × 0.81 em |
 | `large-wide` | 370 × 111 px | 2.70 × 0.81 em |
-| tercero | 288 × 111 px | 2.10 × 0.81 em |
+| tercero      | 288 × 111 px | 2.10 × 0.81 em |
 
 - `border-radius: 16px` → **0.117em** (nosotros: 0.08em)
 - `vertical-align: baseline` (nosotros: `bottom`)

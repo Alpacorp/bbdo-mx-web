@@ -19,7 +19,7 @@
  */
 
 interface Clip {
-  after: number;      // indice de la palabra tras la cual se inserta el clip
+  after: number; // indice de la palabra tras la cual se inserta el clip
   src: string;
   poster: string;
   label?: string;
@@ -27,45 +27,77 @@ interface Clip {
   size?: 'sm' | 'md' | 'lg';
 }
 
+/** Un elemento ya colocado en el orden de render. */
+type Elemento =
+  | { type: 'salto' }
+  | { type: 'word'; word: string; accent: boolean; i: number }
+  | ({ type: 'clip' } & Clip);
+
+/**
+ * OJO con el nombre de las props: esta interfaz declaraba `as?: 'h1' | 'h2'` y
+ * eso rompía la inferencia de Astro. Con una prop llamada `as` -palabra
+ * reservada de TypeScript- `Astro.props` pasa a ser `Record<string, any>` y
+ * TODO el componente se queda sin tipos, en silencio. Lo destapó `astro check`;
+ * el build compila igual. Por eso la prop se llama `etiqueta`.
+ */
 interface Props {
+  /**
+   * Palabras del titular. El valor '|' fuerza un salto de línea, para poder
+   * decidir dónde parte la frase en vez de dejarlo al ancho disponible:
+   * ['Somos','BBDO','México','|','Do','Big','Things'] mantiene "Do Big Things"
+   * junto en una línea. En pantallas estrechas el texto sigue partiendo por
+   * donde haga falta; el salto solo añade uno, no impide los demás.
+   */
   words: string[];
   clips?: Clip[];
-  accentIndex?: number;  // palabra en color de marca
-  as?: 'h1' | 'h2';
+  accentIndex?: number; // palabra en color de marca
+  etiqueta?: 'h1' | 'h2';
 }
 
-const { words, clips = [], accentIndex = -1, as: Tag = 'h1' } = Astro.props;
+const { words, clips = [], accentIndex = -1, etiqueta: Tag = 'h1' } = Astro.props;
 
-const sequence = words.flatMap((word, i) => [
-  { type: 'word' as const, word, accent: i === accentIndex, i },
-  ...clips.filter((c) => c.after === i).map((c) => ({ type: 'clip' as const, ...c })),
-]);
+// Los saltos no cuentan como palabra: si contaran, correrían los índices de
+// `after` de los clips y `accentIndex`, y habría que recalcularlos a mano.
+let indicePalabra = -1;
+const sequence: Elemento[] = words.flatMap((word): Elemento[] => {
+  if (word === '|') return [{ type: 'salto' }];
+  indicePalabra += 1;
+  const i = indicePalabra;
+  return [
+    { type: 'word', word, accent: i === accentIndex, i },
+    ...clips.filter((c) => c.after === i).map((c): Elemento => ({ type: 'clip', ...c })),
+  ];
+});
 ---
 
 <Tag class="vh" data-video-headline>
-  {sequence.map((item) =>
-    item.type === 'word' ? (
-      <span class:list={['vh__w', item.accent && 'vh__w--accent']}>
-        <i>{item.word}</i>
-      </span>
-    ) : (
-      <span
-        class:list={['vh__slot', `vh__slot--${item.size ?? 'md'}`]}
-        aria-hidden="true"
-        data-label={item.label}
-      >
-        <video
-          src={item.src}
-          poster={item.poster}
-          muted
-          loop
-          playsinline
-          preload="none"
+  {
+    sequence.map((item) =>
+      item.type === 'salto' ? (
+        <br />
+      ) : item.type === 'word' ? (
+        <span class:list={['vh__w', item.accent && 'vh__w--accent']}>
+          <i>{item.word}</i>
+        </span>
+      ) : (
+        <span
+          class:list={['vh__slot', `vh__slot--${item.size ?? 'md'}`]}
           aria-hidden="true"
-        />
-      </span>
+          data-label={item.label}
+        >
+          <video
+            src={item.src}
+            poster={item.poster}
+            muted
+            loop
+            playsinline
+            preload="none"
+            aria-hidden="true"
+          />
+        </span>
+      )
     )
-  )}
+  }
 </Tag>
 
 <script is:inline>
@@ -81,18 +113,21 @@ const sequence = words.flatMap((word, i) => [
    */
   (function () {
     function revelar() {
-      document.querySelectorAll("[data-video-headline]").forEach(function (el) {
-        if (!el.hasAttribute("data-vh-ready")) el.setAttribute("data-vh-fallback", "");
+      document.querySelectorAll('[data-video-headline]').forEach(function (el) {
+        if (!el.hasAttribute('data-vh-ready')) el.setAttribute('data-vh-fallback', '');
       });
     }
-    function armar() { setTimeout(revelar, 2500); }
-    if (document.visibilityState === "visible") armar();
-    else document.addEventListener("visibilitychange", function h() {
-      if (document.visibilityState === "visible") {
-        document.removeEventListener("visibilitychange", h);
-        armar();
-      }
-    });
+    function armar() {
+      setTimeout(revelar, 2500);
+    }
+    if (document.visibilityState === 'visible') armar();
+    else
+      document.addEventListener('visibilitychange', function h() {
+        if (document.visibilityState === 'visible') {
+          document.removeEventListener('visibilitychange', h);
+          armar();
+        }
+      });
   })();
 </script>
 
@@ -143,7 +178,9 @@ const sequence = words.flatMap((word, i) => [
        cambia el inset inferior o el line-height, recalcular este valor. */
     transform: translateY(125%);
   }
-  .vh__w--accent > i { color: var(--color-accent); }
+  .vh__w--accent > i {
+    color: var(--color-accent);
+  }
 
   .vh__slot {
     display: inline-block;
@@ -163,7 +200,9 @@ const sequence = words.flatMap((word, i) => [
     transform: none;
     transform-origin: left center;
   }
-  :global(html.js) .vh__slot { transform: scaleX(0); }
+  :global(html.js) .vh__slot {
+    transform: scaleX(0);
+  }
 
   /* Failsafe: mismo resultado que reduced-motion, sin animacion. Van despues
      de las reglas de html.js a proposito: empatan en especificidad y gana el
@@ -171,13 +210,23 @@ const sequence = words.flatMap((word, i) => [
   /* Lleva html.js delante a proposito. Sin el, `[data-vh-fallback] .vh__w > i`
      empata en clases con `html.js .vh__w > i` pero tiene un elemento menos, y
      pierde. Con html.js delante gana por especificidad y por orden. */
-  :global(html.js) :global([data-vh-fallback]) .vh__w > i { transform: none; }
-  :global(html.js) :global([data-vh-fallback]) .vh__slot { transform: scaleX(1); }
+  :global(html.js) :global([data-vh-fallback]) .vh__w > i {
+    transform: none;
+  }
+  :global(html.js) :global([data-vh-fallback]) .vh__slot {
+    transform: scaleX(1);
+  }
 
   /* Los tres anchos del global. */
-  .vh__slot--sm { width: 1.7em; }
-  .vh__slot--md { width: 2.1em; }
-  .vh__slot--lg { width: 2.7em; }
+  .vh__slot--sm {
+    width: 1.7em;
+  }
+  .vh__slot--md {
+    width: 2.1em;
+  }
+  .vh__slot--lg {
+    width: 2.7em;
+  }
 
   .vh__slot video {
     position: absolute;
@@ -205,9 +254,15 @@ const sequence = words.flatMap((word, i) => [
   @media (prefers-reduced-motion: reduce) {
     /* Prefijadas con html.js a proposito: sin JS el estado por defecto ya es
        visible, y sin el prefijo estas reglas perderian por especificidad. */
-    :global(html.js) .vh__w > i { transform: none; }
-    :global(html.js) .vh__slot { transform: scaleX(1); }
-    .vh__slot video { display: none; }   /* poster estatico */
+    :global(html.js) .vh__w > i {
+      transform: none;
+    }
+    :global(html.js) .vh__slot {
+      transform: scaleX(1);
+    }
+    .vh__slot video {
+      display: none;
+    } /* poster estatico */
   }
 </style>
 
@@ -215,7 +270,7 @@ const sequence = words.flatMap((word, i) => [
   import { gsap } from 'gsap';
 
   document.querySelectorAll<HTMLElement>('[data-video-headline]').forEach((el) => {
-    el.setAttribute('data-vh-ready', '');   // desarma el failsafe inline
+    el.setAttribute('data-vh-ready', ''); // desarma el failsafe inline
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     if (reduce) {
@@ -252,7 +307,8 @@ const sequence = words.flatMap((word, i) => [
       (entries) => {
         entries.forEach((e) => {
           const v = e.target as HTMLVideoElement;
-          e.isIntersecting ? v.play().catch(() => {}) : v.pause();
+          if (e.isIntersecting) v.play().catch(() => {});
+          else v.pause();
         });
       },
       { threshold: 0.1 }

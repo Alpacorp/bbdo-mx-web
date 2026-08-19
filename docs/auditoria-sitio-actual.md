@@ -10,22 +10,22 @@ Las 14 URLs alcanzables desde la navegación. Es el punto de partida del mapa
 de redirects, NO el inventario completo: falta el crawl de Screaming Frog de
 la sección 11 para encontrar huérfanas y las que tienen tráfico.
 
-| URL actual | Palabras | Destino propuesto (sección 4) |
-|---|---|---|
-| `/` | 1467 | `/` |
-| `/about-us/` | 1336 | `/about/` |
-| `/services/` | 1377 | matar → 301 a `/work/` |
-| `/our-process/` | 1165 | matar → 301 a `/about/` |
-| `/nuestros-clientes/` | 985 | absorber en `/work/` o `/about/` |
-| `/portfolio-page/the-work/` | 1089 | `/work/` (y estallar en `/work/[slug]`) |
-| `/bbdoers/` | 1825 | `/people/` |
-| `/comite-bbdo/` | 808 | `/about/` (no aparece en PROJECT.md) |
-| `/contactanos/` | 853 | `/contact/` |
-| `/2024/11/26/bbdo-premio-agencia-transformadora/` | 1572 | `/news/[slug]` |
-| `/aviso-de-privacidad/` | — | `/legal/privacidad/` |
-| `/aviso-de-cookies/` | — | `/legal/cookies/` |
-| `/aviso-de-terminos-de-uso/` | — | `/legal/terminos/` |
-| `/aviso-de-alerta-de-estafa/` | — | `/legal/alerta-de-estafa/` |
+| URL actual                                        | Palabras | Destino propuesto (sección 4)           |
+| ------------------------------------------------- | -------- | --------------------------------------- |
+| `/`                                               | 1467     | `/`                                     |
+| `/about-us/`                                      | 1336     | `/about/`                               |
+| `/services/`                                      | 1377     | matar → 301 a `/work/`                  |
+| `/our-process/`                                   | 1165     | matar → 301 a `/about/`                 |
+| `/nuestros-clientes/`                             | 985      | absorber en `/work/` o `/about/`        |
+| `/portfolio-page/the-work/`                       | 1089     | `/work/` (y estallar en `/work/[slug]`) |
+| `/bbdoers/`                                       | 1825     | `/people/`                              |
+| `/comite-bbdo/`                                   | 808      | `/about/` (no aparece en PROJECT.md)    |
+| `/contactanos/`                                   | 853      | `/contact/`                             |
+| `/2024/11/26/bbdo-premio-agencia-transformadora/` | 1572     | `/news/[slug]`                          |
+| `/aviso-de-privacidad/`                           | —        | `/legal/privacidad/`                    |
+| `/aviso-de-cookies/`                              | —        | `/legal/cookies/`                       |
+| `/aviso-de-terminos-de-uso/`                      | —        | `/legal/terminos/`                      |
+| `/aviso-de-alerta-de-estafa/`                     | —        | `/legal/alerta-de-estafa/`              |
 
 `/comite-bbdo/` y las cuatro páginas legales no estaban en el brief.
 `/aviso-de-alerta-de-estafa/` sugiere que hubo suplantación de la marca en
@@ -56,16 +56,16 @@ procesos de reclutamiento: conviene preguntar antes de moverla o quitarla.
    la sección 6 del brief es de 2.5 MB para el hero entero. El sitio actual
    lo excede diez veces. Inventario de lo encontrado:
 
-   | Archivo | Peso |
-   |---|---|
-   | `head-team.mp4` | 30.8 MB |
-   | `video-home.mp4` | 27.0 MB |
-   | `BBDO-video.mp4` | 17.2 MB |
-   | `ours.mp4` | 10.8 MB |
-   | `banner-premios.mp4` | 9.7 MB |
-   | `the-work-the-work.mp4` | 3.7 MB |
-   | `bbdoers-rigth.mp4` | 3.6 MB |
-   | `bbdoers.mp4` | 3.5 MB |
+   | Archivo                 | Peso    |
+   | ----------------------- | ------- |
+   | `head-team.mp4`         | 30.8 MB |
+   | `video-home.mp4`        | 27.0 MB |
+   | `BBDO-video.mp4`        | 17.2 MB |
+   | `ours.mp4`              | 10.8 MB |
+   | `banner-premios.mp4`    | 9.7 MB  |
+   | `the-work-the-work.mp4` | 3.7 MB  |
+   | `bbdoers-rigth.mp4`     | 3.6 MB  |
+   | `bbdoers.mp4`           | 3.5 MB  |
 
    Solo `/bbdoers/` carga 37.9 MB de video entre sus tres archivos. El nombre
    `bbdoers-rigth.mp4` lleva además un typo en el propio archivo.
@@ -77,8 +77,51 @@ procesos de reclutamiento: conviene preguntar antes de moverla o quitarla.
    2025: hay que confirmar cuáles siguen siendo cuenta viva antes de
    publicarlos.
 
-7. **El home tiene 88 palabras visibles.** El resto del peso de la página es
-   chrome del tema.
+7. **Los casos SÍ tienen URL propia.** El brief decía que todo "The Work"
+   vive en una sola página y que no hay páginas indexables por marca. No es
+   exacto: los 19 casos existen en `/portfolio/[slug]/`. Ver
+   `docs/redirects-work.md` para el mapa uno-a-uno.
+
+   Lo que sí falla es lo que hay dentro: **`<h1>Portfolio</h1>` en los 19**,
+   el nombre del caso relegado a `h2`, y **37 palabras** por página. Sin
+   descripción, sin resultado, sin premios. Solo un embed de Vimeo y tres
+   campos: CLIENT, DATE y CATEGORY.
+
+8. **Los metadatos de los casos no sirven para filtrar.** Los 19 comparten
+   fecha (10 feb 2024, la de la carga masiva, no la de la campaña) y
+   categoría (Branding). El índice filtrable por marca / industria /
+   capacidad / año que propone la sección 4 del brief no tiene datos detrás:
+   hay que crearlos en la curaduría.
+
+9. **Los key visuals son PNG de ~4 MB.** A 1920×1080 y sin optimizar. Los 19
+   suman unos 75 MB. Convertirlos a WebP o AVIF es parte de la migración.
+
+10. **Los videos de campaña están en Vimeo, no en el sitio.** Cada caso
+    incrusta un reproductor de Vimeo; no hay ni un `.mp4` propio por campaña.
+    Los ids están recogidos en el campo `vimeo` de cada caso. Consecuencia
+    práctica: **no se pueden usar como fondo en bucle del banner**, porque un
+    embed de Vimeo no es un archivo de video. Para eso hace falta un mp4 mudo
+    y recortado por campaña.
+
+    Lo que sí se puede aprovechar, y ya se hizo: la **miniatura** de cada video
+    vía el oEmbed público de Vimeo, a 1280×720. Son los key visuals reales que
+    se ven hoy en `/work/`, los **19 de 19**.
+
+    Dos requirieron un segundo intento, y conviene saberlo para futuras
+    migraciones: ABI – Friends Delivery incrusta **dos** videos y el primero
+    (908820654) está privado o borrado; el bueno es el segundo, que además
+    revela que la campaña es de **Stella Artois**, no de ABI a secas. Y Saba –
+    Vulvacare sí tiene video (908789954), solo que su embed no lleva el
+    prefijo `player.` en la URL.
+
+11. **El rojo de marca puro no cumple accesibilidad con texto blanco.**
+    `#FF0000` con `#FFFFFF` da **4.00:1**, por debajo del 4.5:1 que pide la
+    WCAG AA. Afecta a cualquier bloque de texto blanco sobre rojo pleno,
+    incluidas las palabras del banner. Las paletas de caso usan rojos más
+    oscuros para fondo y reservan el `#FF0000` para acento sobre claro.
+
+12. **El home tiene 88 palabras visibles.** El resto del peso de la página es
+    chrome del tema.
 
 ## Correcciones al brief
 
