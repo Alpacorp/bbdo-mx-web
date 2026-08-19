@@ -52,14 +52,12 @@ interface Props {
   src: string;
   poster: string;
   /**
-   * Logo BBDO en blanco, esquina superior izquierda (40px, 24px, 100x26 en
-   * el global). Si no se pasa, cae a un marcador tipografico: NO es el
-   * logotipo real, solo ocupa el sitio hasta que llegue el asset.
+   * El logo ya NO se pinta aquí: lo pone Header.astro, que es quien lo
+   * necesita en todas las páginas y no solo en las que llevan banner.
    */
-  logo?: string;
 }
 
-const { izquierda, derecha, src, poster, logo } = Astro.props;
+const { izquierda, derecha, src, poster } = Astro.props;
 
 // Id unico y determinista por banner: si hay dos en una pagina, no colisionan
 // las mascaras, y no cambia entre builds.
@@ -151,18 +149,6 @@ const uidMovil = `${uid}-movil`;
       mask={`url(#${uidMovil})`}
       shape-rendering="crispEdges"></rect>
   </svg>
-
-  <a class="banner__logo" href="/" aria-label="BBDO México — inicio">
-    {
-      logo ? (
-        <img src={logo} alt="BBDO" width="100" height="26" />
-      ) : (
-        <span class="banner__logo-ph" aria-hidden="true">
-          BBDO
-        </span>
-      )
-    }
-  </a>
 
   <p class="banner__txt banner__txt--izq">{izquierda}</p>
   <p class="banner__txt banner__txt--der">{derecha}</p>
@@ -359,37 +345,6 @@ const uidMovil = `${uid}-movil`;
     text-transform: uppercase;
     color: var(--color-red);
   }
-  /* Logo: mismas coordenadas que el global (40px, 24px, 100x26). */
-  .banner__logo {
-    position: absolute;
-    top: 24px;
-    left: 40px;
-    z-index: 2;
-    display: block;
-    line-height: 0;
-    text-decoration: none; /* heredaba el subrayado de los enlaces */
-  }
-  .banner__logo img {
-    width: 100px;
-    height: 26px;
-    object-fit: contain;
-
-    /* El unico asset disponible del logotipo es rojo (#E90602 sobre alfa).
-       brightness(0) lo pasa a negro conservando el alfa, invert(1) lo pasa a
-       blanco. Si algun dia llega el asset en blanco, se borra esta linea. */
-    filter: brightness(0) invert(1);
-  }
-  /* Marcador mientras no haya asset. Se ve que NO es el logotipo real. */
-  .banner__logo-ph {
-    display: block;
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 30px;
-    line-height: 26px;
-    letter-spacing: -0.03em;
-    color: var(--color-on-dark);
-  }
-
   .banner__txt--izq {
     left: 40px;
   }
@@ -402,10 +357,6 @@ const uidMovil = `${uid}-movil`;
       bottom: 14px;
     }
     .banner__txt--izq {
-      left: 20px;
-    }
-    .banner__logo {
-      top: 18px;
       left: 20px;
     }
     .banner__txt--der {

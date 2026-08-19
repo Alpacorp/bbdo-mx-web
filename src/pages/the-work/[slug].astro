@@ -71,6 +71,7 @@ if (data.premios.length) jsonLd.award = data.premios;
 <Base
   title={`${data.campana} — ${data.marca}`}
   path={`/the-work/${caso.id}/`}
+  sobreMedios
   description={data.resumen || `${data.campana}, campaña de BBDO México para ${data.marca}.`}
 >
   <Fragment slot="head">
@@ -86,13 +87,7 @@ if (data.premios.length) jsonLd.award = data.premios;
       Vimeo (el id está en `vimeo`), y un embed de Vimeo no sirve como fondo en
       bucle: haría falta un mp4 mudo por campaña. */
   }
-  <VideoBanner
-    izquierda="Do"
-    derecha="Things"
-    src="/v/banner-home.mp4"
-    poster={data.imagen.src}
-    logo="/v/logo-bbdo.png"
-  />
+  <VideoBanner izquierda="Do" derecha="Things" src="/v/banner-home.mp4" poster={data.imagen.src} />
 
   <main id="content" class="caso" style={estiloTema} data-tema={data.tema}>
     <nav class="miga" aria-label="Ruta">
