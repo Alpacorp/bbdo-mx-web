@@ -1,37 +1,37 @@
 ---
-titulo: 'Tostitos – Sabritas'
-marca: 'Tostitos'
-campana: 'Sabritas'
-cliente: 'Tostitos'
+title: 'Tostitos – Sabritas'
+brand: 'Tostitos'
+campaign: 'Sabritas'
+client: 'Tostitos'
 
-# PENDIENTE de curaduría. El sitio actual no tiene ni resultado ni descripción:
-# cada caso son 37 palabras y un embed de Vimeo.
-resultado: ''
-resumen: ''
+# PENDING curation. The current site has neither a result nor a description:
+# each case is 37 words and a Vimeo embed.
+result: ''
+summary: ''
 
-# PLACEHOLDER. Texto escrito por mí a partir del título del video y de lo
-# que se ve en él. Describe la idea, NO los resultados. Lo firma el director
-# creativo antes de publicar.
-descripcion: 'Tostitos defendió un territorio simple y muy mexicano: la botana nunca está sola. Siempre hay con qué convirtió cualquier cosa que haya en el refrigerador en el acompañamiento perfecto.'
+# PLACEHOLDER. Written by me from the video title and what is visible in it.
+# It describes the idea, NOT the results. Signed off by the creative director
+# before publishing.
+description: 'Tostitos defendió un territorio simple y muy mexicano: la botana nunca está sola. Siempre hay con qué convirtió cualquier cosa que haya en el refrigerador en el acompañamiento perfecto.'
 
-imagen: '../../assets/work/tostitos-sabritas.jpg'
-imagenAlt: 'Fotograma de la campaña TOSTITOS - Siempre hay con qué'
+image: '../../assets/work/tostitos-sabritas.jpg'
+imageAlt: 'Fotograma de la campaña TOSTITOS - Siempre hay con qué'
 
-# anio y categoria van vacíos a propósito: en el sitio actual los 19 casos
-# comparten fecha (10 feb 2024, la de la carga) y categoría (Branding).
-capacidades: []
-premios: []
+# year and category are left empty on purpose: on the current site all 19 cases
+# share a date (10 Feb 2024, the bulk upload) and a category (Branding).
+capabilities: []
+awards: []
 
-# Paleta del caso. Lista cerrada en src/temas.ts.
-tema: arena
+# Case palette. Closed list in src/themes.ts.
+theme: sand
 
-# Id de Vimeo, leído del sitio actual. Es donde vive el video de la campaña.
+# Vimeo id, read off the current site. That is where the campaign video lives.
 vimeo: '899337533'
 
-slugAnterior: '/portfolio/tostitos-sabritas/'
-orden: 3
-destacado: true
-borrador: false
+previousSlug: '/portfolio/tostitos-sabritas/'
+order: 3
+featured: true
+draft: false
 ---
 
 <!-- Cuerpo del caso: pendiente de curaduría y de que lo firme el director

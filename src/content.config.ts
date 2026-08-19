@@ -1,117 +1,117 @@
 import { defineCollection } from 'astro:content';
-// zod se importa directo y no desde 'astro:content': el re-export de Astro está
-// marcado como deprecado y llenaba `astro check` de 55 avisos.
+// zod is imported directly rather than from 'astro:content': Astro's re-export
+// is marked deprecated and filled `astro check` with 55 warnings.
 import { z } from 'zod';
 import { glob } from 'astro/loaders';
-import { CLAVES_TEMA } from './temas';
+import { THEME_KEYS } from './themes';
 
 /**
- * Colección `work` — un archivo por caso, una URL por caso.
+ * `work` collection — one file per case, one URL per case.
  *
- * Es el activo SEO real del proyecto (sección 4 del brief): hoy los 19 casos
- * de bbdomexico.com viven en /portfolio/[slug]/ con 37 palabras y un <h1>
- * genérico que dice "Portfolio" en todos.
+ * This is the project's real SEO asset (section 4 of the brief): today the 19
+ * cases live at /portfolio/[slug]/ with 37 words and a generic
+ * <h1>Portfolio</h1> on every one of them.
  *
- * QUÉ ES REAL Y QUÉ NO
- *   Reales, leídos del sitio actual: `titulo`, `cliente`, `slugAnterior`.
- *   Placeholder míos: `marca`, `campana`, `resultado`, `descripcion` y las
- *   imágenes. La curaduría sigue abierta (sección 10) y el copy lo firma el
- *   director creativo.
+ * WHAT IS REAL AND WHAT IS NOT
+ *   Real, read off the current site: `title`, `client`, `previousSlug` and
+ *   `vimeo`. Placeholders written by me: `brand`, `campaign`, `result` and
+ *   `description`. Curation is still open (section 10) and the copy is signed
+ *   off by the creative director.
  *
- * `anio` va vacío a propósito: en el sitio actual los 19 casos tienen la misma
- * fecha (10 feb 2024), que es la de la carga masiva, no la de la campaña. Y
- * `categoria` es "Branding" en los 19, así que tampoco sirve para filtrar. El
- * índice filtrable que propone el brief necesita que esos datos se creen.
+ * `year` and `category` are left empty on purpose: on the current site all 19
+ * cases share a date (10 Feb 2024, the bulk upload, not the campaign) and a
+ * category (Branding), so neither is usable for filtering. The filterable index
+ * the brief proposes needs that data to be created first.
  */
 const work = defineCollection({
   loader: glob({ base: './src/content/work', pattern: '**/*.md' }),
   schema: ({ image }) =>
     z.object({
-      /** Título tal cual aparece hoy en el sitio actual. Verbatim, no tocar. */
-      titulo: z.string(),
-      /** Marca sobre la que corre la campaña. Mi lectura del título. */
-      marca: z.string(),
-      /** Nombre de la campaña. Mi lectura del título. */
-      campana: z.string(),
-      /** Cuenta o cliente, del campo CLIENT del sitio actual. Real. */
-      cliente: z.string(),
+      /** Title exactly as it appears on the current site. Verbatim, do not edit. */
+      title: z.string(),
+      /** Brand the campaign runs on. My reading of the title. */
+      brand: z.string(),
+      /** Campaign name. My reading of the title. */
+      campaign: z.string(),
+      /** Account or client, from the current site's CLIENT field. Real. */
+      client: z.string(),
 
-      /** Cifra o resultado que encabeza el caso, como hace el global. */
-      resultado: z.string().optional(),
-      /** Entradilla. Una frase con el reto y el resultado. */
-      resumen: z.string().optional(),
+      /** Figure or result that heads the case, as the global site does. */
+      result: z.string().optional(),
+      /** Standfirst. One sentence with the challenge and the outcome. */
+      summary: z.string().optional(),
 
-      imagen: image(),
-      /** Texto alternativo. Vacío solo si la imagen es decorativa. */
-      imagenAlt: z.string().default(''),
+      image: image(),
+      /** Alt text. Empty only if the image is decorative. */
+      imageAlt: z.string().default(''),
 
-      anio: z.number().int().min(1990).max(2100).optional(),
-      categoria: z.string().optional(),
-      industria: z.string().optional(),
-      capacidades: z.array(z.string()).default([]),
-      premios: z.array(z.string()).default([]),
+      year: z.number().int().min(1990).max(2100).optional(),
+      category: z.string().optional(),
+      industry: z.string().optional(),
+      capabilities: z.array(z.string()).default([]),
+      awards: z.array(z.string()).default([]),
 
-      /** Id de Vimeo. Los 19 casos actuales llevan un embed de Vimeo. */
+      /** Vimeo id. All 19 current cases carry a Vimeo embed. */
       vimeo: z.string().optional(),
 
       /**
-       * Descripción de la campaña. Es el espacio para contarla con calma:
-       * qué problema había, qué idea lo resolvió y qué pasó después.
-       * El cuerpo largo va en el markdown, debajo del frontmatter.
+       * Campaign description. The place to tell it properly: what the problem
+       * was, what idea solved it and what happened next. The long body goes in
+       * the markdown, below the frontmatter.
        */
-      descripcion: z.string().optional(),
+      description: z.string().optional(),
 
-      /** Créditos. El global remata su descripción con "AGENCY: Almap BBDO". */
-      creditos: z.array(z.object({ rol: z.string(), nombre: z.string() })).default([]),
+      /** Credits. The global site ends its description with "AGENCY: Almap BBDO". */
+      credits: z.array(z.object({ role: z.string(), name: z.string() })).default([]),
 
       /**
-       * Paleta del caso. Lista cerrada, definida en src/temas.ts, donde cada
-       * una se valida contra la WCAG al importarse. Sin tema, el caso hereda
-       * los tokens del sitio.
+       * Case palette. A closed list, defined in src/themes.ts, where each one is
+       * validated against WCAG on import. With no theme, the case inherits the
+       * site tokens.
        */
-      tema: z.enum(CLAVES_TEMA).optional(),
+      theme: z.enum(THEME_KEYS).optional(),
 
       /**
-       * Bloques del caso, en orden. Es lo que da ritmo a la página y evita
-       * que sea un muro de texto: el global alterna tiras de una, dos y tres
-       * imágenes a sangre, y cada tira entra por un lado distinto.
+       * Case blocks, in order. This is what gives the page rhythm and stops it
+       * being a wall of text: the global site alternates full-bleed strips of
+       * one, two and three images, each entering from a different side.
        *
-       * MX todavía no tiene este material. Los tipos están definidos para
-       * poder pedirlo con una lista concreta en la mano.
+       * MX does not have this material yet. The types are defined so it can be
+       * requested with a concrete list in hand.
        */
-      bloques: z
+      blocks: z
         .array(
-          z.discriminatedUnion('tipo', [
+          z.discriminatedUnion('type', [
             z.object({
-              tipo: z.literal('imagenes'),
-              /** 1, 2 o 3. Marca el ritmo de la tira. */
-              imagenes: z.array(image()).min(1).max(3),
+              type: z.literal('images'),
+              /** 1, 2 or 3. Sets the strip's rhythm. */
+              images: z.array(image()).min(1).max(3),
               alt: z.array(z.string()).default([]),
-              /** A sangre, de borde a borde de la pantalla. */
-              sangre: z.boolean().default(true),
-              pie: z.string().optional(),
+              /** Full bleed, edge to edge of the screen. */
+              fullBleed: z.boolean().default(true),
+              caption: z.string().optional(),
             }),
             z.object({
-              tipo: z.literal('cita'),
-              texto: z.string(),
-              autor: z.string().optional(),
-              cargo: z.string().optional(),
+              type: z.literal('quote'),
+              text: z.string(),
+              author: z.string().optional(),
+              role: z.string().optional(),
             }),
             z.object({
-              tipo: z.literal('datos'),
-              /** Cifras del caso. Lo que convierte un caso en argumento. */
-              datos: z
-                .array(z.object({ cifra: z.string(), nota: z.string() }))
+              type: z.literal('stats'),
+              /** Case figures. What turns a case into an argument. */
+              stats: z
+                .array(z.object({ figure: z.string(), note: z.string() }))
                 .min(1)
                 .max(4),
             }),
             z.object({
-              tipo: z.literal('texto'),
-              titulo: z.string().optional(),
-              cuerpo: z.string(),
+              type: z.literal('text'),
+              title: z.string().optional(),
+              body: z.string(),
             }),
             z.object({
-              tipo: z.literal('video'),
+              type: z.literal('video'),
               src: z.string(),
               poster: image(),
               alt: z.string().default(''),
@@ -120,15 +120,15 @@ const work = defineCollection({
         )
         .default([]),
 
-      /** Ruta en el sitio actual. Alimenta el mapa de redirects 301. */
-      slugAnterior: z.string(),
+      /** Path on the current site. Feeds the 301 redirect map. */
+      previousSlug: z.string(),
 
-      /** Sale en el home. Máximo los que quepan en la rejilla. */
-      destacado: z.boolean().default(false),
-      /** Menor primero. Controla el orden del índice sin depender de fechas. */
-      orden: z.number().default(99),
+      /** Appears on the home page. At most as many as the grid fits. */
+      featured: z.boolean().default(false),
+      /** Lowest first. Controls index order without depending on dates. */
+      order: z.number().default(99),
 
-      borrador: z.boolean().default(false),
+      draft: z.boolean().default(false),
     }),
 });
 

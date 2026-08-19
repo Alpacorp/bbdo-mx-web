@@ -1,37 +1,37 @@
 ---
-titulo: 'Uber – Que tu auto aporte'
-marca: 'Uber'
-campana: 'Que tu auto aporte'
-cliente: 'Uber'
+title: 'Uber – Que tu auto aporte'
+brand: 'Uber'
+campaign: 'Que tu auto aporte'
+client: 'Uber'
 
-# PENDIENTE de curaduría. El sitio actual no tiene ni resultado ni descripción:
-# cada caso son 37 palabras y un embed de Vimeo.
-resultado: ''
-resumen: ''
+# PENDING curation. The current site has neither a result nor a description:
+# each case is 37 words and a Vimeo embed.
+result: ''
+summary: ''
 
-# PLACEHOLDER. Texto escrito por mí a partir del título del video y de lo
-# que se ve en él. Describe la idea, NO los resultados. Lo firma el director
-# creativo antes de publicar.
-descripcion: 'Uber habló con quienes tienen un coche parado en la cochera. Que tu auto aporte planteó la flota como una forma de que el vehículo deje de ser un gasto.'
+# PLACEHOLDER. Written by me from the video title and what is visible in it.
+# It describes the idea, NOT the results. Signed off by the creative director
+# before publishing.
+description: 'Uber habló con quienes tienen un coche parado en la cochera. Que tu auto aporte planteó la flota como una forma de que el vehículo deje de ser un gasto.'
 
-imagen: '../../assets/work/uber-que-tu-auto-aporte.jpg'
-imagenAlt: 'Fotograma de la campaña UBER Fleet - Papás'
+image: '../../assets/work/uber-que-tu-auto-aporte.jpg'
+imageAlt: 'Fotograma de la campaña UBER Fleet - Papás'
 
-# anio y categoria van vacíos a propósito: en el sitio actual los 19 casos
-# comparten fecha (10 feb 2024, la de la carga) y categoría (Branding).
-capacidades: []
-premios: []
+# year and category are left empty on purpose: on the current site all 19 cases
+# share a date (10 Feb 2024, the bulk upload) and a category (Branding).
+capabilities: []
+awards: []
 
-# Paleta del caso. Lista cerrada en src/temas.ts.
-tema: claro
+# Case palette. Closed list in src/themes.ts.
+theme: light
 
-# Id de Vimeo, leído del sitio actual. Es donde vive el video de la campaña.
+# Vimeo id, read off the current site. That is where the campaign video lives.
 vimeo: '732349564'
 
-slugAnterior: '/portfolio/uber-que-tu-auto-aporte/'
-orden: 17
-destacado: false
-borrador: false
+previousSlug: '/portfolio/uber-que-tu-auto-aporte/'
+order: 17
+featured: false
+draft: false
 ---
 
 <!-- Cuerpo del caso: pendiente de curaduría y de que lo firme el director

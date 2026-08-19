@@ -1,37 +1,37 @@
 ---
-titulo: 'Pedigree – Dogscar'
-marca: 'Pedigree'
-campana: 'Dogscar'
-cliente: 'Pedigree'
+title: 'Pedigree – Dogscar'
+brand: 'Pedigree'
+campaign: 'Dogscar'
+client: 'Pedigree'
 
-# PENDIENTE de curaduría. El sitio actual no tiene ni resultado ni descripción:
-# cada caso son 37 palabras y un embed de Vimeo.
-resultado: ''
-resumen: ''
+# PENDING curation. The current site has neither a result nor a description:
+# each case is 37 words and a Vimeo embed.
+result: ''
+summary: ''
 
-# PLACEHOLDER. Texto escrito por mí a partir del título del video y de lo
-# que se ve en él. Describe la idea, NO los resultados. Lo firma el director
-# creativo antes de publicar.
-descripcion: 'Pedigree montó su propia gala para los que nunca reciben un premio. Dogscar puso a los perros en la alfombra roja, con estatuilla incluida.'
+# PLACEHOLDER. Written by me from the video title and what is visible in it.
+# It describes the idea, NOT the results. Signed off by the creative director
+# before publishing.
+description: 'Pedigree montó su propia gala para los que nunca reciben un premio. Dogscar puso a los perros en la alfombra roja, con estatuilla incluida.'
 
-imagen: '../../assets/work/pedigree-dogscar.jpg'
-imagenAlt: 'Fotograma de la campaña Pedigree-Dogscar'
+image: '../../assets/work/pedigree-dogscar.jpg'
+imageAlt: 'Fotograma de la campaña Pedigree-Dogscar'
 
-# anio y categoria van vacíos a propósito: en el sitio actual los 19 casos
-# comparten fecha (10 feb 2024, la de la carga) y categoría (Branding).
-capacidades: []
-premios: []
+# year and category are left empty on purpose: on the current site all 19 cases
+# share a date (10 Feb 2024, the bulk upload) and a category (Branding).
+capabilities: []
+awards: []
 
-# Paleta del caso. Lista cerrada en src/temas.ts.
-tema: claro
+# Case palette. Closed list in src/themes.ts.
+theme: light
 
-# Id de Vimeo, leído del sitio actual. Es donde vive el video de la campaña.
+# Vimeo id, read off the current site. That is where the campaign video lives.
 vimeo: '908807134'
 
-slugAnterior: '/portfolio/pedigree/'
-orden: 14
-destacado: false
-borrador: false
+previousSlug: '/portfolio/pedigree/'
+order: 14
+featured: false
+draft: false
 ---
 
 <!-- Cuerpo del caso: pendiente de curaduría y de que lo firme el director

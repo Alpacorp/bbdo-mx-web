@@ -7,31 +7,31 @@ import VideoHeadline from '../components/VideoHeadline.astro';
 import ScrollFX from '../components/ScrollFX.astro';
 
 /**
- * Home.
+ * Home page.
  *
- * Estructura del global (ver docs/referencia-visual-bbdo-global.md):
- *   1. video-banner-section   <- faltaba, es el "banner hero"
- *   2. contact-section        titular con clips + parrafo de posicionamiento
+ * Structure from the global site (see docs/referencia-visual-bbdo-global.md):
+ *   1. video-banner-section   <- was missing; this is the "hero banner"
+ *   2. contact-section        headline with clips + positioning paragraph
  *   3. work-section
  *   4. news-section
  *
- * Lo que anadimos y el global NO tiene, como diferencia de mercado:
- *   5. Clientes  — el sitio actual tiene /nuestros-clientes/ con 985 palabras.
- *                  Es contenido propio de MX que no hay que perder.
- *   6. Premios   — una agencia mexicana se vende con premios locales; el
- *                  JSON-LD por caso ya tiene campo `award`.
+ * What we add and the global site does NOT have, as a market difference:
+ *   5. Clients — the current site has /nuestros-clientes/ with 985 words. It is
+ *                MX-owned content that should not be lost in the migration.
+ *   6. Awards  — a Mexican agency sells on local awards, and the per-case
+ *                JSON-LD already reserves an `award` field.
  *
- * PLACEHOLDER DE VIDEO: /v/banner-home.mp4 es head-team.mp4 del sitio actual
- * (30.83 MB, 14.9s), bajado a mano y elegido por el desarrollador.
- * Son doce veces el presupuesto de 2.5 MB del hero entero (seccion 6 del
- * brief). Sirve para juzgar encuadre y tono del clip, NO para medir
- * rendimiento: un Lighthouse con esto puesto da un LCP irreal.
- * El binario no se versiona, ver .gitignore.
+ * VIDEO PLACEHOLDER: /v/banner-home.mp4 is head-team.mp4 from the current site
+ * (30.83 MB, 14.9s), downloaded by hand and picked by the developer. That is
+ * twelve times the 2.5 MB budget for the whole hero (section 6 of the brief).
+ * It is there to judge the clip's framing and tone, NOT to measure performance:
+ * a Lighthouse run with this in place reports an unreal LCP. The binary is not
+ * versioned, see .gitignore.
  *
- * ATENCION AL COPY: todos los textos de aqui son PLACEHOLDER escritos por mi.
- * La plataforma de marca ("Do Big Things" localizado vs. lenguaje MX propio)
- * es una decision abierta de la seccion 10 y la toma el director creativo.
- * No enseñar estas palabras como propuesta de copy.
+ * WATCH THE COPY: every string here is PLACEHOLDER written by me. The brand
+ * platform ("Do Big Things" localised vs. MX-specific language) is an open
+ * section 10 decision and belongs to the creative director. Do not present
+ * these words as proposed copy.
  */
 
 const clips = [
@@ -40,23 +40,23 @@ const clips = [
   { after: 2, src: '/v/banamex.mp4', poster: '/v/banamex.png', label: '03', size: 'md' as const },
 ];
 
-// Los casos salen de la coleccion, no de un array a mano: una sola fuente de
-// verdad compartida con /work/. `destacado` decide cuales suben al home.
-const casos = (await getCollection('work', ({ data }) => !data.borrador && data.destacado))
-  .sort((a, b) => a.data.orden - b.data.orden)
+// Cases come from the collection, not a hand-written array: a single source of
+// truth shared with /the-work/. `featured` decides which ones reach the home.
+const cases = (await getCollection('work', ({ data }) => !data.draft && data.featured))
+  .sort((a, b) => a.data.order - b.data.order)
   .slice(0, 6);
 
 /**
- * Roster REAL, leido del muro de clientes de bbdomexico.com. Sustituye a la
- * lista inventada que habia antes, que era casi toda incorrecta.
+ * The REAL roster, read off the client wall on bbdomexico.com. It replaces the
+ * invented list that was here before, which was almost entirely wrong.
  *
- * OJO con la antiguedad: los assets de Buchanan's, Johnnie Walker, Saba,
- * Finamex, Pedigree, Tostitos, Norteñita, Ole y Oscar Mayer estan subidos en
- * 2018; los de San Rafael, Mirinda, Pepsi, Yoplait, BMW y MINI entre 2023 y
- * 2025. Hay que confirmar con la agencia cuales siguen siendo cuenta viva
- * antes de publicar: un cliente que ya no lo es no puede aparecer aqui.
+ * MIND THE AGE: the assets for Buchanan's, Johnnie Walker, Saba, Finamex,
+ * Pedigree, Tostitos, Norteñita, Olé and Oscar Mayer were uploaded in 2018;
+ * San Rafael, Mirinda, Pepsi, Yoplait, BMW and MINI between 2023 and 2025. The
+ * agency has to confirm which are still live accounts before publishing: a
+ * client that no longer is one cannot appear here.
  */
-const clientes = [
+const clients = [
   'Modelo',
   'Pepsi',
   'Mirinda',
@@ -75,12 +75,12 @@ const clientes = [
   'Johnnie Walker',
 ];
 
-// Cifras de relleno. Hay que confirmarlas con marketing antes de publicar.
-const premios = [
-  { cifra: '00', nombre: 'Leones en Cannes', nota: 'pendiente de confirmar' },
-  { cifra: '00', nombre: 'Círculo de Oro', nota: 'pendiente de confirmar' },
-  { cifra: '00', nombre: 'El Sol', nota: 'pendiente de confirmar' },
-  { cifra: '00', nombre: 'Effie México', nota: 'pendiente de confirmar' },
+// Placeholder figures. Marketing has to confirm them before publishing.
+const awards = [
+  { figure: '00', name: 'Leones en Cannes', note: 'pendiente de confirmar' },
+  { figure: '00', name: 'Círculo de Oro', note: 'pendiente de confirmar' },
+  { figure: '00', name: 'El Sol', note: 'pendiente de confirmar' },
+  { figure: '00', name: 'Effie México', note: 'pendiente de confirmar' },
 ];
 
 const noticias = [
@@ -109,9 +109,9 @@ const noticias = [
 ];
 
 /**
- * new Date('2024-11-26') se parsea como medianoche UTC, y al formatear en la
- * zona de Mexico (UTC-6) retrocede un dia: salia "25 de noviembre". Se fuerza
- * interpretacion local partiendo la cadena.
+ * new Date('2024-11-26') parses as midnight UTC, and formatting it in Mexico's
+ * timezone (UTC-6) rolls back a day: it printed "25 de noviembre". Splitting
+ * the string forces local interpretation.
  */
 function fechaLarga(iso: string) {
   const [a, m, d] = iso.split('-').map(Number);
@@ -127,35 +127,32 @@ function fechaLarga(iso: string) {
   title="BBDO México"
   path="/"
   isHome
-  sobreMedios
+  overMedia
   description="BBDO México es una de las agencias de publicidad más premiadas del país y forma parte de BBDO Worldwide, red creativa de Omnicom Group."
 >
   <main id="content">
     {
-      /* En ingles y partida en las dos esquinas, igual que el global: "Do Big
-        Things" es campaña global y el banner la deja en su idioma. El video
-        que queda en medio es la palabra que falta, "BIG".
-        La localizacion al español vive en el titular de abajo, no aqui. */
+      {
+        /* In English and split across the two corners, like the global site:
+          "Do Big Things" is a global campaign and the banner leaves it in its
+          own language. The video in between is the missing word, "BIG". The
+          Spanish localisation lives in the headline below, not here. */
+      }
     }
-    <VideoBanner
-      izquierda="Do"
-      derecha="Things"
-      src="/v/banner-home.mp4"
-      poster="/v/banner-home.png"
-    />
+    <VideoBanner left="Do" right="Things" src="/v/banner-home.mp4" poster="/v/banner-home.png" />
 
     {
-      /* Envoltorio del contenido. El banner va en sticky, y sticky es un
-        elemento posicionado: pinta por encima de todo lo que no lo esta.
-        Sin este contenedor, work / premios / news (que son static y sin
-        fondo) quedaban DEBAJO del banner y no se veian al hacer scroll.
-        El global hace lo mismo con section.main-content-container. */
+      /* Content wrapper. The banner is sticky, and sticky is a positioned
+        element: it paints above everything that is not. Without this wrapper,
+        work / awards / news (static and with no background) sat UNDER the
+        banner and disappeared on scroll. The global site does the same with
+        section.main-content-container. */
     }
     <div class="contenido">
       <section class="claim">
         {
-          /* El '|' fuerza el salto: así "Do Big Things" queda en una sola línea
-            en vez de partirse por donde caiga el ancho. */
+          /* The '|' forces the break, so "Do Big Things" stays on one line
+            instead of wrapping wherever the width happens to fall. */
         }
         <VideoHeadline
           words={['Somos', 'BBDO', 'México', '|', 'Do', 'Big', 'Things']}
@@ -163,36 +160,36 @@ function fechaLarga(iso: string) {
           clips={clips}
           etiqueta="h1"
         />
-        <p class="claim__texto" data-fx="subir">
+        <p class="claim__text" data-fx="up">
           Resolvemos problemas grandes con estrategia e ideas que dejan huella. Trabajamos con las
           marcas más ambiciosas de México. Contratamos talento grande y le damos oportunidades
           grandes.
         </p>
-        <a class="claim__cta" data-fx="subir" data-fx-delay="0.15" href="/contact/"
+        <a class="claim__cta" data-fx="up" data-fx-delay="0.15" href="/contact/"
           >¿Quieres hacer cosas grandes?</a
         >
       </section>
 
       <section class="work" aria-labelledby="work-title">
         <header class="section-head">
-          <h2 id="work-title" data-fx="subir">The Work</h2>
+          <h2 id="work-title" data-fx="up">The Work</h2>
           <a class="section-link" href="/the-work/">Ver todo The Work</a>
         </header>
 
         <ul class="grid" data-fx-stagger>
           {
-            casos.map((c, i) => (
+            cases.map((c, i) => (
               <li class:list={['card', i === 0 && 'card--wide']}>
                 <a href={`/the-work/${c.id}/`}>
                   <Image
-                    src={c.data.imagen}
-                    alt={c.data.imagenAlt}
+                    src={c.data.image}
+                    alt={c.data.imageAlt}
                     widths={[400, 800, 1200]}
                     sizes="(max-width: 40rem) 100vw, (max-width: 60rem) 50vw, 33vw"
                     loading="lazy"
                   />
-                  <h3 class="card__brand">{c.data.marca}</h3>
-                  <p class="card__campaign">{c.data.campana}</p>
+                  <h3 class="card__brand">{c.data.brand}</h3>
+                  <p class="card__campaign">{c.data.campaign}</p>
                 </a>
               </li>
             ))
@@ -200,28 +197,28 @@ function fechaLarga(iso: string) {
         </ul>
       </section>
 
-      <section class="clientes" aria-labelledby="clientes-title">
-        <div class="clientes__inner">
+      <section class="clients" aria-labelledby="clientes-title">
+        <div class="clients__inner">
           <header class="section-head section-head--dark">
-            <h2 id="clientes-title" data-fx="subir">Nuestros clientes</h2>
+            <h2 id="clientes-title" data-fx="up">Nuestros clients</h2>
           </header>
           <ul class="roster" data-fx-stagger>
-            {clientes.map((c) => <li>{c}</li>)}
+            {clients.map((c) => <li>{c}</li>)}
           </ul>
         </div>
       </section>
 
-      <section class="premios" aria-labelledby="premios-title">
+      <section class="awards" aria-labelledby="premios-title">
         <header class="section-head">
-          <h2 id="premios-title" data-fx="subir">Premios</h2>
+          <h2 id="premios-title" data-fx="up">Premios</h2>
         </header>
-        <ul class="premios__lista" data-fx-stagger>
+        <ul class="awards__list" data-fx-stagger>
           {
-            premios.map((p) => (
+            awards.map((p) => (
               <li>
-                <span class="premios__cifra">{p.cifra}</span>
-                <span class="premios__nombre">{p.nombre}</span>
-                <span class="premios__nota">{p.nota}</span>
+                <span class="awards__figure">{p.figure}</span>
+                <span class="awards__name">{p.name}</span>
+                <span class="awards__note">{p.note}</span>
               </li>
             ))
           }
@@ -230,7 +227,7 @@ function fechaLarga(iso: string) {
 
       <section class="news" aria-labelledby="news-title">
         <header class="section-head">
-          <h2 id="news-title" data-fx="subir">Do Big Things</h2>
+          <h2 id="news-title" data-fx="up">Do Big Things</h2>
           <a class="section-link" href="/news/">Ver todas las noticias</a>
         </header>
 
@@ -247,7 +244,7 @@ function fechaLarga(iso: string) {
                     loading="lazy"
                     decoding="async"
                   />
-                  <div class="news-list__cuerpo">
+                  <div class="news-list__body">
                     <time datetime={n.fecha}>{fechaLarga(n.fecha)}</time>
                     <h3>{n.titulo}</h3>
                     <p>{n.extracto}</p>
@@ -266,9 +263,9 @@ function fechaLarga(iso: string) {
 
 <style>
   /* --- Claim: titular + posicionamiento, sobre rojo pleno --------------- */
-  /* Todo el contenido posterior al banner, en una sola capa por encima de el.
-     El fondo solido es obligatorio: sin el, el banner sticky se ve a traves
-     de las secciones que no traen fondo propio. */
+  /* Everything after the banner, on a single layer above it. The solid
+     background is mandatory: without it the sticky banner shows through the
+     sections that carry no background of their own. */
   .contenido {
     position: relative;
     z-index: 1;
@@ -286,7 +283,7 @@ function fechaLarga(iso: string) {
     justify-content: center;
     gap: var(--space-l);
   }
-  .claim__texto {
+  .claim__text {
     max-width: 46ch;
     margin: 0;
     font-size: clamp(1.05rem, 1.7vw, 1.5rem);
@@ -305,7 +302,7 @@ function fechaLarga(iso: string) {
 
   /* --- Secciones claras -------------------------------------------------- */
   .work,
-  .premios,
+  .awards,
   .news {
     padding-inline: var(--gutter);
     padding-block: var(--space-2xl);
@@ -346,7 +343,7 @@ function fechaLarga(iso: string) {
     color: var(--color-red);
   }
 
-  /* --- Work: rejilla asimetrica ----------------------------------------- */
+  /* --- Work: grid asimetrica ----------------------------------------- */
   .grid {
     list-style: none;
     margin: 0;
@@ -355,7 +352,7 @@ function fechaLarga(iso: string) {
     grid-template-columns: repeat(3, 1fr);
     gap: var(--space-l) var(--space-m);
   }
-  /* El primer caso ocupa dos columnas: rompe la cuadricula plana. */
+  /* The first case spans two columns: it breaks the flat grid. */
   .card--wide {
     grid-column: span 2;
   }
@@ -377,7 +374,7 @@ function fechaLarga(iso: string) {
   }
   .card__brand {
     font-family: var(--font-display);
-    font-weight: 400; /* el global usa 400 aqui, no 600 */
+    font-weight: 400; /* the global site uses 400 here, not 600 */
     font-size: var(--size-case-brand);
     line-height: 1.1;
     margin: var(--space-s) 0 var(--space-2xs);
@@ -392,11 +389,11 @@ function fechaLarga(iso: string) {
   }
 
   /* --- Clientes: banda oscura ------------------------------------------- */
-  .clientes {
+  .clients {
     background: var(--color-dark);
     color: var(--color-on-dark);
   }
-  .clientes__inner {
+  .clients__inner {
     padding-inline: var(--gutter);
     padding-block: var(--space-2xl);
     max-width: var(--max-width);
@@ -407,8 +404,8 @@ function fechaLarga(iso: string) {
     margin: 0;
     padding: 0;
     display: grid;
-    /* 9rem y no 12rem: con 12rem, un movil de 375px daba una sola columna y
-       16 nombres en fila india. Con 9rem entran dos. */
+    /* 9rem and not 12rem: at 12rem a 375px phone gave a single column and 16
+       names in single file. At 9rem two fit. */
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 9rem), 1fr));
     gap: var(--space-s) var(--space-m);
   }
@@ -422,33 +419,33 @@ function fechaLarga(iso: string) {
   }
 
   /* --- Premios ----------------------------------------------------------- */
-  .premios__lista {
+  .awards__list {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
-    /* 8rem y no 10: en un movil de 375px quedan 335px utiles, y dos columnas
-       de 10rem mas el gap de 24px suman 344. Con 8rem suman 280 y entran. */
+    /* 8rem and not 10: a 375px phone leaves 335px usable, and two 10rem
+       columns plus the 24px gap add up to 344. At 8rem they total 280 and fit. */
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
     gap: var(--space-l) var(--space-m);
   }
-  .premios__lista li {
+  .awards__list li {
     display: flex;
     flex-direction: column;
     gap: 2px;
   }
-  .premios__cifra {
+  .awards__figure {
     font-family: var(--font-display);
     font-weight: var(--weight-display);
-    /* min 2.5rem: a dos columnas en movil, 3rem se comia el ancho. */
+    /* 2.5rem floor: at two columns on mobile, 3rem ate the width. */
     font-size: clamp(2.5rem, 7vw, 5.5rem);
     line-height: 1;
     color: var(--color-red);
   }
-  .premios__nombre {
+  .awards__name {
     font-size: 1.05rem;
   }
-  .premios__nota {
+  .awards__note {
     font-size: 0.8rem;
     color: var(--color-dim);
   }
@@ -474,7 +471,7 @@ function fechaLarga(iso: string) {
     border-radius: 4px;
     background: var(--color-dark);
   }
-  .news-list__cuerpo {
+  .news-list__body {
     padding-top: var(--space-s);
   }
   .news-list time {
@@ -498,8 +495,8 @@ function fechaLarga(iso: string) {
     color: var(--color-red);
   }
 
-  /* Pantallas bajas (movil apaisado): 96px de padding arriba y abajo se comen
-     la mitad de un viewport de 390px de alto. */
+  /* Short screens (landscape phone): 96px of padding top and bottom eats half
+     of a 390px-tall viewport. */
   @media (max-height: 32rem) {
     .claim {
       min-height: auto;
@@ -507,11 +504,11 @@ function fechaLarga(iso: string) {
       gap: var(--space-m);
     }
     .work,
-    .premios,
+    .awards,
     .news {
       padding-block: var(--space-xl);
     }
-    .clientes__inner {
+    .clients__inner {
       padding-block: var(--space-xl);
     }
   }

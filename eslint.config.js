@@ -5,9 +5,9 @@ import ts from 'typescript-eslint';
 import astro from 'eslint-plugin-astro';
 
 /**
- * ESLint. El chequeo de tipos lo hace `astro check`, que entiende .astro de
- * verdad; esto se ocupa de lo que aquel no ve: variables sin usar, promesas sin
- * await, accesibilidad en el marcado.
+ * ESLint. Type checking is handled by `astro check`, which genuinely
+ * understands .astro; this covers what that does not see: unused variables,
+ * unawaited promises, accessibility in the markup.
  */
 export default defineConfig(
   {
@@ -16,12 +16,12 @@ export default defineConfig(
   js.configs.recommended,
   ...ts.configs.recommended,
   ...astro.configs.recommended,
-  // Reglas de accesibilidad del plugin de Astro. El brief pone la
-  // accesibilidad en la lista de no negociables, así que van como error.
+  // Accessibility rules from the Astro plugin. The brief lists accessibility
+  // among the non-negotiables, so these are errors, not warnings.
   ...astro.configs['jsx-a11y-recommended'],
   {
     rules: {
-      // Los guiones bajos marcan intención de no usar algo.
+      // Leading underscores mark something as deliberately unused.
       '@typescript-eslint/no-unused-vars': [
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
@@ -29,7 +29,7 @@ export default defineConfig(
     },
   },
   {
-    // Los <script> de los .astro corren en el navegador.
+    // The <script> blocks in .astro files run in the browser.
     files: ['**/*.astro'],
     languageOptions: {
       globals: {

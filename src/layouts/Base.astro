@@ -1,38 +1,37 @@
 ---
 import '../styles/tokens.css';
 import Header from '../components/Header.astro';
-import { LEGALES } from '../navegacion';
+import { LEGAL_LINKS } from '../navigation';
 
 /**
- * Base.astro — layout raíz: head, meta, canonical, JSON-LD.
+ * Base.astro — root layout: head, meta, canonical, JSON-LD.
  *
- * NOTA sobre <ClientRouter />: el brief (seccion 7) advierte que en Astro 6+
- * las view transitions cambian el timing de eventos. NO se monta todavia
- * porque el <script> de VideoHeadline corre al cargar el modulo, no en
- * 'astro:page-load' -> con ClientRouter el titular no se re-animaria al
- * navegar client-side. Cuando se decida activarlo hay que adaptar el
- * componente primero.
+ * NOTE on <ClientRouter />: section 7 of the brief warns that in Astro 6+ view
+ * transitions changed event timing. It is NOT mounted yet because
+ * VideoHeadline's <script> runs on module load, not on 'astro:page-load' —
+ * with ClientRouter the headline would not re-animate on client-side
+ * navigation. Whenever it gets enabled, the component has to be adapted first.
  */
 
 interface Props {
   title: string;
   description?: string;
-  /** Ruta canonica relativa, p.ej. '/work/'. Por defecto la actual. */
+  /** Relative canonical path, e.g. '/the-work/'. Defaults to the current one. */
   path?: string;
   ogImage?: string;
-  /** true solo en el home: evita el 'BBDO Mexico - BBDO Mexico' del sitio viejo. */
+  /** true only on the home page: avoids the old site's 'BBDO Mexico - BBDO Mexico'. */
   isHome?: boolean;
   /**
-   * true en las páginas que arrancan con el banner de video: el header va
-   * transparente y el logo en blanco. En el resto, sólido y logo en rojo.
+   * true on pages that open with the video banner: the header goes transparent
+   * with a white logo. Everywhere else it is solid with a red logo.
    */
-  sobreMedios?: boolean;
+  overMedia?: boolean;
 }
 
 const SITE_NAME = 'BBDO México';
 const SITE_URL = 'https://bbdomexico.com';
 
-// Ojo: el sitio actual tiene el typo "Omincon" sitewide (seccion 2). Es Omnicom.
+// Note: the current site has the "Omincon" typo site-wide (section 2). It is Omnicom.
 const DEFAULT_DESCRIPTION =
   'BBDO México es una de las agencias de publicidad más premiadas del país y forma parte de BBDO Worldwide, red creativa de Omnicom Group.';
 
@@ -42,7 +41,7 @@ const {
   path,
   ogImage = '/v/modelo.png',
   isHome = false,
-  sobreMedios = false,
+  overMedia = false,
 } = Astro.props;
 
 const pageTitle = isHome ? SITE_NAME : `${title} — ${SITE_NAME}`;
@@ -52,13 +51,13 @@ const ogImageUrl = new URL(ogImage, SITE_URL).href;
 /**
  * JSON-LD — de jsonld-bbdo-mexico.html (seccion 8).
  *
- * PENDIENTE verificar con marketing/legal ANTES de publicar:
- *   [ ] razon social exacta vs. nombre comercial "BBDO México"
- *   [ ] foundingDate real (no inventar: el campo va omitido a proposito)
- *   [ ] ¿Camilo Plazas sigue como CEO tras la integracion Omnicom-IPG?
- *   [ ] correo de new business (hoy solo existe quierotrabajaren@)
- *   [ ] numberOfEmployees aproximado (opcional)
- * Validar en https://validator.schema.org/
+ * PENDING verification with marketing/legal BEFORE publishing:
+ *   [ ] exact legal name vs. the trading name "BBDO México"
+ *   [ ] real foundingDate (do not invent one: the field is omitted on purpose)
+ *   [ ] is Camilo Plazas still CEO after the Omnicom-IPG merger?
+ *   [ ] a new business email address (today only quierotrabajaren@ exists)
+ *   [ ] approximate numberOfEmployees (optional)
+ * Validate at https://validator.schema.org/
  */
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -183,29 +182,29 @@ const jsonLd = {
 
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
 
-    <!-- Cada página puede añadir lo suyo al head: /work/[slug] mete aquí su
-         JSON-LD de CreativeWork, que va ADEMÁS del bloque de organización. -->
+    <!-- Each page can add its own tags to the head: /the-work/[slug] puts its
+         CreativeWork JSON-LD here, IN ADDITION to the organisation block. -->
     <slot name="head" />
   </head>
 
   <body>
-    <Header sobreMedios={sobreMedios} actual={Astro.url.pathname} />
+    <Header overMedia={overMedia} current={Astro.url.pathname} />
 
     <slot />
 
-    <footer class="pie">
-      <div class="pie__inner">
-        <p class="pie__marca">BBDO México</p>
+    <footer class="footer">
+      <div class="footer__inner">
+        <p class="footer__brand">BBDO México</p>
 
         <nav aria-label="Legal">
-          <ul class="pie__legal">
+          <ul class="footer__legal">
             {
-              LEGALES.map((e) => (
+              LEGAL_LINKS.map((e) => (
                 <li>
-                  {e.construida ? (
-                    <a href={e.href}>{e.texto}</a>
+                  {e.built ? (
+                    <a href={e.href}>{e.label}</a>
                   ) : (
-                    <span class="pie__pendiente">{e.texto}</span>
+                    <span class="footer__pending">{e.label}</span>
                   )}
                 </li>
               ))
@@ -213,11 +212,11 @@ const jsonLd = {
           </ul>
         </nav>
 
-        <p class="pie__contacto">
+        <p class="footer__contact">
           <a href="mailto:quierotrabajaren@bbdomexico.com">quierotrabajaren@bbdomexico.com</a>
         </p>
 
-        <p class="pie__red">Parte de BBDO Worldwide, red creativa de Omnicom Group.</p>
+        <p class="footer__network">Parte de BBDO Worldwide, red creativa de Omnicom Group.</p>
       </div>
     </footer>
   </body>
@@ -232,9 +231,9 @@ const jsonLd = {
 
   html {
     -webkit-text-size-adjust: 100%;
-    /* Tiene que ir también aquí, no solo en body: el desborde se mide sobre
-       documentElement, así que con body recortando y html visible seguía
-       habiendo scroll horizontal. */
+    /* This has to be here too, not only on body: overflow is measured against
+       documentElement, so with body clipping and html visible there was still
+       horizontal scroll. */
     overflow-x: clip;
   }
 
@@ -242,11 +241,11 @@ const jsonLd = {
     margin: 0;
     min-height: 100svh;
 
-    /* Los estados iniciales de las animaciones desplazan elementos hacia los
-       lados (translateX), y eso creaba scroll horizontal antes de que entraran.
-       clip y no hidden: hidden convertiría al body en contenedor de scroll y
-       rompería los position:sticky de dentro -el banner del home y la marca
-       del caso-. clip recorta sin crear ese contexto. */
+    /* The animations' initial states push elements sideways (translateX), and
+       that created horizontal scroll before they entered. clip and not hidden:
+       hidden would turn body into a scroll container and break the
+       position:sticky elements inside it — the home banner among them. clip
+       crops without creating that context. */
     overflow-x: clip;
     background: var(--color-bg);
     color: var(--color-fg);
@@ -265,17 +264,17 @@ const jsonLd = {
   }
 
   /* --- Pie --------------------------------------------------------------
-     El global tiene un pie minimo (solo privacy notice + copyright). Aqui va
-     mas: las cuatro paginas legales del sitio actual, incluida la alerta de
+     El global tiene un footer minimo (solo privacy notice + copyright). Aqui va
+     more: las cuatro paginas legales del sitio current, incluida la alerta de
      estafa, que es especifica de MX y hoy existe en produccion. */
-  .pie {
+  .footer {
     position: relative;
     z-index: 1;
     background: var(--color-dark);
     color: var(--color-on-dark);
     font-size: 0.9rem;
   }
-  .pie__inner {
+  .footer__inner {
     max-width: var(--max-width);
     margin-inline: auto;
     padding-inline: var(--gutter);
@@ -283,14 +282,14 @@ const jsonLd = {
     display: grid;
     gap: var(--space-m);
   }
-  .pie__marca {
+  .footer__brand {
     margin: 0;
     font-family: var(--font-display);
     font-weight: var(--weight-display);
     font-size: clamp(1.4rem, 3vw, 2rem);
     text-transform: uppercase;
   }
-  .pie__legal {
+  .footer__legal {
     list-style: none;
     margin: 0;
     padding: 0;
@@ -298,17 +297,17 @@ const jsonLd = {
     flex-wrap: wrap;
     gap: var(--space-s) var(--space-m);
   }
-  .pie__legal a {
+  .footer__legal a {
     text-decoration: none;
     border-bottom: 1px solid rgba(250, 250, 250, 0.35);
   }
-  .pie__legal a:hover {
+  .footer__legal a:hover {
     border-bottom-color: currentColor;
   }
-  .pie__contacto {
+  .footer__contact {
     margin: 0;
   }
-  .pie__red {
+  .footer__network {
     margin: 0;
     color: rgba(250, 250, 250, 0.6);
   }

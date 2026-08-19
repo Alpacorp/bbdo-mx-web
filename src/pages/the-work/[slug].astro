@@ -4,156 +4,156 @@ import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import ScrollFX from '../../components/ScrollFX.astro';
 import VideoBanner from '../../components/VideoBanner.astro';
-import BloqueCaso from '../../components/BloqueCaso.astro';
-import { estiloDeTema } from '../../temas';
+import CaseBlock from '../../components/CaseBlock.astro';
+import { themeStyle } from '../../themes';
 
 /**
- * /the-work/[slug] — el caso individual. Es EL activo SEO del proyecto.
+ * /the-work/[slug] — the individual case study. THE SEO asset of the project.
  *
- * Estructura tomada del caso del global (bbdo.com/work/whiskas/):
- *   h1 = nombre de la campaña   (el sitio actual pone <h1>Portfolio</h1> en
- *                                los 19 casos, que es el defecto a corregir)
- *   marca encima, como antetítulo
- *   h2 = el resultado en cifras
- *   cuerpo + "More work" al final
+ * Structure taken from the global site's case page (bbdo.com/work/whiskas/):
+ *   h1 = campaign name  (the current site prints <h1>Portfolio</h1> on all 19
+ *                        cases, which is the defect being fixed)
+ *   brand above it, as a kicker
+ *   h2 = the result, in figures
+ *   body copy + "More work" at the end
  */
 export async function getStaticPaths() {
-  const casos = await getCollection('work', ({ data }) => !data.borrador);
-  const ordenados = casos.sort((a, b) => a.data.orden - b.data.orden);
+  const cases = await getCollection('work', ({ data }) => !data.draft);
+  const sorted = cases.sort((a, b) => a.data.order - b.data.order);
 
-  return ordenados.map((caso, i) => ({
-    params: { slug: caso.id },
+  return sorted.map((caseEntry, i) => ({
+    params: { slug: caseEntry.id },
     props: {
-      caso,
-      // los tres siguientes, en bucle: nunca quedan menos de tres
-      relacionados: [1, 2, 3].map((n) => ordenados[(i + n) % ordenados.length]),
+      case: caseEntry,
+      // the next three, wrapping around: never fewer than three
+      related: [1, 2, 3].map((n) => sorted[(i + n) % sorted.length]),
     },
   }));
 }
 
-const { caso, relacionados } = Astro.props;
-const { data } = caso;
-const { Content } = await render(caso);
+const { case: caseEntry, related } = Astro.props;
+const { data } = caseEntry;
+const { Content } = await render(caseEntry);
 
 /**
- * Tema del caso. Las custom properties se inyectan en el propio <main>, así
- * que todo lo de dentro -bloques incluidos- las hereda sin tocar sus estilos.
- * Las paletas y su validación de contraste viven en src/temas.ts.
+ * The case theme. Custom properties are injected on <main> itself, so
+ * everything inside — blocks included — inherits them without touching their
+ * own styles. The palettes and their contrast validation live in src/themes.ts.
  */
-const estiloTema = estiloDeTema(data.tema);
+const themeVars = themeStyle(data.theme);
 
 const SITE_URL = 'https://bbdomexico.com';
-const url = `${SITE_URL}/the-work/${caso.id}/`;
+const url = `${SITE_URL}/the-work/${caseEntry.id}/`;
 
 /**
- * JSON-LD por caso, la plantilla CreativeWork de jsonld-bbdo-mexico.html.
- * Se omiten los campos sin dato real en vez de rellenarlos: un `datePublished`
- * inventado es peor que ninguno.
+ * Per-case JSON-LD, the CreativeWork template from jsonld-bbdo-mexico.html.
+ * Fields without real data are omitted rather than filled in: an invented
+ * `datePublished` is worse than none at all.
  */
 const jsonLd: Record<string, unknown> = {
   '@context': 'https://schema.org',
   '@type': 'CreativeWork',
   '@id': `${url}#case`,
-  name: data.campana,
-  headline: data.campana,
+  name: data.campaign,
+  headline: data.campaign,
   url,
   inLanguage: 'es-MX',
   creator: { '@id': `${SITE_URL}/#organization` },
-  sponsor: { '@type': 'Organization', name: data.cliente },
-  about: { '@type': 'Brand', name: data.marca },
-  image: new URL(data.imagen.src, SITE_URL).href,
+  sponsor: { '@type': 'Organization', name: data.client },
+  about: { '@type': 'Brand', name: data.brand },
+  image: new URL(data.image.src, SITE_URL).href,
 };
-if (data.resumen) jsonLd.description = data.resumen;
-if (data.anio) jsonLd.datePublished = String(data.anio);
-if (data.premios.length) jsonLd.award = data.premios;
+if (data.summary) jsonLd.description = data.summary;
+if (data.year) jsonLd.datePublished = String(data.year);
+if (data.awards.length) jsonLd.award = data.awards;
 ---
 
 <Base
-  title={`${data.campana} — ${data.marca}`}
-  path={`/the-work/${caso.id}/`}
-  sobreMedios
-  description={data.resumen || `${data.campana}, campaña de BBDO México para ${data.marca}.`}
+  title={`${data.campaign} — ${data.brand}`}
+  path={`/the-work/${caseEntry.id}/`}
+  overMedia
+  description={data.summary || `${data.campaign}, campaña de BBDO México para ${data.brand}.`}
 >
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
   </Fragment>
 
   {
-    /* El global usa en sus casos el MISMO banner enmascarado del home. Reusamos
-      el componente, pero con el key visual del propio caso de poster: cada
-      campaña entra con su imagen, no con una genérica.
+    /* The global site uses the SAME masked banner from its home page on case
+      pages. We reuse the component, but with the case's own key visual as the
+      poster: each campaign opens with its own image, not a generic one.
 
-      El video sigue siendo el compartido. Los videos de campaña de MX viven en
-      Vimeo (el id está en `vimeo`), y un embed de Vimeo no sirve como fondo en
-      bucle: haría falta un mp4 mudo por campaña. */
+      The video is still the shared one. MX campaign videos live on Vimeo (the
+      id is in `vimeo`), and a Vimeo embed cannot act as a looping background:
+      that would need a silent mp4 per campaign. */
   }
-  <VideoBanner izquierda="Do" derecha="Things" src="/v/banner-home.mp4" poster={data.imagen.src} />
+  <VideoBanner left="Do" right="Things" src="/v/banner-home.mp4" poster={data.image.src} />
 
-  <main id="content" class="caso" style={estiloTema} data-tema={data.tema}>
-    <nav class="miga" aria-label="Ruta">
+  <main id="content" class="case" style={themeVars} data-theme={data.theme}>
+    <nav class="breadcrumb" aria-label="Ruta">
       <a href="/the-work/">The Work</a>
       <span aria-hidden="true">/</span>
-      <span>{data.marca}</span>
+      <span>{data.brand}</span>
     </nav>
 
-    <header class="caso__cabecera">
-      <p class="caso__marca" data-fx="subir">{data.marca}</p>
+    <header class="case__header">
+      <p class="case__brand" data-fx="up">{data.brand}</p>
       {
-        /* El titular se revela por líneas, cada una tras su máscara. Es el
-          mismo gesto del titular del home, en pequeño. */
+        /* The headline reveals line by line, each behind its own mask. The
+          same gesture as the home page headline, scaled down. */
       }
-      <h1 class="caso__titulo" data-fx="lineas"><span>{data.campana}</span></h1>
+      <h1 class="case__title" data-fx="lines"><span>{data.campaign}</span></h1>
       {
-        data.resultado && (
-          <h2 class="caso__resultado" data-fx="subir" data-fx-delay="0.15">
-            {data.resultado}
+        data.result && (
+          <h2 class="case__result" data-fx="up" data-fx-delay="0.15">
+            {data.result}
           </h2>
         )
       }
       {
-        data.resumen && (
-          <p class="caso__resumen" data-fx="subir" data-fx-delay="0.25">
-            {data.resumen}
+        data.summary && (
+          <p class="case__summary" data-fx="up" data-fx-delay="0.25">
+            {data.summary}
           </p>
         )
       }
     </header>
 
-    {/* El key visual, con parallax dentro de un marco que recorta el sobrante. */}
-    <figure class="caso__marco" data-fx="escala">
+    {/* The key visual, with parallax inside a frame that crops the overflow. */}
+    <figure class="case__frame" data-fx="scale">
       <Image
-        src={data.imagen}
-        alt={data.imagenAlt}
+        src={data.image}
+        alt={data.imageAlt}
         widths={[600, 1200, 1800]}
         sizes="(max-width: 60rem) 100vw, 1200px"
         loading="eager"
-        class="caso__visual"
+        class="case__visual"
         data-fx="parallax"
       />
     </figure>
 
-    <section class="descripcion" aria-labelledby="desc-titulo">
-      <h2 id="desc-titulo" class="descripcion__titulo" data-fx="subir">La campaña</h2>
+    <section class="description" aria-labelledby="desc-titulo">
+      <h2 id="desc-titulo" class="description__title" data-fx="up">La campaña</h2>
 
       {
-        data.descripcion && (
-          <p class="descripcion__entrada" data-fx="subir" data-fx-delay="80">
-            {data.descripcion}
+        data.description && (
+          <p class="description__lead" data-fx="up" data-fx-delay="80">
+            {data.description}
           </p>
         )
       }
 
-      <div class="caso__cuerpo" data-fx="subir" data-fx-delay="140">
+      <div class="case__body" data-fx="up" data-fx-delay="140">
         <Content />
       </div>
 
       {
-        data.creditos.length > 0 && (
-          <ul class="creditos" data-fx-stagger>
-            {data.creditos.map((c) => (
+        data.credits.length > 0 && (
+          <ul class="credits" data-fx-stagger>
+            {data.credits.map((c) => (
               <li>
-                <span class="creditos__rol">{c.rol}</span>
-                <span class="creditos__nombre">{c.nombre}</span>
+                <span class="credits__role">{c.role}</span>
+                <span class="credits__name">{c.name}</span>
               </li>
             ))}
           </ul>
@@ -162,76 +162,76 @@ if (data.premios.length) jsonLd.award = data.premios;
     </section>
 
     {
-      /* Bloques flexibles: tiras de imágenes, citas, cifras, texto y video.
-        Alternan el lado de entrada, como en el global. */
+      /* Flexible blocks: image strips, quotes, figures, text and video. They
+        alternate the entrance side, like the global site. */
     }
     {
-      data.bloques.map((bloque, i) => (
-        <BloqueCaso bloque={bloque} lado={i % 2 === 0 ? 'izq' : 'der'} />
+      data.blocks.map((block, i) => (
+        <CaseBlock block={block} side={i % 2 === 0 ? 'left' : 'right'} />
       ))
     }
 
-    <dl class="ficha" data-fx-stagger>
-      <div><dt>Cliente</dt><dd>{data.cliente}</dd></div>
-      <div><dt>Marca</dt><dd>{data.marca}</dd></div>
+    <dl class="facts" data-fx-stagger>
+      <div><dt>Cliente</dt><dd>{data.client}</dd></div>
+      <div><dt>Marca</dt><dd>{data.brand}</dd></div>
       {
-        data.anio && (
+        data.year && (
           <div>
             <>
               <dt>Año</dt>
-              <dd>{data.anio}</dd>
+              <dd>{data.year}</dd>
             </>
           </div>
         )
       }
       {
-        data.industria && (
+        data.industry && (
           <div>
             <>
               <dt>Industria</dt>
-              <dd>{data.industria}</dd>
+              <dd>{data.industry}</dd>
             </>
           </div>
         )
       }
       {
-        data.capacidades.length > 0 && (
+        data.capabilities.length > 0 && (
           <div>
             <>
               <dt>Capacidades</dt>
-              <dd>{data.capacidades.join(', ')}</dd>
+              <dd>{data.capabilities.join(', ')}</dd>
             </>
           </div>
         )
       }
       {
-        data.premios.length > 0 && (
+        data.awards.length > 0 && (
           <div>
             <>
               <dt>Premios</dt>
-              <dd>{data.premios.join(' · ')}</dd>
+              <dd>{data.awards.join(' · ')}</dd>
             </>
           </div>
         )
       }
     </dl>
 
-    <section class="mas" aria-labelledby="mas-titulo">
-      <h2 id="mas-titulo" data-fx="subir">Más The Work</h2>
-      <ul class="mas__lista">
+    <section class="more" aria-labelledby="mas-titulo">
+      <h2 id="mas-titulo" data-fx="up">Más The Work</h2>
+      <ul class="more__list">
         {
-          relacionados.map((otro, i) => (
-            <li data-fx={i % 2 === 0 ? 'izq' : 'der'} data-fx-scrub>
+          related.map((otro, i) => (
+            <li data-fx={i % 2 === 0 ? 'left' : 'right'} data-fx-scrub>
               <a href={`/the-work/${otro.id}/`}>
                 <Image
-                  src={otro.data.imagen}
-                  alt={otro.data.imagenAlt}
+                  src={otro.data.image}
+                  alt={otro.data.imageAlt}
                   widths={[400, 800]}
                   sizes="(max-width: 40rem) 100vw, 33vw"
                   loading="lazy"
                 />
-                <h3>{otro.data.marca}</h3>
-                <p>{otro.data.campana}</p>
+                <h3>{otro.data.brand}</h3>
+                <p>{otro.data.campaign}</p>
               </a>
             </li>
           ))
@@ -244,14 +244,15 @@ if (data.premios.length) jsonLd.award = data.premios;
 </Base>
 
 <style>
-  .caso {
-    /* Por encima del banner sticky: es lo que hace que el contenido le pase
-       por encima en vez de dejarlo asomar. */
+  .case {
+    /* Above the sticky banner: this is what makes the content scroll over it
+       instead of letting it show through. */
     position: relative;
     z-index: 1;
-    /* Reaplicar `color` aquí es imprescindible: body ya resolvió
-       `color: var(--color-fg)` a un valor concreto y los descendientes heredan
-       ESE valor, no la variable. Redefinir --color-fg en el tema no bastaba. */
+    /* Reapplying `color` here is essential: body already resolved
+       `color: var(--color-fg)` to a concrete value and descendants inherit THAT
+       value, not the variable. Redefining --color-fg in the theme was not
+       enough on its own. */
     color: var(--color-fg);
     padding-inline: var(--gutter);
     padding-block: var(--space-xl);
@@ -259,48 +260,49 @@ if (data.premios.length) jsonLd.award = data.premios;
     margin-inline: auto;
   }
 
-  /* El fondo va en un pseudo a todo el ancho, no en .caso: .caso está limitado
-     por max-width y su fondo dejaba asomar el banner por los costados. */
-  .caso::before {
+  /* The background lives on a full-width pseudo-element and not on .case:
+     .case is capped by max-width and its background let the banner show at the
+     sides. */
+  .case::before {
     content: '';
     position: absolute;
     inset: 0;
     left: 50%;
     width: 100vw;
     transform: translateX(-50%);
-    background: var(--caso-fondo, var(--color-paper));
+    background: var(--case-background, var(--color-paper));
     z-index: -1;
   }
 
-  .miga {
+  .breadcrumb {
     display: flex;
     gap: var(--space-xs);
     font-size: 0.9rem;
     color: var(--color-dim);
     margin-bottom: var(--space-l);
   }
-  .miga a {
+  .breadcrumb a {
     text-decoration: none;
     border-bottom: 1px solid currentColor;
   }
-  .miga a:hover {
+  .breadcrumb a:hover {
     color: var(--color-accent);
   }
 
-  .caso__cabecera {
+  .case__header {
     margin-bottom: var(--space-l);
   }
-  .caso__marca {
-    /* Se probó en sticky para anclar la marca durante la lectura y se
-       descartó: al despegarse se solapaba con el resultado y con el resumen.
-       Un antetítulo quieto se lee mejor que uno flotando encima del texto. */
+  .case__brand {
+    /* Tried as sticky to anchor the brand during reading, then dropped: once
+       unstuck it overlapped the result and the summary. A kicker that stays
+       put reads better than one floating over the text. */
     margin: 0 0 var(--space-2xs);
     font-size: 1rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--color-dim);
   }
-  .caso__titulo {
+  .case__title {
     font-family: var(--font-display);
     font-weight: var(--weight-display);
     font-size: clamp(2.2rem, 7vw, 5rem);
@@ -309,7 +311,7 @@ if (data.premios.length) jsonLd.award = data.premios;
     margin: 0;
     max-width: 20ch;
   }
-  .caso__resultado {
+  .case__result {
     font-family: var(--font-display);
     font-weight: 400;
     font-size: clamp(1.3rem, 3vw, 2.2rem);
@@ -318,23 +320,23 @@ if (data.premios.length) jsonLd.award = data.premios;
     margin: var(--space-m) 0 0;
     max-width: 24ch;
   }
-  .caso__resumen {
+  .case__summary {
     margin: var(--space-m) 0 0;
     max-width: 52ch;
     font-size: clamp(1rem, 1.5vw, 1.2rem);
     line-height: 1.5;
   }
 
-  /* El marco recorta; la imagen de dentro es más alta que el marco para que
-     el parallax tenga recorrido sin descubrir el fondo. */
-  .caso__marco {
+  /* The frame crops; the image inside is taller than the frame so the parallax
+     has travel without exposing the background. */
+  .case__frame {
     margin: 0 0 var(--space-l);
     border-radius: 4px;
     overflow: hidden;
     background: var(--color-dark);
     aspect-ratio: 16 / 9;
   }
-  .caso__visual {
+  .case__visual {
     width: 100%;
     height: 118%;
     margin-top: -9%;
@@ -342,36 +344,36 @@ if (data.premios.length) jsonLd.award = data.premios;
     display: block;
   }
   @media (prefers-reduced-motion: reduce) {
-    /* Sin parallax no hace falta el sobrante, y así no se recorta el encuadre. */
-    .caso__visual {
+    /* Without parallax the overflow is unnecessary, and the framing stays intact. */
+    .case__visual {
       height: 100%;
       margin-top: 0;
     }
   }
   @media (max-width: 48rem) {
-    /* El parallax se apaga en móvil, así que tampoco aquí hace falta sobrante. */
-    .caso__visual {
+    /* Parallax is off on mobile, so no overflow is needed here either. */
+    .case__visual {
       height: 100%;
       margin-top: 0;
     }
   }
 
-  .caso__cuerpo {
+  .case__body {
     max-width: var(--measure);
     line-height: 1.6;
   }
-  .caso__cuerpo :global(h2) {
+  .case__body :global(h2) {
     font-family: var(--font-display);
     font-weight: var(--weight-display);
     text-transform: uppercase;
     margin-top: var(--space-l);
   }
 
-  /* --- Descripción de la campaña ---------------------------------------- */
-  .descripcion {
+  /* --- Campaign description ------------------------------------------------ */
+  .description {
     margin-top: var(--space-xl);
   }
-  .descripcion__titulo {
+  .description__title {
     font-family: var(--font-display);
     font-weight: var(--weight-display);
     font-size: clamp(1.4rem, 3vw, 2rem);
@@ -381,14 +383,14 @@ if (data.premios.length) jsonLd.award = data.premios;
     padding-bottom: var(--space-s);
     border-bottom: 1px solid var(--color-line);
   }
-  .descripcion__entrada {
+  .description__lead {
     max-width: var(--measure);
     margin: 0 0 var(--space-m);
     font-size: clamp(1.1rem, 1.8vw, 1.4rem);
     line-height: 1.45;
   }
 
-  .creditos {
+  .credits {
     list-style: none;
     margin: var(--space-l) 0 0;
     padding: 0;
@@ -396,18 +398,18 @@ if (data.premios.length) jsonLd.award = data.premios;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
     gap: var(--space-m);
   }
-  .creditos li {
+  .credits li {
     display: grid;
     gap: 2px;
   }
-  .creditos__rol {
+  .credits__role {
     font-size: 0.75rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--color-dim);
   }
 
-  .ficha {
+  .facts {
     margin: var(--space-xl) 0 0;
     padding-top: var(--space-m);
     border-top: 1px solid var(--color-line);
@@ -415,24 +417,24 @@ if (data.premios.length) jsonLd.award = data.premios;
     grid-template-columns: 1fr;
     gap: var(--space-m);
   }
-  .ficha div {
+  .facts div {
     display: grid;
     gap: 2px;
   }
-  .ficha dt {
+  .facts dt {
     font-size: 0.8rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--color-dim);
   }
-  .ficha dd {
+  .facts dd {
     margin: 0;
   }
 
-  .mas {
+  .more {
     margin-top: var(--space-2xl);
   }
-  .mas h2 {
+  .more h2 {
     font-family: var(--font-display);
     font-weight: var(--weight-display);
     font-size: clamp(1.6rem, 4vw, 2.6rem);
@@ -441,7 +443,7 @@ if (data.premios.length) jsonLd.award = data.premios;
     padding-bottom: var(--space-s);
     margin: 0 0 var(--space-l);
   }
-  .mas__lista {
+  .more__list {
     list-style: none;
     margin: 0;
     padding: 0;
@@ -449,11 +451,11 @@ if (data.premios.length) jsonLd.award = data.premios;
     grid-template-columns: 1fr;
     gap: var(--space-l) var(--space-m);
   }
-  .mas__lista a {
+  .more__list a {
     text-decoration: none;
     display: block;
   }
-  .mas__lista img {
+  .more__list img {
     width: 100%;
     height: auto;
     aspect-ratio: 16 / 9;
@@ -461,31 +463,31 @@ if (data.premios.length) jsonLd.award = data.premios;
     border-radius: 4px;
     background: var(--color-dark);
   }
-  .mas__lista h3 {
+  .more__list h3 {
     font-family: var(--font-display);
     font-weight: 400;
     font-size: 1.3rem;
     margin: var(--space-s) 0 2px;
   }
-  .mas__lista p {
+  .more__list p {
     margin: 0;
     color: var(--color-dim);
     font-size: 0.9rem;
   }
-  .mas__lista a:hover h3 {
+  .more__list a:hover h3 {
     color: var(--color-accent);
   }
 
   @media (min-width: 40rem) {
-    .ficha {
+    .facts {
       grid-template-columns: repeat(3, 1fr);
     }
-    .mas__lista {
+    .more__list {
       grid-template-columns: repeat(3, 1fr);
     }
   }
   @media (max-height: 32rem) {
-    .caso {
+    .case {
       padding-block: var(--space-l);
     }
   }

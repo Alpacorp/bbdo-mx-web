@@ -1,37 +1,37 @@
 ---
-titulo: 'Pony Malta'
-marca: 'Pony Malta'
-campana: 'Pony Malta'
-cliente: 'Pony Malta'
+title: 'Pony Malta'
+brand: 'Pony Malta'
+campaign: 'Pony Malta'
+client: 'Pony Malta'
 
-# PENDIENTE de curaduría. El sitio actual no tiene ni resultado ni descripción:
-# cada caso son 37 palabras y un embed de Vimeo.
-resultado: ''
-resumen: ''
+# PENDING curation. The current site has neither a result nor a description:
+# each case is 37 words and a Vimeo embed.
+result: ''
+summary: ''
 
-# PLACEHOLDER. Texto escrito por mí a partir del título del video y de lo
-# que se ve en él. Describe la idea, NO los resultados. Lo firma el director
-# creativo antes de publicar.
-descripcion: 'Pony Malta llevó su causa al lugar donde los adolescentes pasan las horas: los videojuegos. Skins x Skins convirtió los aspectos que se compran por vanidad dentro del juego en una vía para hablar de los niños que sobreviven fuera de él.'
+# PLACEHOLDER. Written by me from the video title and what is visible in it.
+# It describes the idea, NOT the results. Signed off by the creative director
+# before publishing.
+description: 'Pony Malta llevó su causa al lugar donde los adolescentes pasan las horas: los videojuegos. Skins x Skins convirtió los aspectos que se compran por vanidad dentro del juego en una vía para hablar de los niños que sobreviven fuera de él.'
 
-imagen: '../../assets/work/pony-malta.jpg'
-imagenAlt: 'Fotograma de la campaña Pony Malta - Skins x Skins Case Study'
+image: '../../assets/work/pony-malta.jpg'
+imageAlt: 'Fotograma de la campaña Pony Malta - Skins x Skins Case Study'
 
-# anio y categoria van vacíos a propósito: en el sitio actual los 19 casos
-# comparten fecha (10 feb 2024, la de la carga) y categoría (Branding).
-capacidades: []
-premios: []
+# year and category are left empty on purpose: on the current site all 19 cases
+# share a date (10 Feb 2024, the bulk upload) and a category (Branding).
+capabilities: []
+awards: []
 
-# Paleta del caso. Lista cerrada en src/temas.ts.
-tema: arena
+# Case palette. Closed list in src/themes.ts.
+theme: sand
 
-# Id de Vimeo, leído del sitio actual. Es donde vive el video de la campaña.
+# Vimeo id, read off the current site. That is where the campaign video lives.
 vimeo: '908811638'
 
-slugAnterior: '/portfolio/pony-malta/'
-orden: 1
-destacado: true
-borrador: false
+previousSlug: '/portfolio/pony-malta/'
+order: 1
+featured: true
+draft: false
 ---
 
 <!-- Cuerpo del caso: pendiente de curaduría y de que lo firme el director

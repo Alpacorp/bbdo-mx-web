@@ -1,37 +1,37 @@
 ---
-titulo: 'Bayer – Flanax – Bayer Vs Bayer'
-marca: 'Flanax'
-campana: 'Bayer vs Bayer'
-cliente: 'Bayer'
+title: 'Bayer – Flanax – Bayer Vs Bayer'
+brand: 'Flanax'
+campaign: 'Bayer vs Bayer'
+client: 'Bayer'
 
-# PENDIENTE de curaduría. El sitio actual no tiene ni resultado ni descripción:
-# cada caso son 37 palabras y un embed de Vimeo.
-resultado: ''
-resumen: ''
+# PENDING curation. The current site has neither a result nor a description:
+# each case is 37 words and a Vimeo embed.
+result: ''
+summary: ''
 
-# PLACEHOLDER. Texto escrito por mí a partir del título del video y de lo
-# que se ve en él. Describe la idea, NO los resultados. Lo firma el director
-# creativo antes de publicar.
-descripcion: 'Flanax jugó con una coincidencia de nombre difícil de ignorar. Bayer vs Bayer aprovechó el equipo de futbol homónimo para colar la marca en la conversación deportiva.'
+# PLACEHOLDER. Written by me from the video title and what is visible in it.
+# It describes the idea, NOT the results. Signed off by the creative director
+# before publishing.
+description: 'Flanax jugó con una coincidencia de nombre difícil de ignorar. Bayer vs Bayer aprovechó el equipo de futbol homónimo para colar la marca en la conversación deportiva.'
 
-imagen: '../../assets/work/flanax-bayer-vs-bayer.jpg'
-imagenAlt: 'Fotograma de la campaña FLANAX-Bayer Leverkusen Vs Bayer Leverkusen'
+image: '../../assets/work/flanax-bayer-vs-bayer.jpg'
+imageAlt: 'Fotograma de la campaña FLANAX-Bayer Leverkusen Vs Bayer Leverkusen'
 
-# anio y categoria van vacíos a propósito: en el sitio actual los 19 casos
-# comparten fecha (10 feb 2024, la de la carga) y categoría (Branding).
-capacidades: []
-premios: []
+# year and category are left empty on purpose: on the current site all 19 cases
+# share a date (10 Feb 2024, the bulk upload) and a category (Branding).
+capabilities: []
+awards: []
 
-# Paleta del caso. Lista cerrada en src/temas.ts.
-tema: claro
+# Case palette. Closed list in src/themes.ts.
+theme: light
 
-# Id de Vimeo, leído del sitio actual. Es donde vive el video de la campaña.
+# Vimeo id, read off the current site. That is where the campaign video lives.
 vimeo: '908796174'
 
-slugAnterior: '/portfolio/bayer-flanax-bayer-vs-bayer/'
-orden: 12
-destacado: false
-borrador: false
+previousSlug: '/portfolio/bayer-flanax-bayer-vs-bayer/'
+order: 12
+featured: false
+draft: false
 ---
 
 <!-- Cuerpo del caso: pendiente de curaduría y de que lo firme el director
