@@ -1,61 +1,61 @@
 ---
-import { NAVEGACION } from '../navegacion';
+import { NAVIGATION } from '../navigation';
 
 /**
- * Header.astro — logo, botón de menú y el menú.
+ * Header.astro — logo, menu button and the menu itself.
  *
- * Réplica de la mecánica del global: logo a la izquierda, botón a la derecha
- * (54x42 a 16px del borde) y el menú como overlay a pantalla completa, en
- * Outfit y mayúsculas. También en escritorio: el global no despliega la
- * navegación en la barra, siempre va detrás del botón.
+ * Mirrors the global site's mechanics: logo on the left, button on the right
+ * (54x42, 16px from the edge) and the menu as a full-screen overlay in Outfit
+ * uppercase. On desktop too: the global site never lays the navigation out in
+ * the bar, it always sits behind the button.
  *
- * SIN JAVASCRIPT
- *   El menú NO es un overlay hasta que html.js existe. Sin JS se muestra como
- *   una lista normal dentro del header, que se puede usar. El botón solo
- *   aparece cuando puede hacer algo. Es la misma regla del resto del sitio: lo
- *   que no depende de JS, no depende de JS.
+ * WITHOUT JAVASCRIPT
+ *   The menu is NOT an overlay until html.js exists. Without JS it renders as
+ *   a plain list inside the header, which works. The button only shows up when
+ *   it can actually do something. Same rule as the rest of the site: whatever
+ *   does not need JS, does not depend on JS.
  *
- * CONTRASTE
- *   `sobreMedios` es para las páginas que arrancan con el banner: ahí el
- *   header va transparente y el logo en blanco. En las que empiezan con fondo
- *   claro va sólido y el logo en rojo, que es el color del asset original.
+ * CONTRAST
+ *   `overMedia` is for pages that open with the video banner: there the header
+ *   is transparent and the logo white. On pages that start on a light
+ *   background it is solid and the logo red, the original asset's colour.
  */
 interface Props {
-  /** true en las páginas que arrancan con el banner de video. */
-  sobreMedios?: boolean;
-  /** Ruta actual, para marcar la entrada activa. */
-  actual?: string;
+  /** true on pages that open with the video banner. */
+  overMedia?: boolean;
+  /** Current path, used to mark the active entry. */
+  current?: string;
 }
 
-const { sobreMedios = false, actual = '' } = Astro.props;
-const esActual = (href: string) => actual === href || (href !== '/' && actual.startsWith(href));
+const { overMedia = false, current = '' } = Astro.props;
+const isCurrent = (href: string) => current === href || (href !== '/' && current.startsWith(href));
 ---
 
-<header class:list={['cab', sobreMedios && 'cab--sobre-medios']}>
-  <a class="cab__logo" href="/" aria-label="BBDO México — inicio">
+<header class:list={['nav', overMedia && 'nav--over-media']}>
+  <a class="nav__logo" href="/" aria-label="BBDO México — inicio">
     <img src="/v/logo-bbdo.png" alt="BBDO" width="100" height="26" />
   </a>
 
-  <button class="cab__boton" type="button" aria-expanded="false" aria-controls="menu-principal">
-    <span class="cab__boton-texto">Menú</span>
-    <span class="cab__barras" aria-hidden="true"><i></i><i></i></span>
+  <button class="nav__button" type="button" aria-expanded="false" aria-controls="menu-principal">
+    <span class="nav__button-text">Menú</span>
+    <span class="nav__bars" aria-hidden="true"><i></i><i></i></span>
   </button>
 
-  <nav class="cab__menu" id="menu-principal" aria-label="Principal">
-    <ul class="cab__lista">
+  <nav class="nav__menu" id="menu-principal" aria-label="Principal">
+    <ul class="nav__list">
       {
-        NAVEGACION.map((e) => (
+        NAVIGATION.map((e) => (
           <li>
-            {e.construida ? (
-              <a href={e.href} aria-current={esActual(e.href) ? 'page' : undefined}>
-                {e.texto}
+            {e.built ? (
+              <a href={e.href} aria-current={isCurrent(e.href) ? 'page' : undefined}>
+                {e.label}
               </a>
             ) : (
-              /* Sin enlace a propósito: la página aún no existe y un 404 en el
-                 menú principal es peor que una entrada visiblemente pendiente. */
-              <span class="cab__pendiente">
-                {e.texto}
-                <small>pendiente</small>
+              /* Deliberately not a link: the page does not exist yet, and a
+                 404 in the main menu is worse than a visibly pending entry. */
+              <span class="nav__pending">
+                {e.label}
+                <small>pending</small>
               </span>
             )}
           </li>
@@ -66,12 +66,12 @@ const esActual = (href: string) => actual === href || (href !== '/' && actual.st
 </header>
 
 <style>
-  .cab {
+  .nav {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    z-index: 10; /* por encima del banner sticky (0) y del contenido (1) */
+    z-index: 10; /* above the sticky banner (0) and the content (1) */
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -79,36 +79,36 @@ const esActual = (href: string) => actual === href || (href !== '/' && actual.st
     padding: 24px 40px;
   }
 
-  /* Sobre el banner el header flota; en el resto necesita fondo propio para
-     que el logo y el botón no queden sobre el contenido al hacer scroll. */
-  .cab:not(.cab--sobre-medios) {
+  /* Over the banner the header floats. Elsewhere it needs its own background
+     so the logo and button do not sit on top of content while scrolling. */
+  .nav:not(.nav--over-media) {
     position: sticky;
     background: var(--color-paper);
     border-bottom: 1px solid var(--color-line);
   }
 
-  .cab__logo {
+  .nav__logo {
     display: block;
     line-height: 0;
     text-decoration: none;
   }
-  .cab__logo img {
+  .nav__logo img {
     width: 100px;
     height: 26px;
     object-fit: contain;
   }
-  /* El único asset del logotipo es rojo. Sobre el banner se pasa a blanco:
-     brightness(0) lo lleva a negro conservando el alfa e invert(1) lo aclara. */
-  .cab--sobre-medios .cab__logo img {
+  /* The only logo asset is red. Over the banner it is turned white:
+     brightness(0) takes it to black keeping the alpha, invert(1) lightens it. */
+  .nav--over-media .nav__logo img {
     filter: brightness(0) invert(1);
   }
 
-  /* --- Botón ------------------------------------------------------------ */
-  /* Sin JS no hace nada, así que no se muestra. */
-  .cab__boton {
+  /* --- Button ------------------------------------------------------------- */
+  /* Without JS it does nothing, so it is not shown. */
+  .nav__button {
     display: none;
   }
-  :global(html.js) .cab__boton {
+  :global(html.js) .nav__button {
     display: flex;
     align-items: center;
     gap: var(--space-xs);
@@ -121,41 +121,41 @@ const esActual = (href: string) => actual === href || (href !== '/' && actual.st
     cursor: pointer;
     font: inherit;
   }
-  .cab__boton-texto {
+  .nav__button-text {
     font-family: var(--font-ui);
     font-size: 0.8rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
   }
-  .cab--sobre-medios .cab__boton {
+  .nav--over-media .nav__button {
     color: var(--color-on-dark);
   }
 
-  .cab__barras {
+  .nav__bars {
     display: grid;
     gap: 6px;
     width: 26px;
   }
-  .cab__barras i {
+  .nav__bars i {
     display: block;
     height: 2px;
     background: currentColor;
     transition: transform var(--dur-fast) var(--ease);
   }
-  /* Abierto: las dos barras se cruzan en aspa. */
-  .cab.esta-abierto .cab__barras i:first-child {
+  /* Open: the two bars cross into an X. */
+  .nav.is-open .nav__bars i:first-child {
     transform: translateY(4px) rotate(45deg);
   }
-  .cab.esta-abierto .cab__barras i:last-child {
+  .nav.is-open .nav__bars i:last-child {
     transform: translateY(-4px) rotate(-45deg);
   }
 
-  /* --- Menú -------------------------------------------------------------- */
-  /* Por defecto (sin JS) es una lista normal, usable tal cual. */
-  .cab__menu {
+  /* --- Menu --------------------------------------------------------------- */
+  /* By default (no JS) it is a plain list, usable as is. */
+  .nav__menu {
     flex: 1;
   }
-  .cab__lista {
+  .nav__list {
     list-style: none;
     margin: 0;
     padding: 0;
@@ -165,8 +165,8 @@ const esActual = (href: string) => actual === href || (href !== '/' && actual.st
     gap: var(--space-s) var(--space-m);
   }
 
-  /* Con JS pasa a overlay. */
-  :global(html.js) .cab__menu {
+  /* With JS it becomes an overlay. */
+  :global(html.js) .nav__menu {
     position: fixed;
     inset: 0;
     z-index: -1;
@@ -179,11 +179,11 @@ const esActual = (href: string) => actual === href || (href !== '/' && actual.st
       opacity var(--dur-base) var(--ease),
       visibility var(--dur-base);
   }
-  :global(html.js) .cab.esta-abierto .cab__menu {
+  :global(html.js) .nav.is-open .nav__menu {
     opacity: 1;
     visibility: visible;
   }
-  :global(html.js) .cab__lista {
+  :global(html.js) .nav__list {
     flex-direction: column;
     flex-wrap: nowrap;
     justify-content: center;
@@ -192,14 +192,14 @@ const esActual = (href: string) => actual === href || (href !== '/' && actual.st
     padding-inline: var(--gutter);
   }
 
-  .cab__lista a,
-  .cab__pendiente {
+  .nav__list a,
+  .nav__pending {
     font-family: var(--font-ui);
     font-size: 0.95rem;
     text-decoration: none;
   }
-  :global(html.js) .cab__lista a,
-  :global(html.js) .cab__pendiente {
+  :global(html.js) .nav__list a,
+  :global(html.js) .nav__pending {
     font-family: var(--font-display);
     font-weight: var(--weight-display);
     font-size: clamp(2rem, 7vw, 3.5rem);
@@ -208,96 +208,96 @@ const esActual = (href: string) => actual === href || (href !== '/' && actual.st
     color: var(--color-on-dark);
   }
 
-  .cab__lista a:hover {
+  .nav__list a:hover {
     color: var(--color-accent);
   }
-  :global(html.js) .cab__lista a:hover {
+  :global(html.js) .nav__list a:hover {
     color: var(--color-ink);
   }
-  .cab__lista a[aria-current='page'] {
+  .nav__list a[aria-current='page'] {
     text-decoration: underline;
     text-underline-offset: 6px;
   }
 
-  /* Pendiente: se ve, se lee, pero no promete un destino que no existe. */
-  .cab__pendiente {
+  /* Pending: visible and readable, but promises no destination that does not exist. */
+  .nav__pending {
     display: inline-flex;
     align-items: baseline;
     gap: var(--space-xs);
     opacity: 0.45;
     cursor: not-allowed;
   }
-  .cab__pendiente small {
+  .nav__pending small {
     font-family: var(--font-ui);
     font-weight: 400;
     font-size: 0.7rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
   }
-  :global(html.js) .cab__pendiente small {
+  :global(html.js) .nav__pending small {
     font-size: 0.75rem;
   }
 
   @media (max-width: 40rem) {
-    .cab {
+    .nav {
       padding: 18px 20px;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .cab__barras i,
-    :global(html.js) .cab__menu {
+    .nav__bars i,
+    :global(html.js) .nav__menu {
       transition: none;
     }
   }
 </style>
 
 <script>
-  const cab = document.querySelector<HTMLElement>('.cab');
-  const boton = cab?.querySelector<HTMLButtonElement>('.cab__boton');
-  const menu = cab?.querySelector<HTMLElement>('.cab__menu');
+  const nav = document.querySelector<HTMLElement>('.nav');
+  const button = nav?.querySelector<HTMLButtonElement>('.nav__button');
+  const menu = nav?.querySelector<HTMLElement>('.nav__menu');
 
-  if (cab && boton && menu) {
-    const enlaces = () => [...menu.querySelectorAll<HTMLAnchorElement>('a')];
+  if (nav && button && menu) {
+    const links = () => [...menu.querySelectorAll<HTMLAnchorElement>('a')];
 
-    function abrir(si: boolean) {
-      cab!.classList.toggle('esta-abierto', si);
-      boton!.setAttribute('aria-expanded', String(si));
-      // Bloquear el scroll de fondo mientras el overlay tapa la página.
+    function toggle(si: boolean) {
+      nav!.classList.toggle('is-open', si);
+      button!.setAttribute('aria-expanded', String(si));
+      // Lock background scrolling while the overlay covers the page.
       document.documentElement.style.overflow = si ? 'hidden' : '';
-      if (si) enlaces()[0]?.focus();
-      else boton!.focus();
+      if (si) links()[0]?.focus();
+      else button!.focus();
     }
 
-    boton.addEventListener('click', () => abrir(boton.getAttribute('aria-expanded') !== 'true'));
+    button.addEventListener('click', () => toggle(button.getAttribute('aria-expanded') !== 'true'));
 
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Escape') return;
-      if (boton.getAttribute('aria-expanded') === 'true') abrir(false);
+      if (button.getAttribute('aria-expanded') === 'true') toggle(false);
     });
 
-    // Al navegar dentro del overlay se cierra: si no, en un enlace ancla el
-    // menú se quedaría abierto encima del destino.
+    // Navigating from inside the overlay closes it: otherwise an anchor link
+    // would leave the menu open on top of the destination.
     menu.addEventListener('click', (e) => {
-      if ((e.target as HTMLElement).closest('a')) abrir(false);
+      if ((e.target as HTMLElement).closest('a')) toggle(false);
     });
 
     /**
-     * El foco no puede escaparse del overlay mientras está abierto: si se
-     * escapa, el teclado navega por una página que no se ve.
+     * Focus must not escape the overlay while it is open: if it does, the
+     * keyboard navigates a page nobody can see.
      */
     menu.addEventListener('keydown', (e) => {
       if (e.key !== 'Tab') return;
-      const focos = enlaces();
-      if (!focos.length) return;
-      const primero = focos[0];
-      const ultimo = focos[focos.length - 1];
-      if (!e.shiftKey && document.activeElement === ultimo) {
+      const focusables = links();
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (!e.shiftKey && document.activeElement === last) {
         e.preventDefault();
-        primero.focus();
-      } else if (e.shiftKey && document.activeElement === primero) {
+        first.focus();
+      } else if (e.shiftKey && document.activeElement === first) {
         e.preventDefault();
-        ultimo.focus();
+        last.focus();
       }
     });
   }

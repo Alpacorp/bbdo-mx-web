@@ -1,71 +1,71 @@
 ---
 /**
- * VideoHeadline.astro — el efecto firma: clips de campana incrustados en el
- * flujo del titular, sentados en la linea base y atados al `em`.
+ * VideoHeadline.astro — the signature effect: campaign clips embedded in the
+ * headline's flow, sitting on the baseline and tied to the `em`.
  *
- * El titular se renderiza como texto real; los slots son aria-hidden. Eso es
- * lo que permite tener el efecto Y el texto indexable a la vez.
+ * The headline renders as real text; the slots are aria-hidden. That is what
+ * makes it possible to have the effect AND indexable text at the same time.
  *
- * Calibrado contra bbdo.com el 2026-08-18: Outfit 600, line-height 1.02,
- * slots de 0.81em de alto con anchos variables, radius 0.117em y
- * vertical-align baseline. Ver docs/referencia-visual-bbdo-global.md.
+ * Calibrated against bbdo.com on 2026-08-18: Outfit 600, line-height 1.02,
+ * slots 0.81em tall with variable widths, radius 0.117em and vertical-align
+ * baseline. See docs/referencia-visual-bbdo-global.md.
  *
- * Dos desviaciones deliberadas respecto al global, ambas a favor nuestro:
- *   - Usamos <h1>; el global usa <h2> y su home no tiene ningun h1.
- *   - Los videos llevan poster y preload="none"; los del global van con
- *     autoplay y sin poster, lo que viola la seccion 6 del brief.
+ * Two deliberate departures from the global site, both in our favour:
+ *   - We use <h1>; they use <h2> and their home page has no h1 at all.
+ *   - Our videos carry a poster and preload="none"; theirs use autoplay with
+ *     no poster, which breaks section 6 of the brief.
  *
- * Instalacion:  npm i gsap
+ * Install:  npm i gsap
  */
 
 interface Clip {
-  after: number; // indice de la palabra tras la cual se inserta el clip
+  after: number; // index of the word this clip is inserted after
   src: string;
   poster: string;
   label?: string;
-  /** Ancho del slot. El global usa estos tres: 1.70em / 2.10em / 2.70em. */
+  /** Slot width. The global site uses these three: 1.70em / 2.10em / 2.70em. */
   size?: 'sm' | 'md' | 'lg';
 }
 
-/** Un elemento ya colocado en el orden de render. */
-type Elemento =
-  | { type: 'salto' }
+/** One item already placed in render order. */
+type Item =
+  | { type: 'break' }
   | { type: 'word'; word: string; accent: boolean; i: number }
   | ({ type: 'clip' } & Clip);
 
 /**
- * OJO con el nombre de las props: esta interfaz declaraba `as?: 'h1' | 'h2'` y
- * eso rompía la inferencia de Astro. Con una prop llamada `as` -palabra
- * reservada de TypeScript- `Astro.props` pasa a ser `Record<string, any>` y
- * TODO el componente se queda sin tipos, en silencio. Lo destapó `astro check`;
- * el build compila igual. Por eso la prop se llama `etiqueta`.
+ * CAREFUL with prop names: this interface used to declare `as?: 'h1' | 'h2'`
+ * and that broke Astro's inference. With a prop named `as` — a TypeScript
+ * reserved word — `Astro.props` becomes `Record<string, any>` and the WHOLE
+ * component silently loses its types. `astro check` surfaced it; the build
+ * compiles either way. That is why the prop is called `etiqueta`.
  */
 interface Props {
   /**
-   * Palabras del titular. El valor '|' fuerza un salto de línea, para poder
-   * decidir dónde parte la frase en vez de dejarlo al ancho disponible:
-   * ['Somos','BBDO','México','|','Do','Big','Things'] mantiene "Do Big Things"
-   * junto en una línea. En pantallas estrechas el texto sigue partiendo por
-   * donde haga falta; el salto solo añade uno, no impide los demás.
+   * Headline words. The value '|' forces a line break, so the copy decides
+   * where the phrase splits instead of leaving it to the available width:
+   * ['Somos','BBDO','México','|','Do','Big','Things'] keeps "Do Big Things"
+   * together on one line. On narrow screens the text still wraps wherever it
+   * needs to; the break only adds one, it does not prevent the others.
    */
   words: string[];
   clips?: Clip[];
-  accentIndex?: number; // palabra en color de marca
+  accentIndex?: number; // word en color de marca
   etiqueta?: 'h1' | 'h2';
 }
 
 const { words, clips = [], accentIndex = -1, etiqueta: Tag = 'h1' } = Astro.props;
 
-// Los saltos no cuentan como palabra: si contaran, correrían los índices de
-// `after` de los clips y `accentIndex`, y habría que recalcularlos a mano.
+// Breaks do not count as words: if they did, the clips' `after` indices and
+// `accentIndex` would shift and need recalculating by hand.
 let indicePalabra = -1;
-const sequence: Elemento[] = words.flatMap((word): Elemento[] => {
-  if (word === '|') return [{ type: 'salto' }];
+const sequence: Item[] = words.flatMap((word): Item[] => {
+  if (word === '|') return [{ type: 'break' }];
   indicePalabra += 1;
   const i = indicePalabra;
   return [
     { type: 'word', word, accent: i === accentIndex, i },
-    ...clips.filter((c) => c.after === i).map((c): Elemento => ({ type: 'clip', ...c })),
+    ...clips.filter((c) => c.after === i).map((c): Item => ({ type: 'clip', ...c })),
   ];
 });
 ---
@@ -73,7 +73,7 @@ const sequence: Elemento[] = words.flatMap((word): Elemento[] => {
 <Tag class="vh" data-video-headline>
   {
     sequence.map((item) =>
-      item.type === 'salto' ? (
+      item.type === 'break' ? (
         <br />
       ) : item.type === 'word' ? (
         <span class:list={['vh__w', item.accent && 'vh__w--accent']}>
@@ -102,14 +102,14 @@ const sequence: Elemento[] = words.flatMap((word): Elemento[] => {
 
 <script is:inline>
   /**
-   * Failsafe. El estado oculto del titular cuelga de html.js, asi que si el
-   * bundle de GSAP no llega a ejecutarse -error de red, CSP, fallo del CDN,
-   * un throw en otro modulo- el titular se queda invisible con el texto en
-   * el DOM. Esto lo revela igualmente pasados 2.5s.
+   * Failsafe. The headline's hidden state hangs off html.js, so if the GSAP
+   * bundle never runs — network error, CSP, CDN failure, a throw in another
+   * module — the headline stays invisible with the text sitting in the DOM.
+   * This reveals it anyway after 2.5s.
    *
-   * Solo arma el contador cuando la pestana esta visible: en segundo plano
-   * el navegador estrangula rAF y GSAP no arranca, y no queremos "revelar
-   * sin animacion" una pestana que el usuario todavia no ha mirado.
+   * The timer is only armed while the tab is visible: in the background the
+   * browser throttles rAF and GSAP never starts, and we do not want to
+   * "reveal without animation" a tab the user has not looked at yet.
    */
   (function () {
     function revelar() {
@@ -138,33 +138,33 @@ const sequence: Elemento[] = words.flatMap((word): Elemento[] => {
     font-size: var(--size-display);
     line-height: var(--lh-display);
     letter-spacing: normal;
-    /* El global lleva text-transform:none y el texto fuente ya en mayusculas.
-       Preferimos lo contrario: mismo resultado visual, pero el texto que lee
-       un buscador o un lector de pantalla queda en capitalizacion normal. */
+    /* The global site uses text-transform:none with the source text already in
+       caps. We do the opposite: same visual result, but the text a search
+       engine or a screen reader reads stays in normal capitalisation. */
     text-transform: uppercase;
     max-width: 18ch;
     margin: 0;
   }
 
-  /* El estado por defecto es TODO VISIBLE. Si el JS no corre -bloqueado, error
-     de red, bundle caido- el titular se lee completo en vez de quedar atrapado
-     tras un transform que nadie va a revertir. El estado oculto del que parte
-     la animacion cuelga de html.js, clase que pone un script inline en
-     Base.astro antes del primer paint (sin flash). */
+  /* The default state is EVERYTHING VISIBLE. If the JS does not run — blocked,
+     network error, bundle down — the headline reads in full instead of being
+     trapped behind a transform nobody will revert. The hidden state the
+     animation starts from hangs off html.js, a class an inline script in
+     Base.astro sets before first paint (no flash). */
   .vh__w {
     display: inline-block;
 
-    /* Los <span> salen del map() sin nodos de texto entre ellos: sin este
-       margen las palabras se pegan ("BIGTHINGS" en vez de "BIG THINGS"). */
+    /* The <span>s come out of map() with no text nodes between them: without
+       this margin the words run together ("BIGTHINGS" instead of "BIG THINGS"). */
     margin-right: 0.2em;
 
-    /* Mascara del reveal. clip-path y no overflow:hidden por dos razones:
-       overflow:hidden cambia la linea base del inline-block (rompe la
-       alineacion con los slots) y recorta la tinta que sobresale de la caja
-       de linea. Los insets negativos agrandan la mascara sin tocar la caja. */
-    /* Arriba 0.36em: con line-height 1.02 el acento de la E de MEXICO sobresale
-       de la caja de linea y se cortaba. Abajo 0.14em basta para la tinta de
-       Outfit. Medido en pantalla, no calculado. */
+    /* The reveal mask. clip-path and not overflow:hidden for two reasons:
+       overflow:hidden changes the inline-block's baseline (breaking alignment
+       with the slots) and crops ink that overshoots the line box. Negative
+       insets grow the mask without touching the box. */
+    /* 0.36em on top: with line-height 1.02 the accent on the E in MÉXICO
+       overshoots the line box and was being clipped. 0.14em below is enough for
+       Outfit's ink. Measured on screen, not calculated. */
     clip-path: inset(-0.36em 0 -0.14em 0);
   }
   .vh__w > i {
@@ -173,9 +173,9 @@ const sequence: Elemento[] = words.flatMap((word): Elemento[] => {
     transform: none;
   }
   :global(html.js) .vh__w > i {
-    /* 125% (175px) supera los 160px que ocupa la mascara hacia abajo (1.02em
-       de caja + 0.14em de inset): la palabra arranca fuera de ella. Si se
-       cambia el inset inferior o el line-height, recalcular este valor. */
+    /* 125% (175px) clears the 160px the mask extends downward (1.02em of
+       box + 0.14em of inset): the word starts outside it. If the bottom
+       inset or the line-height changes, recalculate this value. */
     transform: translateY(125%);
   }
   .vh__w--accent > i {
@@ -184,16 +184,15 @@ const sequence: Elemento[] = words.flatMap((word): Elemento[] => {
 
   .vh__slot {
     display: inline-block;
-    /* baseline, como el global: con overflow:hidden la linea base del
-       inline-block es su borde inferior, asi que el slot se sienta sobre la
-       linea base del texto. */
+    /* baseline, like the global site: with overflow:hidden an inline-block's
+       baseline is its bottom edge, so the slot sits on the text baseline. */
     vertical-align: baseline;
     position: relative;
     overflow: hidden;
     border-radius: 0.117em;
     background: var(--color-dark);
 
-    /* Atado al em: escala con la tipografia sin media queries. */
+    /* Tied to the em: scales with the type without media queries. */
     height: 0.81em;
     margin: 0 0.1em;
 
@@ -204,12 +203,12 @@ const sequence: Elemento[] = words.flatMap((word): Elemento[] => {
     transform: scaleX(0);
   }
 
-  /* Failsafe: mismo resultado que reduced-motion, sin animacion. Van despues
-     de las reglas de html.js a proposito: empatan en especificidad y gana el
-     orden de aparicion. */
-  /* Lleva html.js delante a proposito. Sin el, `[data-vh-fallback] .vh__w > i`
-     empata en clases con `html.js .vh__w > i` pero tiene un elemento menos, y
-     pierde. Con html.js delante gana por especificidad y por orden. */
+  /* Failsafe: same result as reduced-motion, without animation. Placed after
+     the html.js rules on purpose: they tie on specificity and source order
+     wins. */
+  /* html.js is prefixed on purpose. Without it, `[data-vh-fallback] .vh__w > i`
+     ties on classes with `html.js .vh__w > i` but has one element fewer, and
+     loses. With html.js in front it wins on both specificity and order. */
   :global(html.js) :global([data-vh-fallback]) .vh__w > i {
     transform: none;
   }
@@ -217,7 +216,7 @@ const sequence: Elemento[] = words.flatMap((word): Elemento[] => {
     transform: scaleX(1);
   }
 
-  /* Los tres anchos del global. */
+  /* The global site's three widths. */
   .vh__slot--sm {
     width: 1.7em;
   }
@@ -252,8 +251,8 @@ const sequence: Elemento[] = words.flatMap((word): Elemento[] => {
   }
 
   @media (prefers-reduced-motion: reduce) {
-    /* Prefijadas con html.js a proposito: sin JS el estado por defecto ya es
-       visible, y sin el prefijo estas reglas perderian por especificidad. */
+    /* Prefixed with html.js on purpose: without JS the default state is already
+       visible, and without the prefix these rules would lose on specificity. */
     :global(html.js) .vh__w > i {
       transform: none;
     }
@@ -262,7 +261,7 @@ const sequence: Elemento[] = words.flatMap((word): Elemento[] => {
     }
     .vh__slot video {
       display: none;
-    } /* poster estatico */
+    } /* static poster */
   }
 </style>
 
@@ -270,7 +269,7 @@ const sequence: Elemento[] = words.flatMap((word): Elemento[] => {
   import { gsap } from 'gsap';
 
   document.querySelectorAll<HTMLElement>('[data-video-headline]').forEach((el) => {
-    el.setAttribute('data-vh-ready', ''); // desarma el failsafe inline
+    el.setAttribute('data-vh-ready', ''); // disarms the inline failsafe
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     if (reduce) {
@@ -292,7 +291,7 @@ const sequence: Elemento[] = words.flatMap((word): Elemento[] => {
         duration: 0.9,
         stagger: 0.09,
         onStart() {
-          // Los clips arrancan DESPUES del titular: el LCP nunca compite.
+          // Clips start AFTER the headline: the LCP never competes.
           el.querySelectorAll<HTMLVideoElement>('.vh__slot video').forEach((v) => {
             v.preload = 'auto';
             v.play().catch(() => {});
@@ -302,7 +301,7 @@ const sequence: Elemento[] = words.flatMap((word): Elemento[] => {
       '-=0.6'
     );
 
-    // Pausa fuera de viewport: bateria y CPU.
+    // Pause off-viewport: battery and CPU.
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {

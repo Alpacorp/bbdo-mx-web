@@ -1,26 +1,27 @@
 /**
- * tokens.css — design system como CSS custom properties.
+ * tokens.css — the design system as CSS custom properties.
  *
- * Alineado con bbdo.com el 2026-08-18 (ver docs/referencia-visual-bbdo-global.md).
- * Los valores de color y tipografia salen de estilos computados del global, no
- * de Figma. Cuando el disenador entregue los tokens de la seccion 10, se mapean
- * aqui y esto deja de ser provisional.
+ * Aligned with bbdo.com on 2026-08-18 (see docs/referencia-visual-bbdo-global.md).
+ * Colour and type values come from the global site's computed styles, not from
+ * Figma. Once the designer delivers the section 10 tokens they get mapped here
+ * and this stops being provisional.
  *
- * --font-display, --font-ui y --color-accent son contrato: VideoHeadline.astro
- * los consume. Renombrarlos rompe el componente.
+ * --font-display, --font-ui and --color-accent are a contract:
+ * VideoHeadline.astro consumes them. Renaming them breaks the component.
  */
 
 :root {
-  /* --- Color ------------------------------------------------------------ */
-  /* Rojo puro, como el global. El prototipo usaba #E4002B; no coincidia. */
+  /* --- Colour ----------------------------------------------------------- */
+  /* Pure red, like the global site. The prototype used #E4002B, which did not
+     match. */
   --color-red: #ff0000;
   --color-accent: var(--color-red);
 
-  --color-paper: #fafafa; /* fondo general del sitio: claro */
-  --color-ink: #404040; /* texto sobre claro */
+  --color-paper: #fafafa; /* site background: light */
+  --color-ink: #404040; /* text on light */
   --color-dark: #161616;
   --color-dark-alt: #212121;
-  --color-on-dark: #fafafa; /* texto sobre rojo u oscuro */
+  --color-on-dark: #fafafa; /* text on red or dark */
 
   --color-bg: var(--color-paper);
   --color-fg: var(--color-ink);
@@ -28,20 +29,20 @@
   --color-line: rgba(64, 64, 64, 0.14);
   --color-dim: rgba(64, 64, 64, 0.6);
 
-  /* --- Tipografia ------------------------------------------------------- */
-  /* Outfit 600 es la display del global. Se carga en Base.astro. */
+  /* --- Typography -------------------------------------------------------- */
+  /* Outfit 600 is the global site's display face. Loaded in Base.astro. */
   --font-display: 'Outfit', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
   --font-ui: 'Inter', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
 
   --weight-display: 600;
 
-  /* El global va a 137px con line-height 140px (~1.02). Sin letter-spacing
-     negativo y sin text-transform: las mayusculas vienen del texto fuente. */
+  /* The global site runs at 137px with line-height 140px (~1.02). No negative
+     letter-spacing and no text-transform: the caps come from the source text. */
   --lh-display: 1.02;
   --size-display: clamp(2.6rem, 9.2vw, 8.6rem);
-  --size-case-brand: clamp(1.5rem, 2.4vw, 2rem); /* 32px en el global */
+  --size-case-brand: clamp(1.5rem, 2.4vw, 2rem); /* 32px on the global site */
 
-  /* --- Espaciado -------------------------------------------------------- */
+  /* --- Spacing ----------------------------------------------------------- */
   --space-2xs: 0.25rem;
   --space-xs: 0.5rem;
   --space-s: 1rem;
@@ -61,7 +62,7 @@
   --dur-slow: 0.9s;
 }
 
-/* Seccion 6 del brief: reduced-motion respetado, global. */
+/* Section 6 of the brief: reduced-motion honoured, site-wide. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

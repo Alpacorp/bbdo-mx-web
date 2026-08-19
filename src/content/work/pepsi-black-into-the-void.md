@@ -1,37 +1,37 @@
 ---
-titulo: 'GEPP – Pepsi Black Into the void'
-marca: 'Pepsi Black'
-campana: 'Into the Void'
-cliente: 'GEPP'
+title: 'GEPP – Pepsi Black Into the void'
+brand: 'Pepsi Black'
+campaign: 'Into the Void'
+client: 'GEPP'
 
-# PENDIENTE de curaduría. El sitio actual no tiene ni resultado ni descripción:
-# cada caso son 37 palabras y un embed de Vimeo.
-resultado: ''
-resumen: ''
+# PENDING curation. The current site has neither a result nor a description:
+# each case is 37 words and a Vimeo embed.
+result: ''
+summary: ''
 
-# PLACEHOLDER. Texto escrito por mí a partir del título del video y de lo
-# que se ve en él. Describe la idea, NO los resultados. Lo firma el director
-# creativo antes de publicar.
-descripcion: 'Pepsi Black se fue al extremo visual de su propio nombre. Into the Void construyó un territorio oscuro donde el producto es lo único que da luz.'
+# PLACEHOLDER. Written by me from the video title and what is visible in it.
+# It describes the idea, NOT the results. Signed off by the creative director
+# before publishing.
+description: 'Pepsi Black se fue al extremo visual de su propio nombre. Into the Void construyó un territorio oscuro donde el producto es lo único que da luz.'
 
-imagen: '../../assets/work/pepsi-black-into-the-void.jpg'
-imagenAlt: 'Fotograma de la campaña "Into the Void" by Pepsi Black'
+image: '../../assets/work/pepsi-black-into-the-void.jpg'
+imageAlt: 'Fotograma de la campaña "Into the Void" by Pepsi Black'
 
-# anio y categoria van vacíos a propósito: en el sitio actual los 19 casos
-# comparten fecha (10 feb 2024, la de la carga) y categoría (Branding).
-capacidades: []
-premios: []
+# year and category are left empty on purpose: on the current site all 19 cases
+# share a date (10 Feb 2024, the bulk upload) and a category (Branding).
+capabilities: []
+awards: []
 
-# Paleta del caso. Lista cerrada en src/temas.ts.
-tema: nocturno
+# Case palette. Closed list in src/themes.ts.
+theme: night
 
-# Id de Vimeo, leído del sitio actual. Es donde vive el video de la campaña.
+# Vimeo id, read off the current site. That is where the campaign video lives.
 vimeo: '444115135'
 
-slugAnterior: '/portfolio/geep-pepsi-black/'
-orden: 15
-destacado: false
-borrador: false
+previousSlug: '/portfolio/geep-pepsi-black/'
+order: 15
+featured: false
+draft: false
 ---
 
 <!-- Cuerpo del caso: pendiente de curaduría y de que lo firme el director

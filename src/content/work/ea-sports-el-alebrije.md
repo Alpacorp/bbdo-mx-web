@@ -1,37 +1,37 @@
 ---
-titulo: 'EA Sports – El Alebrije'
-marca: 'EA Sports'
-campana: 'El Alebrije'
-cliente: 'EA Sports'
+title: 'EA Sports – El Alebrije'
+brand: 'EA Sports'
+campaign: 'El Alebrije'
+client: 'EA Sports'
 
-# PENDIENTE de curaduría. El sitio actual no tiene ni resultado ni descripción:
-# cada caso son 37 palabras y un embed de Vimeo.
-resultado: ''
-resumen: ''
+# PENDING curation. The current site has neither a result nor a description:
+# each case is 37 words and a Vimeo embed.
+result: ''
+summary: ''
 
-# PLACEHOLDER. Texto escrito por mí a partir del título del video y de lo
-# que se ve en él. Describe la idea, NO los resultados. Lo firma el director
-# creativo antes de publicar.
-descripcion: 'EA Sports metió el imaginario mexicano dentro del juego. El Alebrije trajo la figura del arte popular al terreno donde se juega, se comparte y se presume.'
+# PLACEHOLDER. Written by me from the video title and what is visible in it.
+# It describes the idea, NOT the results. Signed off by the creative director
+# before publishing.
+description: 'EA Sports metió el imaginario mexicano dentro del juego. El Alebrije trajo la figura del arte popular al terreno donde se juega, se comparte y se presume.'
 
-imagen: '../../assets/work/ea-sports-el-alebrije.jpg'
-imagenAlt: 'Fotograma de la campaña EA Sports - El Alebrije'
+image: '../../assets/work/ea-sports-el-alebrije.jpg'
+imageAlt: 'Fotograma de la campaña EA Sports - El Alebrije'
 
-# anio y categoria van vacíos a propósito: en el sitio actual los 19 casos
-# comparten fecha (10 feb 2024, la de la carga) y categoría (Branding).
-capacidades: []
-premios: []
+# year and category are left empty on purpose: on the current site all 19 cases
+# share a date (10 Feb 2024, the bulk upload) and a category (Branding).
+capabilities: []
+awards: []
 
-# Paleta del caso. Lista cerrada en src/temas.ts.
-tema: nocturno
+# Case palette. Closed list in src/themes.ts.
+theme: night
 
-# Id de Vimeo, leído del sitio actual. Es donde vive el video de la campaña.
+# Vimeo id, read off the current site. That is where the campaign video lives.
 vimeo: '908810451'
 
-slugAnterior: '/portfolio/ea-sports-el-alebrije/'
-orden: 6
-destacado: true
-borrador: false
+previousSlug: '/portfolio/ea-sports-el-alebrije/'
+order: 6
+featured: true
+draft: false
 ---
 
 <!-- Cuerpo del caso: pendiente de curaduría y de que lo firme el director
