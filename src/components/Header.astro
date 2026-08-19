@@ -1,0 +1,304 @@
+---
+import { NAVEGACION } from '../navegacion';
+
+/**
+ * Header.astro — logo, botón de menú y el menú.
+ *
+ * Réplica de la mecánica del global: logo a la izquierda, botón a la derecha
+ * (54x42 a 16px del borde) y el menú como overlay a pantalla completa, en
+ * Outfit y mayúsculas. También en escritorio: el global no despliega la
+ * navegación en la barra, siempre va detrás del botón.
+ *
+ * SIN JAVASCRIPT
+ *   El menú NO es un overlay hasta que html.js existe. Sin JS se muestra como
+ *   una lista normal dentro del header, que se puede usar. El botón solo
+ *   aparece cuando puede hacer algo. Es la misma regla del resto del sitio: lo
+ *   que no depende de JS, no depende de JS.
+ *
+ * CONTRASTE
+ *   `sobreMedios` es para las páginas que arrancan con el banner: ahí el
+ *   header va transparente y el logo en blanco. En las que empiezan con fondo
+ *   claro va sólido y el logo en rojo, que es el color del asset original.
+ */
+interface Props {
+  /** true en las páginas que arrancan con el banner de video. */
+  sobreMedios?: boolean;
+  /** Ruta actual, para marcar la entrada activa. */
+  actual?: string;
+}
+
+const { sobreMedios = false, actual = '' } = Astro.props;
+const esActual = (href: string) => actual === href || (href !== '/' && actual.startsWith(href));
+---
+
+<header class:list={['cab', sobreMedios && 'cab--sobre-medios']}>
+  <a class="cab__logo" href="/" aria-label="BBDO México — inicio">
+    <img src="/v/logo-bbdo.png" alt="BBDO" width="100" height="26" />
+  </a>
+
+  <button class="cab__boton" type="button" aria-expanded="false" aria-controls="menu-principal">
+    <span class="cab__boton-texto">Menú</span>
+    <span class="cab__barras" aria-hidden="true"><i></i><i></i></span>
+  </button>
+
+  <nav class="cab__menu" id="menu-principal" aria-label="Principal">
+    <ul class="cab__lista">
+      {
+        NAVEGACION.map((e) => (
+          <li>
+            {e.construida ? (
+              <a href={e.href} aria-current={esActual(e.href) ? 'page' : undefined}>
+                {e.texto}
+              </a>
+            ) : (
+              /* Sin enlace a propósito: la página aún no existe y un 404 en el
+                 menú principal es peor que una entrada visiblemente pendiente. */
+              <span class="cab__pendiente">
+                {e.texto}
+                <small>pendiente</small>
+              </span>
+            )}
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+</header>
+
+<style>
+  .cab {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10; /* por encima del banner sticky (0) y del contenido (1) */
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-m);
+    padding: 24px 40px;
+  }
+
+  /* Sobre el banner el header flota; en el resto necesita fondo propio para
+     que el logo y el botón no queden sobre el contenido al hacer scroll. */
+  .cab:not(.cab--sobre-medios) {
+    position: sticky;
+    background: var(--color-paper);
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .cab__logo {
+    display: block;
+    line-height: 0;
+    text-decoration: none;
+  }
+  .cab__logo img {
+    width: 100px;
+    height: 26px;
+    object-fit: contain;
+  }
+  /* El único asset del logotipo es rojo. Sobre el banner se pasa a blanco:
+     brightness(0) lo lleva a negro conservando el alfa e invert(1) lo aclara. */
+  .cab--sobre-medios .cab__logo img {
+    filter: brightness(0) invert(1);
+  }
+
+  /* --- Botón ------------------------------------------------------------ */
+  /* Sin JS no hace nada, así que no se muestra. */
+  .cab__boton {
+    display: none;
+  }
+  :global(html.js) .cab__boton {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    width: auto;
+    min-height: 42px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+  }
+  .cab__boton-texto {
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .cab--sobre-medios .cab__boton {
+    color: var(--color-on-dark);
+  }
+
+  .cab__barras {
+    display: grid;
+    gap: 6px;
+    width: 26px;
+  }
+  .cab__barras i {
+    display: block;
+    height: 2px;
+    background: currentColor;
+    transition: transform var(--dur-fast) var(--ease);
+  }
+  /* Abierto: las dos barras se cruzan en aspa. */
+  .cab.esta-abierto .cab__barras i:first-child {
+    transform: translateY(4px) rotate(45deg);
+  }
+  .cab.esta-abierto .cab__barras i:last-child {
+    transform: translateY(-4px) rotate(-45deg);
+  }
+
+  /* --- Menú -------------------------------------------------------------- */
+  /* Por defecto (sin JS) es una lista normal, usable tal cual. */
+  .cab__menu {
+    flex: 1;
+  }
+  .cab__lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--space-s) var(--space-m);
+  }
+
+  /* Con JS pasa a overlay. */
+  :global(html.js) .cab__menu {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    display: grid;
+    place-items: center;
+    background: var(--color-red);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity var(--dur-base) var(--ease),
+      visibility var(--dur-base);
+  }
+  :global(html.js) .cab.esta-abierto .cab__menu {
+    opacity: 1;
+    visibility: visible;
+  }
+  :global(html.js) .cab__lista {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: var(--space-xs);
+    padding-inline: var(--gutter);
+  }
+
+  .cab__lista a,
+  .cab__pendiente {
+    font-family: var(--font-ui);
+    font-size: 0.95rem;
+    text-decoration: none;
+  }
+  :global(html.js) .cab__lista a,
+  :global(html.js) .cab__pendiente {
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    font-size: clamp(2rem, 7vw, 3.5rem);
+    line-height: 1.05;
+    text-transform: uppercase;
+    color: var(--color-on-dark);
+  }
+
+  .cab__lista a:hover {
+    color: var(--color-accent);
+  }
+  :global(html.js) .cab__lista a:hover {
+    color: var(--color-ink);
+  }
+  .cab__lista a[aria-current='page'] {
+    text-decoration: underline;
+    text-underline-offset: 6px;
+  }
+
+  /* Pendiente: se ve, se lee, pero no promete un destino que no existe. */
+  .cab__pendiente {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--space-xs);
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .cab__pendiente small {
+    font-family: var(--font-ui);
+    font-weight: 400;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  :global(html.js) .cab__pendiente small {
+    font-size: 0.75rem;
+  }
+
+  @media (max-width: 40rem) {
+    .cab {
+      padding: 18px 20px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cab__barras i,
+    :global(html.js) .cab__menu {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const cab = document.querySelector<HTMLElement>('.cab');
+  const boton = cab?.querySelector<HTMLButtonElement>('.cab__boton');
+  const menu = cab?.querySelector<HTMLElement>('.cab__menu');
+
+  if (cab && boton && menu) {
+    const enlaces = () => [...menu.querySelectorAll<HTMLAnchorElement>('a')];
+
+    function abrir(si: boolean) {
+      cab!.classList.toggle('esta-abierto', si);
+      boton!.setAttribute('aria-expanded', String(si));
+      // Bloquear el scroll de fondo mientras el overlay tapa la página.
+      document.documentElement.style.overflow = si ? 'hidden' : '';
+      if (si) enlaces()[0]?.focus();
+      else boton!.focus();
+    }
+
+    boton.addEventListener('click', () => abrir(boton.getAttribute('aria-expanded') !== 'true'));
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      if (boton.getAttribute('aria-expanded') === 'true') abrir(false);
+    });
+
+    // Al navegar dentro del overlay se cierra: si no, en un enlace ancla el
+    // menú se quedaría abierto encima del destino.
+    menu.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('a')) abrir(false);
+    });
+
+    /**
+     * El foco no puede escaparse del overlay mientras está abierto: si se
+     * escapa, el teclado navega por una página que no se ve.
+     */
+    menu.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab') return;
+      const focos = enlaces();
+      if (!focos.length) return;
+      const primero = focos[0];
+      const ultimo = focos[focos.length - 1];
+      if (!e.shiftKey && document.activeElement === ultimo) {
+        e.preventDefault();
+        primero.focus();
+      } else if (e.shiftKey && document.activeElement === primero) {
+        e.preventDefault();
+        ultimo.focus();
+      }
+    });
+  }
+</script>

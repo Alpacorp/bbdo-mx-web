@@ -1,5 +1,7 @@
 ---
 import '../styles/tokens.css';
+import Header from '../components/Header.astro';
+import { LEGALES } from '../navegacion';
 
 /**
  * Base.astro — layout raíz: head, meta, canonical, JSON-LD.
@@ -20,6 +22,11 @@ interface Props {
   ogImage?: string;
   /** true solo en el home: evita el 'BBDO Mexico - BBDO Mexico' del sitio viejo. */
   isHome?: boolean;
+  /**
+   * true en las páginas que arrancan con el banner de video: el header va
+   * transparente y el logo en blanco. En el resto, sólido y logo en rojo.
+   */
+  sobreMedios?: boolean;
 }
 
 const SITE_NAME = 'BBDO México';
@@ -35,6 +42,7 @@ const {
   path,
   ogImage = '/v/modelo.png',
   isHome = false,
+  sobreMedios = false,
 } = Astro.props;
 
 const pageTitle = isHome ? SITE_NAME : `${title} — ${SITE_NAME}`;
@@ -181,6 +189,8 @@ const jsonLd = {
   </head>
 
   <body>
+    <Header sobreMedios={sobreMedios} actual={Astro.url.pathname} />
+
     <slot />
 
     <footer class="pie">
@@ -189,10 +199,17 @@ const jsonLd = {
 
         <nav aria-label="Legal">
           <ul class="pie__legal">
-            <li><a href="/legal/privacidad/">Aviso de privacidad</a></li>
-            <li><a href="/legal/terminos/">Términos de uso</a></li>
-            <li><a href="/legal/cookies/">Aviso de cookies</a></li>
-            <li><a href="/legal/alerta-de-estafa/">Alerta de estafa</a></li>
+            {
+              LEGALES.map((e) => (
+                <li>
+                  {e.construida ? (
+                    <a href={e.href}>{e.texto}</a>
+                  ) : (
+                    <span class="pie__pendiente">{e.texto}</span>
+                  )}
+                </li>
+              ))
+            }
           </ul>
         </nav>
 
