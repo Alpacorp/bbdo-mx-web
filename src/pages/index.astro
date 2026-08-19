@@ -1,0 +1,422 @@
+---
+import Base from '../layouts/Base.astro';
+import VideoBanner from '../components/VideoBanner.astro';
+import VideoHeadline from '../components/VideoHeadline.astro';
+
+/**
+ * Home.
+ *
+ * Estructura del global (ver docs/referencia-visual-bbdo-global.md):
+ *   1. video-banner-section   <- faltaba, es el "banner hero"
+ *   2. contact-section        titular con clips + parrafo de posicionamiento
+ *   3. work-section
+ *   4. news-section
+ *
+ * Lo que anadimos y el global NO tiene, como diferencia de mercado:
+ *   5. Clientes  — el sitio actual tiene /nuestros-clientes/ con 985 palabras.
+ *                  Es contenido propio de MX que no hay que perder.
+ *   6. Premios   — una agencia mexicana se vende con premios locales; el
+ *                  JSON-LD por caso ya tiene campo `award`.
+ *
+ * PLACEHOLDER DE VIDEO: /v/banner-home.mp4 es head-team.mp4 del sitio actual
+ * (30.83 MB, 14.9s), bajado a mano y elegido por el desarrollador.
+ * Son doce veces el presupuesto de 2.5 MB del hero entero (seccion 6 del
+ * brief). Sirve para juzgar encuadre y tono del clip, NO para medir
+ * rendimiento: un Lighthouse con esto puesto da un LCP irreal.
+ * El binario no se versiona, ver .gitignore.
+ *
+ * ATENCION AL COPY: todos los textos de aqui son PLACEHOLDER escritos por mi.
+ * La plataforma de marca ("Do Big Things" localizado vs. lenguaje MX propio)
+ * es una decision abierta de la seccion 10 y la toma el director creativo.
+ * No enseñar estas palabras como propuesta de copy.
+ */
+
+const clips = [
+  { after: 0, src: '/v/modelo.mp4', poster: '/v/modelo.png', label: '01', size: 'sm' as const },
+  { after: 1, src: '/v/pepsi.mp4', poster: '/v/pepsi.png', label: '02', size: 'lg' as const },
+  { after: 2, src: '/v/banamex.mp4', poster: '/v/banamex.png', label: '03', size: 'md' as const },
+];
+
+// Marcas de relleno. La curaduria real (8-12 casos) sigue abierta.
+const casos = [
+  { marca: 'Modelo', campana: 'Por Nuestro México', img: '/v/case-modelo.png', slug: 'modelo-por-nuestro-mexico', destacado: true },
+  { marca: 'Pepsi', campana: 'Sabor Sin Reglas', img: '/v/case-pepsi.png', slug: 'pepsi-sabor-sin-reglas' },
+  { marca: 'Banamex', campana: 'Cuenta Con Nosotros', img: '/v/case-banamex.png', slug: 'banamex-cuenta-con-nosotros' },
+  { marca: 'Bimbo', campana: 'Del Horno A Tu Mesa', img: '/v/case-bimbo.png', slug: 'bimbo-del-horno-a-tu-mesa' },
+  { marca: 'Telcel', campana: 'Sin Señal No Hay Historia', img: '/v/case-telcel.png', slug: 'telcel-sin-senal-no-hay-historia' },
+  { marca: 'Victoria', campana: 'La Nuestra', img: '/v/case-cerveza.png', slug: 'victoria-la-nuestra' },
+];
+
+/**
+ * Roster REAL, leido del muro de clientes de bbdomexico.com. Sustituye a la
+ * lista inventada que habia antes, que era casi toda incorrecta.
+ *
+ * OJO con la antiguedad: los assets de Buchanan's, Johnnie Walker, Saba,
+ * Finamex, Pedigree, Tostitos, Norteñita, Ole y Oscar Mayer estan subidos en
+ * 2018; los de San Rafael, Mirinda, Pepsi, Yoplait, BMW y MINI entre 2023 y
+ * 2025. Hay que confirmar con la agencia cuales siguen siendo cuenta viva
+ * antes de publicar: un cliente que ya no lo es no puede aparecer aqui.
+ */
+const clientes = [
+  'Modelo', 'Pepsi', 'Mirinda', 'Tostitos', 'Yoplait', 'Pedigree',
+  'Oscar Mayer', 'San Rafael', 'Norteñita', 'Olé', 'Saba', 'Finamex',
+  'BMW', 'MINI', "Buchanan's", 'Johnnie Walker',
+];
+
+// Cifras de relleno. Hay que confirmarlas con marketing antes de publicar.
+const premios = [
+  { cifra: '00', nombre: 'Leones en Cannes', nota: 'pendiente de confirmar' },
+  { cifra: '00', nombre: 'Círculo de Oro', nota: 'pendiente de confirmar' },
+  { cifra: '00', nombre: 'El Sol', nota: 'pendiente de confirmar' },
+  { cifra: '00', nombre: 'Effie México', nota: 'pendiente de confirmar' },
+];
+
+const noticias = [
+  { titulo: 'BBDO México, reconocida como Agencia Transformadora del Año', fecha: '2024-11-26', slug: 'bbdo-premio-agencia-transformadora', img: '/v/case-modelo.png', extracto: 'El único contenido real que hoy existe en el sitio actual. Se migra tal cual.' },
+  { titulo: 'Titular de noticia pendiente de curaduría', fecha: '2025-06-01', slug: 'placeholder-2', img: '/v/case-telcel.png', extracto: 'Texto de relleno. El índice de noticias hoy no existe: el menú NEWS apunta a un post suelto.' },
+  { titulo: 'Titular de noticia pendiente de curaduría', fecha: '2025-09-15', slug: 'placeholder-3', img: '/v/case-cerveza.png', extracto: 'Texto de relleno.' },
+];
+
+/**
+ * new Date('2024-11-26') se parsea como medianoche UTC, y al formatear en la
+ * zona de Mexico (UTC-6) retrocede un dia: salia "25 de noviembre". Se fuerza
+ * interpretacion local partiendo la cadena.
+ */
+function fechaLarga(iso: string) {
+  const [a, m, d] = iso.split('-').map(Number);
+  return new Date(a, m - 1, d).toLocaleDateString('es-MX', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+---
+
+<Base
+  title="BBDO México"
+  path="/"
+  isHome
+  description="BBDO México es una de las agencias de publicidad más premiadas del país y forma parte de BBDO Worldwide, red creativa de Omnicom Group."
+>
+  <main id="content">
+    {/* En ingles y partida en las dos esquinas, igual que el global: "Do Big
+        Things" es campaña global y el banner la deja en su idioma. El video
+        que queda en medio es la palabra que falta, "BIG".
+        La localizacion al español vive en el titular de abajo, no aqui. */}
+    <VideoBanner
+      izquierda="Do"
+      derecha="Things"
+      src="/v/banner-home.mp4"
+      poster="/v/banner-home.png"
+      logo="/v/logo-bbdo.png"
+    />
+
+    {/* Envoltorio del contenido. El banner va en sticky, y sticky es un
+        elemento posicionado: pinta por encima de todo lo que no lo esta.
+        Sin este contenedor, work / premios / news (que son static y sin
+        fondo) quedaban DEBAJO del banner y no se veian al hacer scroll.
+        El global hace lo mismo con section.main-content-container. */}
+    <div class="contenido">
+
+      <section class="claim">
+        <VideoHeadline
+          words={['Somos', 'BBDO', 'México', 'Do', 'Big', 'Things']}
+          accentIndex={-1}
+          clips={clips}
+          as="h1"
+        />
+        <p class="claim__texto">
+          Resolvemos problemas grandes con estrategia e ideas que dejan huella.
+          Trabajamos con las marcas más ambiciosas de México. Contratamos talento
+          grande y le damos oportunidades grandes.
+        </p>
+        <a class="claim__cta" href="/contact/">¿Quieres hacer cosas grandes?</a>
+      </section>
+
+      <section class="work" aria-labelledby="work-title">
+        <header class="section-head">
+          <h2 id="work-title">Work</h2>
+          <a class="section-link" href="/work/">Ver todo el trabajo</a>
+        </header>
+
+        <ul class="grid">
+          {casos.map((c) => (
+            <li class:list={['card', c.destacado && 'card--wide']}>
+              <a href={`/work/${c.slug}/`}>
+                <img src={c.img} alt="" width="800" height="450" loading="lazy" decoding="async" />
+                <h3 class="card__brand">{c.marca}</h3>
+                <p class="card__campaign">{c.campana}</p>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="clientes" aria-labelledby="clientes-title">
+        <div class="clientes__inner">
+          <header class="section-head section-head--dark">
+            <h2 id="clientes-title">Nuestros clientes</h2>
+          </header>
+          <ul class="roster">
+            {clientes.map((c) => <li>{c}</li>)}
+          </ul>
+        </div>
+      </section>
+
+      <section class="premios" aria-labelledby="premios-title">
+        <header class="section-head">
+          <h2 id="premios-title">Premios</h2>
+        </header>
+        <ul class="premios__lista">
+          {premios.map((p) => (
+            <li>
+              <span class="premios__cifra">{p.cifra}</span>
+              <span class="premios__nombre">{p.nombre}</span>
+              <span class="premios__nota">{p.nota}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="news" aria-labelledby="news-title">
+        <header class="section-head">
+          <h2 id="news-title">Do Big Things</h2>
+          <a class="section-link" href="/news/">Ver todas las noticias</a>
+        </header>
+
+        <ul class="news-list">
+          {noticias.map((n) => (
+            <li>
+              <a href={`/news/${n.slug}/`}>
+                <img src={n.img} alt="" width="800" height="450" loading="lazy" decoding="async" />
+                <div class="news-list__cuerpo">
+                  <time datetime={n.fecha}>{fechaLarga(n.fecha)}</time>
+                  <h3>{n.titulo}</h3>
+                  <p>{n.extracto}</p>
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </div>
+  </main>
+</Base>
+
+<style>
+  /* --- Claim: titular + posicionamiento, sobre rojo pleno --------------- */
+  /* Todo el contenido posterior al banner, en una sola capa por encima de el.
+     El fondo solido es obligatorio: sin el, el banner sticky se ve a traves
+     de las secciones que no traen fondo propio. */
+  .contenido {
+    position: relative;
+    z-index: 1;
+    background: var(--color-paper);
+  }
+
+  .claim {
+    background: var(--color-red);
+    color: var(--color-on-dark);
+    padding-inline: var(--gutter);
+    padding-block: var(--space-2xl);
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--space-l);
+  }
+  .claim__texto {
+    max-width: 46ch;
+    margin: 0;
+    font-size: clamp(1.05rem, 1.7vw, 1.5rem);
+    line-height: 1.45;
+  }
+  .claim__cta {
+    align-self: start;
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    font-size: clamp(1.1rem, 2vw, 1.6rem);
+    text-transform: uppercase;
+    text-decoration: none;
+    border-bottom: 3px solid currentColor;
+    padding-bottom: 4px;
+  }
+
+  /* --- Secciones claras -------------------------------------------------- */
+  .work,
+  .premios,
+  .news {
+    padding-inline: var(--gutter);
+    padding-block: var(--space-2xl);
+    max-width: var(--max-width);
+    margin-inline: auto;
+  }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-m);
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--color-line);
+    padding-bottom: var(--space-s);
+    margin-bottom: var(--space-xl);
+  }
+  .section-head--dark { border-bottom-color: rgba(250, 250, 250, 0.18); }
+
+  .section-head h2 {
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    line-height: var(--lh-display);
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  .section-link {
+    font-size: 0.95rem;
+    text-decoration: none;
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 2px;
+  }
+  .section-link:hover { color: var(--color-red); }
+
+  /* --- Work: rejilla asimetrica ----------------------------------------- */
+  .grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-l) var(--space-m);
+  }
+  /* El primer caso ocupa dos columnas: rompe la cuadricula plana. */
+  .card--wide { grid-column: span 2; }
+
+  .card a { text-decoration: none; display: block; }
+  .card img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: 4px;
+    background: var(--color-dark);
+  }
+  .card--wide img { aspect-ratio: 21 / 9; }
+  .card__brand {
+    font-family: var(--font-display);
+    font-weight: 400;              /* el global usa 400 aqui, no 600 */
+    font-size: var(--size-case-brand);
+    line-height: 1.1;
+    margin: var(--space-s) 0 var(--space-2xs);
+  }
+  .card__campaign { margin: 0; color: var(--color-dim); font-size: 0.95rem; }
+  .card a:hover .card__brand { color: var(--color-red); }
+
+  /* --- Clientes: banda oscura ------------------------------------------- */
+  .clientes {
+    background: var(--color-dark);
+    color: var(--color-on-dark);
+  }
+  .clientes__inner {
+    padding-inline: var(--gutter);
+    padding-block: var(--space-2xl);
+    max-width: var(--max-width);
+    margin-inline: auto;
+  }
+  .roster {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    /* 9rem y no 12rem: con 12rem, un movil de 375px daba una sola columna y
+       16 nombres en fila india. Con 9rem entran dos. */
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 9rem), 1fr));
+    gap: var(--space-s) var(--space-m);
+  }
+  .roster li {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.2rem, 2.2vw, 1.9rem);
+    line-height: 1.15;
+    padding-bottom: var(--space-xs);
+    border-bottom: 1px solid rgba(250, 250, 250, 0.14);
+  }
+
+  /* --- Premios ----------------------------------------------------------- */
+  .premios__lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    /* 8rem y no 10: en un movil de 375px quedan 335px utiles, y dos columnas
+       de 10rem mas el gap de 24px suman 344. Con 8rem suman 280 y entran. */
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+    gap: var(--space-l) var(--space-m);
+  }
+  .premios__lista li { display: flex; flex-direction: column; gap: 2px; }
+  .premios__cifra {
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    /* min 2.5rem: a dos columnas en movil, 3rem se comia el ancho. */
+    font-size: clamp(2.5rem, 7vw, 5.5rem);
+    line-height: 1;
+    color: var(--color-red);
+  }
+  .premios__nombre { font-size: 1.05rem; }
+  .premios__nota { font-size: 0.8rem; color: var(--color-dim); }
+
+  /* --- Noticias ---------------------------------------------------------- */
+  .news-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+    gap: var(--space-l) var(--space-m);
+  }
+  .news-list a { text-decoration: none; display: block; }
+  .news-list img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: 4px;
+    background: var(--color-dark);
+  }
+  .news-list__cuerpo { padding-top: var(--space-s); }
+  .news-list time { color: var(--color-dim); font-size: 0.85rem; }
+  .news-list h3 {
+    margin: var(--space-2xs) 0 var(--space-xs);
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.1rem, 1.8vw, 1.45rem);
+    line-height: 1.2;
+  }
+  .news-list p { margin: 0; color: var(--color-dim); font-size: 0.92rem; line-height: 1.5; }
+  .news-list a:hover h3 { color: var(--color-red); }
+
+  /* Pantallas bajas (movil apaisado): 96px de padding arriba y abajo se comen
+     la mitad de un viewport de 390px de alto. */
+  @media (max-height: 32rem) {
+    .claim {
+      min-height: auto;
+      padding-block: var(--space-xl);
+      gap: var(--space-m);
+    }
+    .work,
+    .premios,
+    .news { padding-block: var(--space-xl); }
+    .clientes__inner { padding-block: var(--space-xl); }
+  }
+
+  @media (max-width: 60rem) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+    .card--wide { grid-column: span 2; }
+  }
+  @media (max-width: 40rem) {
+    .grid { grid-template-columns: 1fr; }
+    .card--wide { grid-column: span 1; }
+    .card--wide img { aspect-ratio: 16 / 9; }
+  }
+</style>

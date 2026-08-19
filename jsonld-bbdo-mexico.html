@@ -1,0 +1,168 @@
+<!--
+  ============================================================================
+  JSON-LD — BBDO México
+  ============================================================================
+
+  DÓNDE VA:
+    En el <head> de TODAS las páginas. En el WP actual, la vía más limpia es
+    Yoast (que ya está instalado, se ve por los meta og:) → o un snippet en
+    functions.php del child theme con wp_head. NO lo metas en el body.
+
+  ANTES DE PUBLICAR — verifica con marketing / legal:
+    [ ] ¿"BBDO México" es el nombre comercial exacto? ¿Cuál es la razón social?
+    [ ] ¿foundingDate real? (dejé el campo comentado, no lo inventes)
+    [ ] ¿Camilo Plazas sigue siendo CEO tras la integración Omnicom-IPG?
+    [ ] ¿Existe un correo de new business? Hoy solo hay quierotrabajaren@.
+    [ ] ¿numberOfEmployees aproximado? (opcional, pero ayuda a la entidad)
+
+  VALIDA EN: https://validator.schema.org/  y  Search Console → Resultados enriquecidos
+  ============================================================================
+-->
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "AdvertisingAgency",
+      "@id": "https://bbdomexico.com/#organization",
+      "name": "BBDO México",
+      "alternateName": "BBDO MX",
+      "url": "https://bbdomexico.com/",
+      "description": "BBDO México es una de las agencias de publicidad más premiadas del país y forma parte de BBDO Worldwide, una de las redes creativas más grandes del mundo, perteneciente a Omnicom Group.",
+      "slogan": "Do Big Things",
+
+      "logo": {
+        "@type": "ImageObject",
+        "@id": "https://bbdomexico.com/#logo",
+        "url": "https://bbdomexico.com/wp-content/uploads/2024/01/logo-bbdo-red.png",
+        "width": 800,
+        "height": 286,
+        "caption": "BBDO México"
+      },
+      "image": { "@id": "https://bbdomexico.com/#logo" },
+
+      "parentOrganization": {
+        "@type": "Organization",
+        "@id": "https://bbdo.com/#organization",
+        "name": "BBDO Worldwide",
+        "url": "https://bbdo.com/",
+        "parentOrganization": {
+          "@type": "Organization",
+          "name": "Omnicom Group",
+          "url": "https://www.omnicomgroup.com/",
+          "tickerSymbol": "NYSE:OMC"
+        }
+      },
+
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Calle Palo Santo 22, Piso 1, Lomas Altas",
+        "addressLocality": "Miguel Hidalgo",
+        "addressRegion": "Ciudad de México",
+        "postalCode": "11950",
+        "addressCountry": "MX"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 19.3968252,
+        "longitude": -99.2276834
+      },
+
+      "telephone": "+52-55-5267-1500",
+      "areaServed": { "@type": "Country", "name": "México" },
+      "knowsLanguage": ["es-MX", "en"],
+
+      "contactPoint": [
+        {
+          "@type": "ContactPoint",
+          "contactType": "human resources",
+          "email": "quierotrabajaren@bbdomexico.com",
+          "telephone": "+52-55-5267-1500",
+          "areaServed": "MX",
+          "availableLanguage": ["Spanish", "English"]
+        }
+      ],
+
+      "sameAs": [
+        "https://www.linkedin.com/company/bbdomx/",
+        "https://www.instagram.com/bbdomx/",
+        "https://www.facebook.com/bbdomx",
+        "https://twitter.com/BBDOmx"
+      ],
+
+      "employee": { "@id": "https://bbdomexico.com/#camilo-plazas" }
+    },
+
+    {
+      "@type": "Person",
+      "@id": "https://bbdomexico.com/#camilo-plazas",
+      "name": "Camilo Plazas",
+      "jobTitle": "Chief Executive Officer",
+      "worksFor": { "@id": "https://bbdomexico.com/#organization" }
+    },
+
+    {
+      "@type": "WebSite",
+      "@id": "https://bbdomexico.com/#website",
+      "url": "https://bbdomexico.com/",
+      "name": "BBDO México",
+      "inLanguage": "es-MX",
+      "publisher": { "@id": "https://bbdomexico.com/#organization" }
+    }
+  ]
+}
+</script>
+
+
+<!--
+  ==========================================================================
+  BONUS — Plantilla para cada case study de /work/[slug]
+  ==========================================================================
+  ESTE es el que te va a traer tráfico. Uno por caso, con datos reales.
+  Añádelo ADEMÁS del bloque de arriba, solo en páginas de caso.
+-->
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CreativeWork",
+  "@id": "https://bbdomexico.com/work/SLUG-DEL-CASO/#case",
+  "name": "TÍTULO DE LA CAMPAÑA",
+  "headline": "TÍTULO DE LA CAMPAÑA",
+  "description": "Una frase con el reto y el resultado. Con números si los hay.",
+  "url": "https://bbdomexico.com/work/SLUG-DEL-CASO/",
+  "datePublished": "2026-01-01",
+  "inLanguage": "es-MX",
+
+  "creator": { "@id": "https://bbdomexico.com/#organization" },
+  "sponsor": {
+    "@type": "Organization",
+    "name": "NOMBRE DEL CLIENTE"
+  },
+  "about": {
+    "@type": "Brand",
+    "name": "NOMBRE DE LA MARCA"
+  },
+
+  "image": {
+    "@type": "ImageObject",
+    "url": "https://bbdomexico.com/.../key-visual.webp",
+    "width": 1600,
+    "height": 900
+  },
+
+  "video": {
+    "@type": "VideoObject",
+    "name": "TÍTULO DEL SPOT",
+    "description": "Descripción del spot.",
+    "thumbnailUrl": "https://bbdomexico.com/.../thumb.jpg",
+    "uploadDate": "2026-01-01",
+    "contentUrl": "https://bbdomexico.com/.../spot.mp4"
+  },
+
+  "award": [
+    "Nombre del premio — Categoría — Año"
+  ]
+}
+</script>

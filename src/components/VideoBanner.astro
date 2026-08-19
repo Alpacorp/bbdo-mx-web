@@ -1,0 +1,384 @@
+---
+/**
+ * VideoBanner.astro — banner de video a sangre, primera seccion del home.
+ *
+ * Replica section.video-banner-section del global. Medido el 2026-08-18.
+ *
+ * COMPOSICION
+ *   - La seccion va fija y el contenido le pasa por encima. Aqui con sticky:
+ *     mismo efecto, sin sacarla del flujo ni necesitar spacer.
+ *   - El video ocupa todo, object-fit:cover.
+ *   - Dos palabras pequenas (Outfit 600 a 42px) en ROJO, ancladas a las
+ *     esquinas inferiores: 40px del lateral, 19px del fondo. El video queda
+ *     en medio: en el global se lee "DO [video] THINGS", el video hace de BIG.
+ *
+ * LA ANIMACION
+ *   Encima del video hay un SVG con viewBox 0 0 1440 750 y
+ *   preserveAspectRatio="none" (se estira a cualquier tamano). Dentro:
+ *     - un <mask> con un rect blanco (opaco) y cuatro formas negras (agujeros)
+ *     - un rect ROJO a pantalla completa pintado con esa mascara
+ *   Es decir: una cortina roja con cuatro ventanas al video. Las cuatro
+ *   ventanas entran desde los cuatro lados. Al terminar, el rojo solo queda
+ *   como medianiles de 16px, que enmarcan el video en cuatro paneles.
+ *
+ *   Los cuatro paths son los del global, literales. Se intento aproximarlos
+ *   con rects redondeados y no vale: la geometria real lleva detalle que un
+ *   rect no puede dar.
+ *     - El centro-arriba es un CIRCULO (centro 720,105 radio 89), no un
+ *       cuadrado redondeado.
+ *     - Los paneles laterales llevan una ranura horizontal tallada a la
+ *       altura y=194-202, y marcas del sistema de marca: dos pildoras en el
+ *       izquierdo, un corchete en el derecho. Al ser huecos que faltan, el
+ *       rojo asoma por ahi y esas marcas quedan dibujadas en rojo.
+ *     - Medianil entre paneles: 7.14. El 16 es solo el margen exterior.
+ *     - Radio de esquina: 11.93.
+ *
+ *   Se anima con CSS, no con GSAP, a proposito: una animacion CSS corre
+ *   aunque el JS falle, y el estado por defecto -sin animacion y con
+ *   reduced-motion- es el de ventanas ABIERTAS. El video nunca queda tapado
+ *   por depender de un script.
+ *
+ * DIFERENCIA DELIBERADA
+ *   El video del global va con autoplay, preload="auto" y sin poster
+ *   (video-pesado.mp4, 1465x755). Aqui el poster es obligatorio y es el LCP;
+ *   el video se pide despues del evento load. Seccion 6 del brief.
+ */
+
+interface Props {
+  /** Palabra anclada abajo a la izquierda. En el global: "DO". */
+  izquierda: string;
+  /** Palabra anclada abajo a la derecha. En el global: "THINGS". */
+  derecha: string;
+  src: string;
+  poster: string;
+  /**
+   * Logo BBDO en blanco, esquina superior izquierda (40px, 24px, 100x26 en
+   * el global). Si no se pasa, cae a un marcador tipografico: NO es el
+   * logotipo real, solo ocupa el sitio hasta que llegue el asset.
+   */
+  logo?: string;
+}
+
+const { izquierda, derecha, src, poster, logo } = Astro.props;
+
+// Id unico y determinista por banner: si hay dos en una pagina, no colisionan
+// las mascaras, y no cambia entre builds.
+const uid = `mask-${poster.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '')}`;
+const uidMovil = `${uid}-movil`;
+---
+
+<section class="banner" data-video-banner>
+  <video
+    class="banner__video"
+    src={src}
+    poster={poster}
+    muted
+    loop
+    playsinline
+    preload="none"
+    aria-hidden="true"
+  />
+
+  <svg
+    class="banner__cortina banner__cortina--ancha"
+    viewBox="0 0 1440 750"
+    preserveAspectRatio="none"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <defs>
+      <mask id={uid}>
+        <rect width="1440" height="750" fill="white" />
+        <path class="hueco hueco--izq" d="M391.808 194.556H611.619C618.204 194.556 623.552 189.212 623.552 182.632V27.9243C623.552 21.3447 618.204 16 611.619 16H16V734H611.619C618.204 734 623.552 728.655 623.552 722.076V213.62C623.552 207.04 618.204 201.695 611.619 201.695H391.808C389.838 201.695 388.236 200.094 388.236 198.126C388.236 196.158 389.838 194.556 391.808 194.556ZM326.911 293.308H291.209V270.617H326.911C333.186 270.617 338.264 275.692 338.264 281.963C338.264 288.234 333.186 293.308 326.911 293.308ZM338.264 144.1C338.264 150.371 333.186 155.445 326.911 155.445H291.209V132.754H326.911C333.186 132.754 338.264 137.829 338.264 144.1Z" fill="black" />
+        <g class="circulo-capa"><path class="hueco hueco--alto" d="M809.38 105.278C809.38 55.9712 769.38 16 720.038 16C670.696 16 630.696 55.9712 630.696 105.278C630.696 154.585 670.696 194.556 720.038 194.556C769.38 194.556 809.38 154.585 809.38 105.278Z" fill="black" /></g>
+        <path class="hueco hueco--bajo" d="M797.447 201.695H642.629C636.039 201.695 630.696 207.034 630.696 213.62V722.076C630.696 728.661 636.039 734 642.629 734H797.447C804.038 734 809.38 728.661 809.38 722.076V213.62C809.38 207.034 804.038 201.695 797.447 201.695Z" fill="black" />
+        <path class="hueco hueco--der" d="M1423.98 182.632V16H828.458C821.874 16 816.525 21.3447 816.525 27.9243V722.076C816.525 728.655 821.874 734 828.458 734H1423.98V213.62C1423.98 207.04 1418.63 201.695 1412.05 201.695H1121.32V270.617H1132.67V281.635C1132.67 287.751 1127.98 293 1121.88 293.289C1115.35 293.598 1109.98 288.407 1109.98 281.963V144.428C1109.98 138.311 1114.67 133.063 1120.77 132.774C1127.3 132.465 1132.67 137.655 1132.67 144.1V194.556H1412.07C1418.65 194.556 1424 189.212 1424 182.632H1423.98Z" fill="black" />
+      </mask>
+    </defs>
+    <rect width="1440" height="750" fill="var(--color-red)" mask={`url(#${uid})`} shape-rendering="crispEdges" />
+  </svg>
+
+  <svg
+    class="banner__cortina banner__cortina--alta"
+    viewBox="0 0 359 526"
+    preserveAspectRatio="xMidYMin slice"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <defs>
+      <mask id={uidMovil}>
+        <rect width="359" height="526" fill="white" />
+        <path class="hueco hueco--izq" d="M88.503 86.4832H141.899C145.024 86.4832 147.557 83.95 147.557 80.8255V5.65767C147.557 2.53312 145.024 0 141.899 0H0V526H141.888C145.013 526 147.546 523.467 147.546 520.342V95.522C147.546 92.3975 145.013 89.8644 141.888 89.8644H88.4918C87.5545 89.8644 86.7956 89.1056 86.7956 88.1682C86.7956 87.2308 87.5545 86.472 88.4918 86.472L88.503 86.4832ZM77.6563 133.318H60.7391V122.561H77.6563C80.6246 122.561 83.035 124.971 83.035 127.939C83.035 130.908 80.6246 133.318 77.6563 133.318ZM83.035 62.558C83.035 65.5263 80.6246 67.9367 77.6563 67.9367H60.7391V57.1793H77.6563C80.6246 57.1793 83.035 59.5897 83.035 62.558Z" fill="black" />
+        <path class="hueco hueco--alto" d="M208.106 28.5841C208.106 12.7975 195.309 0 179.522 0C163.736 0 150.938 12.7975 150.938 28.5841C150.938 44.3706 163.736 57.1682 179.522 57.1682C195.309 57.1682 208.106 44.3706 208.106 28.5841Z" fill="black" />
+        <path class="hueco hueco--bajo" d="M202.448 60.5605H156.596C153.471 60.5605 150.938 63.0936 150.938 66.2182V520.342C150.938 523.467 153.471 526 156.596 526H202.448C205.573 526 208.106 523.467 208.106 520.342V66.2182C208.106 63.0936 205.573 60.5605 202.448 60.5605Z" fill="black" />
+        <path class="hueco hueco--der" d="M359 80.8255V0H217.156C214.032 0 211.499 2.53312 211.499 5.65767V520.342C211.499 523.467 214.032 526 217.156 526H359V95.522C359 92.3975 356.467 89.8644 353.342 89.8644H283.252V122.549H288.63V127.772C288.63 130.673 286.41 133.162 283.508 133.296C280.417 133.441 277.873 130.975 277.873 127.917V62.6808C277.873 59.7794 280.094 57.2909 282.995 57.157C286.086 57.0119 288.63 59.4781 288.63 62.5357V86.4609H353.331C356.455 86.4609 358.989 83.9277 358.989 80.8032L359 80.8255Z" fill="black" />
+      </mask>
+    </defs>
+    <rect width="359" height="526" fill="var(--color-red)" mask={`url(#${uidMovil})`} shape-rendering="crispEdges" />
+  </svg>
+
+  <a class="banner__logo" href="/" aria-label="BBDO México — inicio">
+    {logo
+      ? <img src={logo} alt="BBDO" width="100" height="26" />
+      : <span class="banner__logo-ph" aria-hidden="true">BBDO</span>}
+  </a>
+
+  <p class="banner__txt banner__txt--izq">{izquierda}</p>
+  <p class="banner__txt banner__txt--der">{derecha}</p>
+</section>
+
+<style>
+  .banner {
+    /* sticky y no fixed: mismo efecto de "el contenido pasa por encima",
+       pero sin sacar la seccion del flujo ni necesitar un spacer. El
+       contenido posterior va envuelto con z-index mayor y fondo solido. */
+    position: sticky;
+    top: 0;
+    z-index: 0;
+
+    height: 100svh;
+    overflow: hidden;
+    background: var(--color-dark);
+  }
+
+  .banner__video,
+  .banner__cortina {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .banner__video { object-fit: cover; display: block; }
+
+  /* Mobile-first, igual que el global: la mascara vertical es la de por
+     defecto y la ancha entra a partir de 1024px. Sus proporciones son
+     distintas (359x526 vs 1440x750), no es la misma estirada: en vertical
+     los paneles llegan al borde, sin margen exterior.
+
+     La vertical va con preserveAspectRatio="xMidYMin slice" y no con "none":
+     un movil de 390x844 tiene proporcion 0.46 y el viewBox 0.68, asi que
+     estirarlo convertia el circulo en una elipse. El circulo es un elemento
+     de marca y no se puede deformar. Con slice se recorta por los lados
+     -donde los paneles ya llegan al borde y no hay marco que perder- y el
+     circulo se mantiene redondo.
+
+     YMin y no YMid: centrado, en tablet vertical (768x1024) el recorte se
+     repartia arriba y abajo y cortaba el circulo por la coronilla. Anclando
+     arriba, el recorte se va todo al pie, donde los paneles son rectangulos
+     largos y perder unos pixeles no se nota.
+
+     La ancha va con "none", como el global, y NO con slice. Se probo slice
+     para que el circulo no se achatara en pantallas 4:3, y el remedio salio
+     peor: al recortar en vertical se pierde el margen inferior de 16
+     unidades, o sea el borde rojo de abajo. En una pantalla de 1908x930
+     (proporcion 2.05 contra 1.92 del viewBox) el recorte es de unos 64px y
+     los paneles se salen por el pie.
+
+     El marco cerrado por los cuatro lados es parte del diseño, asi que manda
+     sobre la deformacion del circulo. Contrapartida conocida: en proporciones
+     lejanas a 1.92 -una tablet apaisada a 1.33- el circulo se ve ovalado.
+     El global tiene exactamente el mismo comportamiento. Arreglar las dos
+     cosas a la vez exige sacar el circulo a una capa propia con su
+     proporcion preservada, y eso es otro trabajo.
+
+     La vertical si conserva slice con YMin: ahi los paneles llegan al borde y
+     no hay marco exterior que perder, asi que recortar no cuesta nada. */
+  .banner__cortina--alta { display: block; }
+  .banner__cortina--ancha { display: none; }
+
+  /* El cambio va por ORIENTACION, no solo por ancho. Con la regla de
+     min-width sola, un movil apaisado (844x390) se quedaba con la mascara
+     vertical: al recortar para cubrir se comia el circulo y la composicion
+     quedaba en dos rayas rojas. Se conserva ademas el umbral de 1024px del
+     global para ventanas de escritorio estrechas pero apaisadas. */
+  @media (min-width: 64rem), (orientation: landscape) {
+    .banner__cortina--alta { display: none; }
+    .banner__cortina--ancha { display: block; }
+  }
+
+  /* --- La cortina ------------------------------------------------------- */
+  /* Estado por defecto: ventanas ABIERTAS. Si no hay animacion -reduced
+     motion, navegador antiguo, lo que sea- se ve el video enmarcado, nunca
+     una pantalla roja. La animacion solo anade el recorrido de entrada. */
+  .hueco {
+    transform-box: view-box;
+    transform-origin: 0 0;
+    transform: translate(0, 0);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hueco--izq  { animation: entraIzq 1.15s var(--ease) 0.15s both; }
+    .hueco--der  { animation: entraDer 1.15s var(--ease) 0.15s both; }
+    .hueco--alto { animation: entraAlto 1.05s var(--ease) 0.32s both; }
+    .hueco--bajo { animation: entraBajo 1.05s var(--ease) 0.24s both; }
+  }
+
+  /* Capa propia del circulo. Va separada del <path> a proposito: el path lleva
+     la animacion de entrada y este <g> lleva la compensacion del estirado, asi
+     no se pisan. Sin JS se queda en scale(1) y el circulo se ve como en el
+     global, ligeramente ovalado en proporciones lejanas a 1.92: degradacion
+     aceptable, no ruptura. */
+  .circulo-capa {
+    transform-box: view-box;
+    transform-origin: 720px 105.278px;   /* el centro del propio circulo */
+  }
+
+  /* Los desplazamientos van en unidades del viewBox, no en px de pantalla,
+     asi que cada mascara necesita los suyos: el viewBox vertical mide 359x526
+     y el ancho 1440x750. Los del ancho son los que GSAP deja puestos en el
+     global (-800/+800 en x, -200/+800 en y); los del vertical estan escalados
+     para que cada panel salga por completo de su lado. */
+  .banner__cortina--alta .hueco--izq  { animation-name: entraIzqAlta; }
+  .banner__cortina--alta .hueco--der  { animation-name: entraDerAlta; }
+  .banner__cortina--alta .hueco--alto { animation-name: entraAltoAlta; }
+  .banner__cortina--alta .hueco--bajo { animation-name: entraBajoAlta; }
+
+  @keyframes entraIzq  { from { transform: translate(-800px, 0); } }
+  @keyframes entraDer  { from { transform: translate(800px, 0); } }
+  @keyframes entraAlto { from { transform: translate(0, -200px); } }
+  @keyframes entraBajo { from { transform: translate(0, 800px); } }
+
+  @keyframes entraIzqAlta  { from { transform: translate(-260px, 0); } }
+  @keyframes entraDerAlta  { from { transform: translate(260px, 0); } }
+  @keyframes entraAltoAlta { from { transform: translate(0, -120px); } }
+  @keyframes entraBajoAlta { from { transform: translate(0, 560px); } }
+
+  /* --- Las dos palabras -------------------------------------------------- */
+  .banner__txt {
+    position: absolute;
+    bottom: 19px;
+    margin: 0;
+    z-index: 1;
+
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    /* 42px es la medida del global a 1512px de ancho. Abajo no baja de
+       1.5rem para que siga siendo legible en movil. */
+    font-size: clamp(1.5rem, 2.8vw, 42px);
+    line-height: 1.26;
+    text-transform: uppercase;
+    color: var(--color-red);
+  }
+  /* Logo: mismas coordenadas que el global (40px, 24px, 100x26). */
+  .banner__logo {
+    position: absolute;
+    top: 24px;
+    left: 40px;
+    z-index: 2;
+    display: block;
+    line-height: 0;
+    text-decoration: none;   /* heredaba el subrayado de los enlaces */
+  }
+  .banner__logo img {
+    width: 100px;
+    height: 26px;
+    object-fit: contain;
+
+    /* El unico asset disponible del logotipo es rojo (#E90602 sobre alfa).
+       brightness(0) lo pasa a negro conservando el alfa, invert(1) lo pasa a
+       blanco. Si algun dia llega el asset en blanco, se borra esta linea. */
+    filter: brightness(0) invert(1);
+  }
+  /* Marcador mientras no haya asset. Se ve que NO es el logotipo real. */
+  .banner__logo-ph {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 26px;
+    letter-spacing: -0.03em;
+    color: var(--color-on-dark);
+  }
+
+  .banner__txt--izq { left: 40px; }
+  .banner__txt--der { right: 40px; }
+
+  @media (max-width: 40rem) {
+    .banner__txt { bottom: 14px; }
+    .banner__txt--izq { left: 20px; }
+    .banner__logo { top: 18px; left: 20px; }
+    .banner__txt--der { right: 20px; }
+  }
+</style>
+
+<script>
+  /**
+   * El poster es el LCP. El video no se pide hasta que la pagina termino de
+   * cargar, y se pausa fuera de viewport para no gastar bateria ni CPU.
+   */
+  function arrancar() {
+    document.querySelectorAll<HTMLElement>('[data-video-banner]').forEach((el) => {
+      const v = el.querySelector('video');
+      if (!v) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      v.preload = 'auto';
+      v.play().catch(() => {});
+
+      new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            const vid = e.target as HTMLVideoElement;
+            e.isIntersecting ? vid.play().catch(() => {}) : vid.pause();
+          });
+        },
+        { threshold: 0.1 }
+      ).observe(v);
+    });
+  }
+
+  /**
+   * El circulo redondo en cualquier proporcion.
+   *
+   * La mascara ancha va con preserveAspectRatio="none" para que el marco
+   * cierre por los cuatro lados a cualquier tamano. El precio es que estira
+   * distinto en x y en y, y un circulo dentro de un viewBox estirado sale
+   * ovalado. Como el circulo es un elemento de marca, se compensa: se escala
+   * en sentido contrario al estirado, alrededor de su propio centro.
+   *
+   * Ademas se limita para que no invada los paneles laterales: cuando la
+   * pantalla se acerca al cuadrado, la celda central se estrecha y el circulo
+   * a tamaño original ya no cabe, asi que encoge de forma uniforme.
+   *
+   * Si este script no corre, el <g> se queda en scale(1) y el circulo se ve
+   * como en el global. Se degrada, no se rompe.
+   */
+  const VB_W = 1440, VB_H = 750;
+  const CELDA_ANCHO = 816.525 - 623.552;   // hueco entre panel izquierdo y derecho
+  const DIAMETRO = 178.684;
+
+  function ajustarCirculo() {
+    document.querySelectorAll<HTMLElement>('[data-video-banner]').forEach((el) => {
+      const svg = el.querySelector<SVGSVGElement>('.banner__cortina--ancha');
+      const capa = svg?.querySelector<SVGGElement>('.circulo-capa');
+      if (!svg || !capa) return;
+
+      const r = svg.getBoundingClientRect();
+      if (!r.width || !r.height) return;   // esta oculta: es la vertical la que manda
+
+      const sx = r.width / VB_W;
+      const sy = r.height / VB_H;
+
+      // diametro que tendria conservando su proporcion vertical original,
+      // recortado para que quepa en la celda con algo de aire
+      const deseado = DIAMETRO * sy;
+      const cabe = CELDA_ANCHO * sx * 0.93;
+      const d = Math.min(deseado, cabe);
+
+      capa.style.transform = `scale(${(d / sx) / DIAMETRO}, ${(d / sy) / DIAMETRO})`;
+    });
+  }
+
+  let pendiente = 0;
+  function alRedimensionar() {
+    cancelAnimationFrame(pendiente);
+    pendiente = requestAnimationFrame(ajustarCirculo);
+  }
+
+  ajustarCirculo();
+  window.addEventListener('resize', alRedimensionar);
+  window.addEventListener('orientationchange', alRedimensionar);
+
+  if (document.readyState === 'complete') arrancar();
+  else window.addEventListener('load', arrancar, { once: true });
+</script>
