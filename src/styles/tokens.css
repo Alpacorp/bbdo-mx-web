@@ -17,6 +17,11 @@
   --color-red: #ff0000;
   --color-accent: var(--color-red);
 
+  /* A deeper red, for solid panels carrying white text. The brand red is not
+     usable there: #FF0000 against #FAFAFA is 3.83:1 and fails WCAG AA. This
+     one is 7.51:1 for the name and 5.09:1 for the role at 80% opacity. */
+  --color-red-deep: #a8001b;
+
   --color-paper: #fafafa; /* site background: light */
   --color-ink: #404040; /* text on light */
   --color-dark: #161616;
