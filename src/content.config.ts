@@ -2,7 +2,7 @@ import { defineCollection } from 'astro:content';
 // zod is imported directly rather than from 'astro:content': Astro's re-export
 // is marked deprecated and filled `astro check` with 55 warnings.
 import { z } from 'zod';
-import { glob } from 'astro/loaders';
+import { glob, file } from 'astro/loaders';
 import { THEME_KEYS } from './themes';
 
 /**
@@ -132,4 +132,34 @@ const work = defineCollection({
     }),
 });
 
-export const collections = { work };
+/**
+ * `people` collection — the BBDOers roster.
+ *
+ * A single JSON file instead of 117 markdown ones: these records have no body
+ * copy, only fields, and one file per person would be 117 files to open every
+ * time someone fixes a job title.
+ *
+ * Name, role and portrait are REAL, read off bbdomexico.com/bbdoers/. Two
+ * things to raise with the agency before publishing: the roster has
+ * "Copywritter" with a double t on three entries against "Copywriter" on four,
+ * and a 117-person list will go stale fast, so it needs an owner.
+ */
+const people = defineCollection({
+  loader: file('./src/data/people.json'),
+  schema: z.object({
+    name: z.string(),
+    role: z.string(),
+    /** Only the CCO has one on the current site. */
+    quote: z.string().optional(),
+    /**
+     * Portrait filename inside src/assets/people/. The page resolves it with
+     * import.meta.glob: `image()` cannot be used here because the loader
+     * reads a JSON file, not a markdown one sitting next to the asset.
+     */
+    photo: z.string(),
+    /** Lowest first. Leadership on top, then the rest alphabetically. */
+    order: z.number().default(99),
+  }),
+});
+
+export const collections = { work, people };
