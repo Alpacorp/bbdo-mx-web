@@ -1,0 +1,230 @@
+---
+/**
+ * ClientWall.astro — the client roster on the home page.
+ *
+ * It used to be a list of 16 brand names set in the display face. Names are
+ * not what a client wall is for: the mark is the recognition, and the current
+ * site already has all 26 of them.
+ *
+ * THE EFFECT
+ *   Each mark sits behind a red panel. On entry the panel slides away and
+ *   uncovers it, staggered across the grid, so the wall paints itself in as
+ *   you arrive. Hovering slides the same panel back over the tile — the mark
+ *   stays above it, so it reads knocked out of BBDO red.
+ *
+ *   One mechanism, two directions. It matters that the entrance is the effect
+ *   and the hover is the extra: on a phone there is no hover, and an effect
+ *   that only exists on a mouse is an effect half the audience never sees.
+ *
+ * WHY LIGHT CHIPS ON A DARK BAND
+ *   The art is monochrome and arrives in two polarities, so it has to be
+ *   normalised one way or the other. Dark ink on light chips wins: the mid
+ *   greys in this set — Prime, Sabritas, Saba — keep enough contrast on white
+ *   and lose it on near-black. Which files get flipped, and why, is in
+ *   src/clients.ts.
+ *
+ * WITHOUT JS
+ *   The panels are never drawn: the mark is simply there. The reveal is an
+ *   enhancement, not the thing that makes the section visible.
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { CLIENTS } from '../clients';
+
+const logos = import.meta.glob<{ default: ImageMetadata }>(
+  '../assets/clients/*.{png,webp,jpg,jpeg}'
+);
+
+function logoOf(file: string) {
+  const key = `../assets/clients/${file}`;
+  if (!logos[key]) throw new Error(`Missing client logo ${file} in src/assets/clients/`);
+  return logos[key]();
+}
+---
+
+<section class="clients" aria-labelledby="clients-title">
+  <div class="clients__inner">
+    <header class="section-head section-head--dark">
+      <h2 id="clients-title" data-fx="up">Nuestros clientes</h2>
+    </header>
+
+    <ul class="wall" data-fx-stagger>
+      {
+        CLIENTS.map(async (client) => {
+          const logo = await logoOf(client.file);
+          return (
+            <li class:list={['wall__cell', client.chip === 'mid' && 'wall__cell--mid']}>
+              <span class="wall__panel" aria-hidden="true" />
+              <span class="wall__frame">
+                <Image
+                  class:list={['wall__logo', client.invert && 'wall__logo--invert']}
+                  src={logo.default}
+                  alt={client.name}
+                  widths={[180, 360]}
+                  sizes="(min-width: 64rem) 180px, 50vw"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </span>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .clients {
+    background: var(--color-dark);
+    color: var(--color-on-dark);
+  }
+  .clients__inner {
+    padding-inline: var(--gutter);
+    padding-block: var(--space-2xl);
+    max-width: var(--max-width);
+    margin-inline: auto;
+  }
+
+  /* A fixed column count per breakpoint, not auto-fill. auto-fill packs in as
+     many tracks as fit — eight of them on a desktop — and eight chips across a
+     90rem container leaves each mark about 160px wide. Several of these are
+     wordmarks with a strapline under them, and at that size the strapline is
+     no longer legible. Six is the ceiling: it is what keeps a mark big enough
+     to be recognised, which is the only reason the section exists.
+
+     Two on a phone for the same reason. */
+  .wall {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    /* The rules between chips are the band showing through a 1px gap, not
+       borders on the cells and not a background on the list. Borders would
+       double up between neighbours; a background on the list would paint the
+       tail of the last row, and 26 marks rarely divide evenly into however
+       many columns fit, so that tail would read as an empty box. */
+    gap: 1px;
+  }
+  .wall__cell {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 3 / 2;
+    background: var(--color-paper);
+  }
+  /* Two files are two-tone — dark shape, white lettering — and lose half the
+     mark on white. See the note in clients.ts. */
+  .wall__cell--mid {
+    background: var(--color-chip-mid);
+  }
+
+  /* The frame exists so the logo has something with a DEFINITE height to be
+     measured against. Neither `height: 100%` nor `max-height: 100%` works on a
+     grid item here: the cell's height depends on its content and the content
+     would depend on the percentage, so the browser breaks the cycle by
+     ignoring it, the image falls back to its intrinsic ratio, and the cell's
+     overflow crops it. Every logo with a strapline lost it that way.
+
+     Absolute insets give the frame a height that does not depend on what is
+     inside it, and the cap resolves. */
+  .wall__frame {
+    position: absolute;
+    z-index: 1;
+    inset: var(--space-xs);
+  }
+  /* Absolutely positioned against the frame, so width and height resolve
+     against a box whose size is already settled, and object-fit does the
+     centring and the letterboxing. Percentages inside a grid or flex box get
+     measured against the track, which is sized by its content, and the cycle
+     makes the browser drop them: the cap silently does nothing and the mark
+     overflows by hundreds of pixels. */
+  .wall__logo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform var(--dur-base) var(--ease);
+  }
+  .wall__logo--invert {
+    filter: invert(1);
+  }
+
+  .wall__panel {
+    position: absolute;
+    inset: 0;
+    background: var(--color-red);
+    /* Parked below the tile, which is the state that survives without JS:
+       nothing covers the mark and nothing has to be undone. */
+    transform: translateY(101%);
+    transition: transform var(--dur-base) var(--ease);
+  }
+
+  /* --- The entrance --------------------------------------------------------
+     data-fx-stagger is used for its plumbing — ScrollFX numbers the children
+     in --i and puts .fx-visible on the container — but not for its motion.
+     Its generic rise is cancelled here, because the tile is not what moves:
+     the panel over it is. --i inherits into the panel, so each one leaves on
+     its own beat and the wall paints itself in across the grid. */
+  :global(html.js) .wall > * {
+    opacity: 1;
+    transform: none;
+  }
+  :global(html.js) .wall__panel {
+    transform: translateY(0);
+    transition-delay: calc(var(--i, 0) * 35ms);
+  }
+  :global(html.js) .wall.fx-visible .wall__panel {
+    transform: translateY(-101%);
+  }
+
+  @media (hover: hover) {
+    /* The same panel, coming back the other way. The specificity has to clear
+       the reveal rule above, which is why it repeats the whole chain. */
+    :global(html.js) .wall.fx-visible .wall__cell:hover .wall__panel,
+    :global(html.js) .wall.fx-visible .wall__cell:focus-within .wall__panel,
+    .wall__cell:hover .wall__panel,
+    .wall__cell:focus-within .wall__panel {
+      transform: translateY(0);
+      transition-delay: 0ms;
+    }
+    .wall__cell:hover .wall__logo,
+    .wall__cell:focus-within .wall__logo {
+      transform: scale(1.06);
+    }
+  }
+
+  @media (min-width: 40rem) {
+    .wall {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .wall__frame {
+      inset: var(--space-s);
+    }
+  }
+  @media (min-width: 56rem) {
+    .wall {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  @media (min-width: 80rem) {
+    .wall {
+      grid-template-columns: repeat(6, 1fr);
+    }
+    .wall__frame {
+      inset: var(--space-m);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wall__logo,
+    .wall__panel {
+      transition: none;
+    }
+    /* No motion means no curtain: the marks are simply there. */
+    :global(html.js) .wall__panel {
+      transform: translateY(101%);
+    }
+  }
+</style>
