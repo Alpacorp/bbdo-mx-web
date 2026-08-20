@@ -22,6 +22,11 @@
      one is 7.51:1 for the name and 5.09:1 for the role at 80% opacity. */
   --color-red-deep: #a8001b;
 
+  /* A chip tone between paper and ink, for two-tone logos: a mark drawn as a
+     dark shape with white lettering loses one half on white and the other on
+     black. Only the client wall uses it. */
+  --color-chip-mid: #969696;
+
   --color-paper: #fafafa; /* site background: light */
   --color-ink: #404040; /* text on light */
   --color-dark: #161616;
