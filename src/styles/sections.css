@@ -1,0 +1,47 @@
+/**
+ * sections.css — the chrome every section shares.
+ *
+ * These rules used to live inside index.astro's scoped <style>, which meant
+ * they reached that page's markup and nothing else. ClientWall.astro carries
+ * the same `section-head` markup and got none of it: the heading came out as a
+ * browser-default h2 while "THE WORK" right above it was set in the display
+ * face at 3.5rem. Scoped styles are per component, and shared chrome is not.
+ *
+ * Anything a section reuses across pages belongs here. Everything specific to
+ * one section stays scoped where it is used.
+ */
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-m);
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--color-line);
+  padding-bottom: var(--space-s);
+  margin-bottom: var(--space-xl);
+}
+
+/* On a dark band the line has to come from the light side. */
+.section-head--dark {
+  border-bottom-color: rgb(250 250 250 / 18%);
+}
+
+.section-head h2 {
+  font-family: var(--font-display);
+  font-weight: var(--weight-display);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: var(--lh-display);
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.section-link {
+  font-size: 0.95rem;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 2px;
+}
+.section-link:hover {
+  color: var(--color-red);
+}
