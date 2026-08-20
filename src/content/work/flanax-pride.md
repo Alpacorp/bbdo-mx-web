@@ -28,6 +28,21 @@ theme: red
 # Vimeo id, read off the current site. That is where the campaign video lives.
 vimeo: '908800056'
 
+# COLLAGE — PENDING material. Between 3 and 8 photos of the campaign: stills,
+# making of, pieces in the street, product. Drop the files in
+# src/assets/work/<slug>/ and uncomment. See uber-mariachis for a live example.
+#
+# collage:
+#   title: 'En imágenes'
+#   images:
+#     - '../../assets/work/flanax-pride/01.jpg'
+#     - '../../assets/work/flanax-pride/02.jpg'
+#     - '../../assets/work/flanax-pride/03.jpg'
+#   alt:
+#     - 'Qué se ve en la foto'
+#     - ''
+#     - ''
+
 previousSlug: '/portfolio/bayer-flanax-pride/'
 order: 11
 featured: false

@@ -28,6 +28,21 @@ theme: light
 # Vimeo id, read off the current site. That is where the campaign video lives.
 vimeo: '715784127'
 
+# COLLAGE — PENDING material. Between 3 and 8 photos of the campaign: stills,
+# making of, pieces in the street, product. Drop the files in
+# src/assets/work/<slug>/ and uncomment. See uber-mariachis for a live example.
+#
+# collage:
+#   title: 'En imágenes'
+#   images:
+#     - '../../assets/work/alka-seltzer-el-juego-de-mesa/01.jpg'
+#     - '../../assets/work/alka-seltzer-el-juego-de-mesa/02.jpg'
+#     - '../../assets/work/alka-seltzer-el-juego-de-mesa/03.jpg'
+#   alt:
+#     - 'Qué se ve en la foto'
+#     - ''
+#     - ''
+
 previousSlug: '/portfolio/bayer-alka-setzer-el-juego-de-mesa/'
 order: 10
 featured: false

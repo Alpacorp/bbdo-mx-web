@@ -28,6 +28,21 @@ theme: sand
 # Vimeo id, read off the current site. That is where the campaign video lives.
 vimeo: '899310893'
 
+# COLLAGE — PENDING material. Between 3 and 8 photos of the campaign: stills,
+# making of, pieces in the street, product. Drop the files in
+# src/assets/work/<slug>/ and uncomment. See uber-mariachis for a live example.
+#
+# collage:
+#   title: 'En imágenes'
+#   images:
+#     - '../../assets/work/san-rafael-escucha-tu-cuerpo/01.jpg'
+#     - '../../assets/work/san-rafael-escucha-tu-cuerpo/02.jpg'
+#     - '../../assets/work/san-rafael-escucha-tu-cuerpo/03.jpg'
+#   alt:
+#     - 'Qué se ve en la foto'
+#     - ''
+#     - ''
+
 previousSlug: '/portfolio/san-rafael-balance-escucha-tu-cuerpo/'
 order: 4
 featured: true

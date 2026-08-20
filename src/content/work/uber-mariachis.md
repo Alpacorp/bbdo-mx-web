@@ -32,6 +32,24 @@ credits:
 industry: 'Movilidad'
 capabilities: ['Idea', 'Producción', 'Social']
 
+collage:
+  title: 'En imágenes'
+  images:
+    - '../../assets/work/uber-mariachis/b.png'
+    - '../../assets/work/uber-mariachis/c.png'
+    - '../../assets/work/uber-mariachis/d.png'
+    - '../../assets/work/uber-mariachis/e.png'
+    - '../../assets/work/uber-mariachis/f.png'
+    - '../../assets/work/uber-mariachis/g.png'
+  alt:
+    - ''
+    - ''
+    - ''
+    - ''
+    - ''
+    - ''
+  caption: 'Material de ejemplo. Las fotos definitivas las entrega la agencia: entre 3 y 8 por campaña.'
+
 blocks:
   - type: images
     images:
@@ -43,23 +61,10 @@ blocks:
     title: 'El reto'
     body: 'Aquí va el planteamiento: qué problema de negocio había sobre la mesa antes de que existiera la idea. Dos o tres frases, sin adjetivos de más.'
 
-  - type: images
-    images:
-      - '../../assets/work/uber-mariachis/b.png'
-      - '../../assets/work/uber-mariachis/c.png'
-    alt: ['', '']
-
   - type: quote
     text: 'Una frase que resuma la idea en el menor número de palabras posible.'
     author: 'Nombre Apellido'
     role: 'Director Creativo, BBDO México'
-
-  - type: images
-    images:
-      - '../../assets/work/uber-mariachis/d.png'
-      - '../../assets/work/uber-mariachis/e.png'
-      - '../../assets/work/uber-mariachis/f.png'
-    alt: ['', '', '']
 
   - type: stats
     stats:
@@ -70,10 +75,6 @@ blocks:
       - figure: '00%'
         note: 'Variación sobre el periodo anterior'
 
-  - type: images
-    images:
-      - '../../assets/work/uber-mariachis/g.png'
-    alt: ['']
 
 # Vimeo id, read off the current site. That is where the campaign video lives.
 vimeo: '732349038'
