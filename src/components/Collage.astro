@@ -1,0 +1,156 @@
+---
+/**
+ * Collage.astro — the campaign's photo mosaic.
+ *
+ * A case is not sold with one key visual. This is the section where the
+ * material lives: stills, making of, pieces in the street, product. It sits
+ * right below the description, before the flexible blocks, so a reader who
+ * has just been told what the idea was immediately sees it.
+ *
+ * WHY IT IS NOT A `blocks` ENTRY
+ *   `blocks` is the free-form part of a case: the author decides the order.
+ *   The collage is the opposite — every campaign gets one, in the same place,
+ *   so the section reads the same from case to case. Keeping it a top-level
+ *   field also means a case is missing its photos in an obvious way: the field
+ *   simply is not there.
+ *
+ * THE LAYOUT
+ *   An asymmetric mosaic, not a regular grid: the first tile of each group of
+ *   four is wide (and square-ish and tall on desktop), which is what stops it
+ *   looking like a contact sheet. It holds from 3 to 8 photos without the
+ *   author choosing spans by hand.
+ *
+ * THE ENTRANCE
+ *   data-fx="mosaic" in ScrollFX: each tile wipes open behind a clip-path
+ *   while easing out of a slight zoom, alternating up and down, staggered.
+ *   The wipe is what makes it feel like the photo is being uncovered instead
+ *   of merely appearing.
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  title: string;
+  images: ImageMetadata[];
+  alt: string[];
+  caption?: string;
+}
+
+const { title, images, alt, caption } = Astro.props;
+---
+
+<section class="collage" aria-labelledby="collage-title">
+  <h2 id="collage-title" class="collage__title" data-fx="up">{title}</h2>
+
+  <div class="collage__grid" data-fx="mosaic">
+    {
+      images.map((img, i) => (
+        <figure class="collage__item">
+          <Image
+            src={img}
+            alt={alt[i] ?? ''}
+            widths={[480, 800, 1200]}
+            sizes="(min-width: 64rem) 50vw, 100vw"
+            loading="lazy"
+            decoding="async"
+          />
+        </figure>
+      ))
+    }
+  </div>
+
+  {
+    caption && (
+      <p class="collage__caption" data-fx="up">
+        {caption}
+      </p>
+    )
+  }
+</section>
+
+<style>
+  /* The section paints its own mat.
+     Without it the mosaic inherits the case background, and a dark case with
+     dark stills in it reads as nothing at all: measured on uber-mariachis the
+     photos average rgb(49,30,25) against a rgb(38,26,26) page. A step of tint
+     plus a hairline round each tile is what makes a photo read as a photo
+     whatever the theme and whatever the material.
+
+     It is a translucent veil and not a colour mixed against the page: the case
+     background lives in --case-background, and on the gradient themes that is
+     a linear-gradient(), which color-mix() cannot take as an operand. A veil
+     over whatever is behind works on flat and gradient alike. */
+  .collage {
+    padding: var(--space-xl) var(--space-m) var(--space-2xl);
+    margin-block: var(--space-xl);
+    background: color-mix(in srgb, var(--color-fg) 10%, transparent);
+  }
+
+  .collage__title {
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    text-transform: uppercase;
+    font-size: clamp(1.5rem, 5vw, 2.5rem);
+    line-height: 1;
+    margin: 0 0 var(--space-m);
+    color: var(--color-fg);
+  }
+
+  /* Mobile first: two columns, and the lead tile of each group spans both.
+     Anything narrower than two columns turns a mosaic into a list. */
+  .collage__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-xs);
+  }
+
+  .collage__item {
+    margin: 0;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--color-fg) 16%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-fg) 35%, transparent);
+    aspect-ratio: 4 / 5;
+  }
+  .collage__item :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .collage__item:nth-child(4n + 1) {
+    grid-column: span 2;
+    aspect-ratio: 16 / 9;
+  }
+
+  @media (min-width: 48rem) {
+    .collage__grid {
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-s);
+    }
+    /* The lead tile becomes a big square and the rest pack around it. `dense`
+       backfills the holes that leaves, so a 5 or 7 photo set has no gaps. */
+    .collage__grid {
+      grid-auto-flow: dense;
+    }
+    .collage__item {
+      aspect-ratio: 1;
+    }
+    .collage__item:nth-child(4n + 1) {
+      grid-column: span 2;
+      grid-row: span 2;
+      aspect-ratio: 1;
+    }
+    .collage__item:nth-child(4n + 4) {
+      grid-column: span 2;
+      aspect-ratio: 2;
+    }
+  }
+
+  .collage__caption {
+    margin: var(--space-s) 0 0;
+    font-size: 0.875rem;
+    color: color-mix(in srgb, var(--color-fg) 70%, transparent);
+    max-width: 60ch;
+  }
+</style>

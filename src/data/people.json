@@ -1,0 +1,705 @@
+[
+  {
+    "id": "benjamin-pedrero",
+    "name": "Benjamin Pedrero",
+    "role": "Chief Creative Officer",
+    "quote": "Ideas, gente y agencia con AURA; eso es BBDO México",
+    "photo": "benjamin-pedrero.webp"
+  },
+  {
+    "id": "andrea-noguera",
+    "name": "Andrea Noguera",
+    "role": "Copy Sr",
+    "photo": "andrea-noguera.webp"
+  },
+  {
+    "id": "alejandro-barrera",
+    "name": "Alejandro Barrera",
+    "role": "Community Manager",
+    "photo": "alejandro-barrera.webp"
+  },
+  {
+    "id": "giovanni-garcia",
+    "name": "Giovanni García",
+    "role": "Director Arte",
+    "photo": "giovanni-garcia.webp"
+  },
+  {
+    "id": "alfonsina-hernandez",
+    "name": "Alfonsina Hernández",
+    "role": "Directora Arte Sr",
+    "photo": "alfonsina-hernandez.webp"
+  },
+  {
+    "id": "sebastian-urrutia",
+    "name": "Sebastián Urrutia",
+    "role": "Director General Creativo",
+    "photo": "sebastian-urrutia.webp"
+  },
+  {
+    "id": "carmen-cabrera",
+    "name": "Carmen Cabrera",
+    "role": "Asistente Dirección General",
+    "photo": "carmen-cabrera.webp"
+  },
+  {
+    "id": "gustavo-correa",
+    "name": "Gustavo Correa",
+    "role": "VP COO",
+    "photo": "gustavo-correa.jpg"
+  },
+  {
+    "id": "joel-gomez",
+    "name": "Joel Gómez",
+    "role": "Data Analyst",
+    "photo": "joel-gomez.webp"
+  },
+  {
+    "id": "marissa-aguilar",
+    "name": "Marissa Aguilar",
+    "role": "Business Supervisor",
+    "photo": "marissa-aguilar.webp"
+  },
+  {
+    "id": "mariana-suarez-medrano",
+    "name": "Mariana Suárez Medrano",
+    "role": "Group Business Director",
+    "photo": "mariana-suarez-medrano.webp"
+  },
+  {
+    "id": "ilse-calderon",
+    "name": "Ilse Calderón",
+    "role": "Directora de Arte Rr",
+    "photo": "ilse-calderon.webp"
+  },
+  {
+    "id": "mariel-ramirez",
+    "name": "Mariel Ramírez",
+    "role": "Business Director",
+    "photo": "mariel-ramirez.webp"
+  },
+  {
+    "id": "adrian-dominguez",
+    "name": "Adrian Domínguez",
+    "role": "Planner",
+    "photo": "adrian-dominguez.webp"
+  },
+  {
+    "id": "guillermo-rodriguez",
+    "name": "Guillermo Rodríguez",
+    "role": "Supervisor Facturación",
+    "photo": "guillermo-rodriguez.webp"
+  },
+  {
+    "id": "roberto-aguilar",
+    "name": "Roberto Aguilar",
+    "role": "Ejecutivo Cuentas x Pagar",
+    "photo": "roberto-aguilar.webp"
+  },
+  {
+    "id": "roberto-sandoval",
+    "name": "Roberto Sandoval",
+    "role": "Auxiliar Contable",
+    "photo": "roberto-sandoval.webp"
+  },
+  {
+    "id": "abigail-medina",
+    "name": "Abigail Medina",
+    "role": "Business Director",
+    "photo": "abigail-medina.webp"
+  },
+  {
+    "id": "melissa-centeno",
+    "name": "Melissa Centeno",
+    "role": "Business Executive",
+    "photo": "melissa-centeno.webp"
+  },
+  {
+    "id": "gabriela-garcia",
+    "name": "Gabriela García",
+    "role": "Project Manager",
+    "photo": "gabriela-garcia.webp"
+  },
+  {
+    "id": "samantha-trueba",
+    "name": "Samantha Trueba",
+    "role": "Business Executive",
+    "photo": "samantha-trueba.webp"
+  },
+  {
+    "id": "saray-velasco",
+    "name": "Saray Velasco",
+    "role": "Project Manager",
+    "photo": "saray-velasco.webp"
+  },
+  {
+    "id": "adriana-perez",
+    "name": "Adriana Pérez",
+    "role": "Coms Planning Director",
+    "photo": "adriana-perez.webp"
+  },
+  {
+    "id": "judith-jimenez",
+    "name": "Judith Jiménez",
+    "role": "Supervisora Tesorería y Finanzas",
+    "photo": "judith-jimenez.webp"
+  },
+  {
+    "id": "adela-romero",
+    "name": "Adela Romero",
+    "role": "Encargada de Cuentas x Pagar",
+    "photo": "adela-romero.webp"
+  },
+  {
+    "id": "salvador-galicia",
+    "name": "Salvador Galicia",
+    "role": "Mensajero",
+    "photo": "salvador-galicia.webp"
+  },
+  {
+    "id": "andrea-rosas",
+    "name": "Andrea Rosas",
+    "role": "Maker Digital Sr",
+    "photo": "andrea-rosas.webp"
+  },
+  {
+    "id": "barush-munoz",
+    "name": "Barush Muñoz",
+    "role": "Diseñador Sr",
+    "photo": "barush-munoz.webp"
+  },
+  {
+    "id": "guadalupe-frias",
+    "name": "Guadalupe Frías",
+    "role": "Auxiliar Administrativo",
+    "photo": "guadalupe-frias.webp"
+  },
+  {
+    "id": "luz-torres",
+    "name": "Luz Torres",
+    "role": "Head of Data",
+    "photo": "luz-torres.webp"
+  },
+  {
+    "id": "juan-camacho",
+    "name": "Juan Camacho",
+    "role": "Director Arte",
+    "photo": "juan-camacho.webp"
+  },
+  {
+    "id": "carlos-morales",
+    "name": "Carlos Morales",
+    "role": "Director Creativo Asociado",
+    "photo": "carlos-morales.webp"
+  },
+  {
+    "id": "alejandro-palacios",
+    "name": "Alejandro Palacios",
+    "role": "Web Master",
+    "photo": "alejandro-palacios.webp"
+  },
+  {
+    "id": "leslie-navarro",
+    "name": "Leslie Navarro",
+    "role": "Directora de Arte",
+    "photo": "leslie-navarro.webp"
+  },
+  {
+    "id": "katia-villalpando",
+    "name": "Katia Villalpando",
+    "role": "Directora Creativa Asociada",
+    "photo": "katia-villalpando.jpg"
+  },
+  {
+    "id": "eder-giovanni-mateos",
+    "name": "Eder Giovanni Mateos",
+    "role": "Data Analytics Specialist",
+    "photo": "eder-giovanni-mateos.jpg"
+  },
+  {
+    "id": "ivonne-cureno",
+    "name": "Ivonne Cureño",
+    "role": "Supervisora RR HH",
+    "photo": "ivonne-cureno.webp"
+  },
+  {
+    "id": "alejandro-mora-salive",
+    "name": "Alejandro Mora Salive",
+    "role": "Director ejecutivo planning",
+    "photo": "alejandro-mora-salive.jpg"
+  },
+  {
+    "id": "gabriela-marisol-resendiz-montalvo",
+    "name": "Gabriela Marisol Reséndiz Montalvo",
+    "role": "Senior Art Director",
+    "photo": "gabriela-marisol-resendiz-montalvo.jpg"
+  },
+  {
+    "id": "alonso-palomeque",
+    "name": "Alonso Palomeque",
+    "role": "IT Coordinator",
+    "photo": "alonso-palomeque.webp"
+  },
+  {
+    "id": "eduardo-arenas",
+    "name": "Eduardo Arenas",
+    "role": "Maker Digital",
+    "photo": "eduardo-arenas.webp"
+  },
+  {
+    "id": "marijose-angeles",
+    "name": "Marijose Angeles",
+    "role": "Project Manager",
+    "photo": "marijose-angeles.webp"
+  },
+  {
+    "id": "juan-luis-rosas",
+    "name": "Juan Luis Rosas",
+    "role": "Contralor",
+    "photo": "juan-luis-rosas.webp"
+  },
+  {
+    "id": "aaron-rosas-arcos",
+    "name": "Aaron Rosas Arcos",
+    "role": "Copywritter",
+    "photo": "aaron-rosas-arcos.webp"
+  },
+  {
+    "id": "alejandra-lira-martinez",
+    "name": "Alejandra Lira Martínez",
+    "role": "Project Manager",
+    "photo": "alejandra-lira-martinez.webp"
+  },
+  {
+    "id": "angel-alberto-arteaga-ontiveros",
+    "name": "Ángel Alberto Arteaga Ontiveros",
+    "role": "Content Manager",
+    "photo": "angel-alberto-arteaga-ontiveros.webp"
+  },
+  {
+    "id": "arantxa-lopez-ortega",
+    "name": "Arantxa Lopez Ortega",
+    "role": "Designer",
+    "photo": "arantxa-lopez-ortega.webp"
+  },
+  {
+    "id": "carolina-perez-garcia-valdez",
+    "name": "Carolina Pérez García Valdez",
+    "role": "Content Manager",
+    "photo": "carolina-perez-garcia-valdez.webp"
+  },
+  {
+    "id": "cinthia-altamirano-chavarria",
+    "name": "Cinthia Altamirano Chavarria",
+    "role": "Business Supervisor",
+    "photo": "cinthia-altamirano-chavarria.webp"
+  },
+  {
+    "id": "daniela-estrada-alvarez",
+    "name": "Daniela Estrada Alvarez",
+    "role": "Copywritter",
+    "photo": "daniela-estrada-alvarez.webp"
+  },
+  {
+    "id": "donaji-sanchez-ruiseco",
+    "name": "Donají Sánchez Ruiseco",
+    "role": "Community Manager",
+    "photo": "donaji-sanchez-ruiseco.webp"
+  },
+  {
+    "id": "julio-cesar-mendoza-chimal",
+    "name": "Julio Cesar Mendoza Chimal",
+    "role": "Data Analyst",
+    "photo": "julio-cesar-mendoza-chimal.webp"
+  },
+  {
+    "id": "laura-cecilia-trejo-hernandez",
+    "name": "Laura Cecilia Trejo Hernandez",
+    "role": "Digital Strategist",
+    "photo": "laura-cecilia-trejo-hernandez.webp"
+  },
+  {
+    "id": "valeria-torres",
+    "name": "Valeria Torres",
+    "role": "Copywritter",
+    "photo": "valeria-torres.webp"
+  },
+  {
+    "id": "mariana-mendoza-lopez",
+    "name": "Mariana Mendoza Lopez",
+    "role": "Content Manager",
+    "photo": "mariana-mendoza-lopez.webp"
+  },
+  {
+    "id": "montserrat-oseguera-bedolla",
+    "name": "Montserrat Oseguera Bedolla",
+    "role": "Proofreader",
+    "photo": "montserrat-oseguera-bedolla.webp"
+  },
+  {
+    "id": "omar-aranda-rodriguez",
+    "name": "Omar Aranda Rodriguez",
+    "role": "Director Creativo",
+    "photo": "omar-aranda-rodriguez.webp"
+  },
+  {
+    "id": "sofia-almanza-loran",
+    "name": "Sofía Almanza Loran",
+    "role": "Business Supervisor",
+    "photo": "sofia-almanza-loran.webp"
+  },
+  {
+    "id": "sonia-rodriguez-rosenblueth",
+    "name": "Sonia Rodriguez Rosenblueth",
+    "role": "Planner",
+    "photo": "sonia-rodriguez-rosenblueth.webp"
+  },
+  {
+    "id": "yessica-lizbeth-quezada-hernandez",
+    "name": "Yessica Lizbeth Quezada Hernandez",
+    "role": "Directora de arte",
+    "photo": "yessica-lizbeth-quezada-hernandez.webp"
+  },
+  {
+    "id": "luz-elisa-hernandez",
+    "name": "Luz Elisa Hernandez",
+    "role": "Directora de arte Jr.",
+    "photo": "luz-elisa-hernandez.webp"
+  },
+  {
+    "id": "maximiliano-garcia",
+    "name": "Maximiliano García",
+    "role": "Project Manager",
+    "photo": "maximiliano-garcia.webp"
+  },
+  {
+    "id": "ricardo-hernandez",
+    "name": "Ricardo Hernández",
+    "role": "Associate Creative Director",
+    "photo": "ricardo-hernandez.webp"
+  },
+  {
+    "id": "itzel-rodriguez",
+    "name": "Itzel Rodriguez",
+    "role": "Account Supervisor",
+    "photo": "itzel-rodriguez.webp"
+  },
+  {
+    "id": "marisol-martinez",
+    "name": "Marisol Martinez",
+    "role": "Copywriter Content",
+    "photo": "marisol-martinez.webp"
+  },
+  {
+    "id": "monica-suarez",
+    "name": "Monica Suarez",
+    "role": "Project Manager",
+    "photo": "monica-suarez.webp"
+  },
+  {
+    "id": "edith-gomez",
+    "name": "Edith Gomez",
+    "role": "Data Analyst",
+    "photo": "edith-gomez.webp"
+  },
+  {
+    "id": "rodrigo-hernandez",
+    "name": "Rodrigo Hernandez",
+    "role": "Community Manager",
+    "photo": "rodrigo-hernandez.webp"
+  },
+  {
+    "id": "maria-fernanda-mejia-amezquite",
+    "name": "María Fernanda Mejía Amezquite",
+    "role": "Associate Creative Director",
+    "photo": "maria-fernanda-mejia-amezquite.webp"
+  },
+  {
+    "id": "laura-andrea-soriano-hernandez",
+    "name": "Laura Andrea Soriano Hernández",
+    "role": "Business Executive",
+    "photo": "laura-andrea-soriano-hernandez.webp"
+  },
+  {
+    "id": "karina-vianey-gonzalez-suaste",
+    "name": "Karina Vianey González Suaste",
+    "role": "Community Manager",
+    "photo": "karina-vianey-gonzalez-suaste.webp"
+  },
+  {
+    "id": "jessica-vanessa-avila-rodriguez",
+    "name": "Jessica Vanessa Ávila Rodríguez",
+    "role": "Bussiness Executive",
+    "photo": "jessica-vanessa-avila-rodriguez.webp"
+  },
+  {
+    "id": "isaac-mondragon-rustrian",
+    "name": "Isaac Mondragón Rustrían",
+    "role": "Video Editor",
+    "photo": "isaac-mondragon-rustrian.webp"
+  },
+  {
+    "id": "erick-rosas-arcos",
+    "name": "Erick Rosas Arcos",
+    "role": "Maker",
+    "photo": "erick-rosas-arcos.webp"
+  },
+  {
+    "id": "claudia-cuenca-monroy",
+    "name": "Claudia Cuenca Monroy",
+    "role": "Auxiliar De Nómina",
+    "photo": "claudia-cuenca-monroy.webp"
+  },
+  {
+    "id": "claudia-castro-castillo",
+    "name": "Claudia Castro Castillo",
+    "role": "Desing",
+    "photo": "claudia-castro-castillo.webp"
+  },
+  {
+    "id": "beatriz-maria-fernanda-lopez-lopez",
+    "name": "Beatriz María Fernanda López López",
+    "role": "Copywriter",
+    "photo": "beatriz-maria-fernanda-lopez-lopez.webp"
+  },
+  {
+    "id": "rene-adrian-ramirez-de-la-chaussee",
+    "name": "Rene Adrián Ramírez De La Chaussee",
+    "role": "Business Supervisor",
+    "photo": "rene-adrian-ramirez-de-la-chaussee.webp"
+  },
+  {
+    "id": "mariana-pantoja-ortiz",
+    "name": "Mariana Pantoja Ortiz",
+    "role": "Community Manager",
+    "photo": "mariana-pantoja-ortiz.webp"
+  },
+  {
+    "id": "jose-miguel-estela-chuquilin",
+    "name": "José Miguel Estela Chuquilin",
+    "role": "Creative Director",
+    "photo": "jose-miguel-estela-chuquilin.png"
+  },
+  {
+    "id": "jose-manuel-solano-palomino",
+    "name": "José Manuel Solano Palomino",
+    "role": "Associate Creative Director",
+    "photo": "jose-manuel-solano-palomino.jpg"
+  },
+  {
+    "id": "jonathan-mendoza-ramirez",
+    "name": "Jonathan Mendoza Ramírez",
+    "role": "Web Master",
+    "photo": "jonathan-mendoza-ramirez.jpg"
+  },
+  {
+    "id": "diana-karen-vega-reyes",
+    "name": "Diana Karen Vega Reyes",
+    "role": "Project Manager Digital (Implant)",
+    "photo": "diana-karen-vega-reyes.jpg"
+  },
+  {
+    "id": "aldo-vela-ledesma",
+    "name": "Aldo Vela Ledesma",
+    "role": "Community Manager",
+    "photo": "aldo-vela-ledesma.jpg"
+  },
+  {
+    "id": "victor-manuel-villafana-barcenas",
+    "name": "Víctor Manuel Villafaña Bárcenas",
+    "role": "Accounting",
+    "photo": "victor-manuel-villafana-barcenas.png"
+  },
+  {
+    "id": "stephanie-enriquez-garcia",
+    "name": "Stephanie Enríquez García",
+    "role": "Business Supervisor",
+    "photo": "stephanie-enriquez-garcia.jpg"
+  },
+  {
+    "id": "silvana-andrea-carreno-dell-aquila",
+    "name": "Silvana Andrea Carreño Dell'Aquila",
+    "role": "CFO",
+    "photo": "silvana-andrea-carreno-dell-aquila.jpg"
+  },
+  {
+    "id": "santiago-cardos-gimeno",
+    "name": "Santiago Cardos Gimeno",
+    "role": "Creative Director",
+    "photo": "santiago-cardos-gimeno.png"
+  },
+  {
+    "id": "mauricio-fabian-gutierrez-juarez",
+    "name": "Mauricio Fabian Gutiérrez Juárez",
+    "role": "Maker Sr",
+    "photo": "mauricio-fabian-gutierrez-juarez.png"
+  },
+  {
+    "id": "mariela-alejandra-luna-gonzalez",
+    "name": "Mariela Alejandra Luna González",
+    "role": "Project Manager",
+    "photo": "mariela-alejandra-luna-gonzalez.jpg"
+  },
+  {
+    "id": "luis-angel-cervantes-bohorquez",
+    "name": "Luis Ángel Cervantes Bohórquez",
+    "role": "Content Manager Sr",
+    "photo": "luis-angel-cervantes-bohorquez.jpg"
+  },
+  {
+    "id": "karen-elissa-luna-miranda",
+    "name": "Karen Elissa Luna Miranda",
+    "role": "Digital Strategist",
+    "photo": "karen-elissa-luna-miranda.jpg"
+  },
+  {
+    "id": "julieta-loaiza-moreno",
+    "name": "Julieta Loaiza Moreno",
+    "role": "Copywritter Sr",
+    "photo": "julieta-loaiza-moreno.jpg"
+  },
+  {
+    "id": "juan-manuel-appes",
+    "name": "Juan Manuel Appes",
+    "role": "Productor",
+    "photo": "juan-manuel-appes.png"
+  },
+  {
+    "id": "camila-maupome-de-la-vega",
+    "name": "Camila Maupome De La Vega",
+    "role": "Copywriter",
+    "photo": "camila-maupome-de-la-vega.jpg"
+  },
+  {
+    "id": "jose-francisco-corona-reyes",
+    "name": "José Francisco Corona Reyes",
+    "role": "Copywriter",
+    "photo": "jose-francisco-corona-reyes.jpg"
+  },
+  {
+    "id": "leslie-lorena-leon-bermudez",
+    "name": "Leslie Lorena León Bermúdez",
+    "role": "Social Media Lead",
+    "photo": "leslie-lorena-leon-bermudez.jpg"
+  },
+  {
+    "id": "ricardo-walles-flores",
+    "name": "Ricardo Walles Flores",
+    "role": "Video Editor",
+    "photo": "ricardo-walles-flores.jpg"
+  },
+  {
+    "id": "alberto-gonzalez-arellano",
+    "name": "Alberto González Arellano",
+    "role": "Copywriter Sr",
+    "photo": "alberto-gonzalez-arellano.jpg"
+  },
+  {
+    "id": "maria-alejandra-gaitan-armijos",
+    "name": "María Alejandra Gaitán Armijos",
+    "role": "Director de Arte Senior",
+    "photo": "maria-alejandra-gaitan-armijos.webp"
+  },
+  {
+    "id": "juan-ignacio-martinez-cruz",
+    "name": "Juan Ignacio Martínez Cruz",
+    "role": "Billing Supervisor Sr",
+    "photo": "juan-ignacio-martinez-cruz.webp"
+  },
+  {
+    "id": "laura-bravo-perez",
+    "name": "Laura Bravo Pérez",
+    "role": "Auxiliar RRHH",
+    "photo": "laura-bravo-perez.webp"
+  },
+  {
+    "id": "andrea-jhoana-mateos-saucedo",
+    "name": "Andrea Jhoana Mateos Saucedo",
+    "role": "Community Manager",
+    "photo": "andrea-jhoana-mateos-saucedo.webp"
+  },
+  {
+    "id": "eric-daniel-soberanis-cabrera",
+    "name": "Eric Daniel Soberanis Cabrera",
+    "role": "Maker",
+    "photo": "eric-daniel-soberanis-cabrera.webp"
+  },
+  {
+    "id": "estefania-huesca-barajas",
+    "name": "Estefanía Huesca Barajas",
+    "role": "Business Supervisor",
+    "photo": "estefania-huesca-barajas.webp"
+  },
+  {
+    "id": "jesus-asael-chavez-aguilar",
+    "name": "Jesús Asael Chavez Aguilar",
+    "role": "Business Executive",
+    "photo": "jesus-asael-chavez-aguilar.webp"
+  },
+  {
+    "id": "victor-david-hernandez-perez",
+    "name": "Victor David Hernández Pérez",
+    "role": "Copywritter Senior",
+    "photo": "victor-david-hernandez-perez.webp"
+  },
+  {
+    "id": "lucia-esparza-valadez",
+    "name": "Lucía Esparza Valadez",
+    "role": "Copywriter",
+    "photo": "lucia-esparza-valadez.webp"
+  },
+  {
+    "id": "areli-sarahi-garcia-hernandez",
+    "name": "Areli Sarahí García Hernández",
+    "role": "Maker",
+    "photo": "areli-sarahi-garcia-hernandez.webp"
+  },
+  {
+    "id": "karen-terrazas-villanueva",
+    "name": "Karen Terrazas Villanueva",
+    "role": "Copywriter Senior",
+    "photo": "karen-terrazas-villanueva.webp"
+  },
+  {
+    "id": "natali-espinoza-martinez",
+    "name": "Natali Espinoza Martínez",
+    "role": "Community Manager",
+    "photo": "natali-espinoza-martinez.webp"
+  },
+  {
+    "id": "ricardo-omar-gomez-lopez",
+    "name": "Ricardo Omar Gómez López",
+    "role": "Content Creator Mid",
+    "photo": "ricardo-omar-gomez-lopez.webp"
+  },
+  {
+    "id": "alejandra-lydia-rios-lobaugh",
+    "name": "Alejandra Lydia Ríos Lobaugh",
+    "role": "Content Creator Sr",
+    "photo": "alejandra-lydia-rios-lobaugh.webp"
+  },
+  {
+    "id": "raul-martinez-cifuentes",
+    "name": "Raúl Martínez Cifuentes",
+    "role": "Content Creator Mid",
+    "photo": "raul-martinez-cifuentes.webp"
+  },
+  {
+    "id": "federico-vazquez-gomez-sanchez",
+    "name": "Federico Vázquez Gómez Sánchez",
+    "role": "Digital Strategist",
+    "photo": "federico-vazquez-gomez-sanchez.webp"
+  },
+  {
+    "id": "sofia-selene-hernandez-miron",
+    "name": "Sofía Selene Hernández Mirón",
+    "role": "Business Supervisor",
+    "photo": "sofia-selene-hernandez-miron.webp"
+  },
+  {
+    "id": "oscar-alessandro-garza-arzate",
+    "name": "Oscar Alessandro Garza Arzate",
+    "role": "Strategist",
+    "photo": "oscar-alessandro-garza-arzate.webp"
+  }
+]

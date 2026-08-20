@@ -15,7 +15,8 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "verify": "astro check && eslint . && prettier --check ."
+    "verify": "astro check && eslint . && prettier --check . && node scripts/check-tokens.mjs",
+    "check:tokens": "node scripts/check-tokens.mjs"
   },
   "dependencies": {
     "astro": "^7.2.3",

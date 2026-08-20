@@ -120,7 +120,17 @@ procesos de reclutamiento: conviene preguntar antes de moverla o quitarla.
     incluidas las palabras del banner. Las paletas de caso usan rojos más
     oscuros para fondo y reservan el `#FF0000` para acento sobre claro.
 
-12. **El home tiene 88 palabras visibles.** El resto del peso de la página es
+12. **BBDOers es el mejor contenido del sitio actual.** 117 personas con
+    nombre, cargo y retrato, en WebP de 800×1033 y entre 50 y 110 KB. Es lo
+    único que estaba ya optimizado y listo para migrar tal cual. Contrasta con
+    los key visuals de casos, que son PNG de 4 MB.
+
+    Dos avisos para la agencia: el listado tiene **"Copywritter" con doble t**
+    en tres fichas contra "Copywriter" en cuatro, y una lista de 117 personas
+    se queda desactualizada rápido, así que necesita dueño y un proceso de
+    altas y bajas antes de publicarla.
+
+13. **El home tiene 88 palabras visibles.** El resto del peso de la página es
     chrome del tema.
 
 ## Correcciones al brief

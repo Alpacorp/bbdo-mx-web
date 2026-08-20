@@ -46,5 +46,15 @@ export default defineConfig(
         SVGGElement: 'readonly',
       },
     },
+  },
+  {
+    // Build scripts run in Node, not in the browser.
+    files: ['scripts/**/*.mjs'],
+    languageOptions: {
+      globals: {
+        console: 'readonly',
+        process: 'readonly',
+      },
+    },
   }
 );
