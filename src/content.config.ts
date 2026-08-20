@@ -120,6 +120,27 @@ const work = defineCollection({
         )
         .default([]),
 
+      /**
+       * The campaign's photo mosaic, right below the description. Every case
+       * gets one: it is where the material that is not the key visual lives —
+       * stills, making of, pieces in the street, product.
+       *
+       * Between 3 and 8. Under three there is no mosaic, only a couple of
+       * loose photos; over eight the section stops being a summary and turns
+       * into an archive, and the case loses its thread.
+       *
+       * Optional because most cases are still waiting on the material. A case
+       * without it renders nothing, which is the honest state.
+       */
+      collage: z
+        .object({
+          title: z.string().default('En imágenes'),
+          images: z.array(image()).min(3).max(8),
+          alt: z.array(z.string()).default([]),
+          caption: z.string().optional(),
+        })
+        .optional(),
+
       /** Path on the current site. Feeds the 301 redirect map. */
       previousSlug: z.string(),
 

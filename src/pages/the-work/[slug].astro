@@ -5,6 +5,7 @@ import Base from '../../layouts/Base.astro';
 import ScrollFX from '../../components/ScrollFX.astro';
 import VideoBanner from '../../components/VideoBanner.astro';
 import CaseBlock from '../../components/CaseBlock.astro';
+import Collage from '../../components/Collage.astro';
 import { themeStyle } from '../../themes';
 
 /**
@@ -160,6 +161,17 @@ if (data.awards.length) jsonLd.award = data.awards;
         )
       }
     </section>
+
+    {
+      data.collage && (
+        <Collage
+          title={data.collage.title}
+          images={data.collage.images}
+          alt={data.collage.alt}
+          caption={data.collage.caption}
+        />
+      )
+    }
 
     {
       /* Flexible blocks: image strips, quotes, figures, text and video. They

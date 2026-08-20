@@ -18,6 +18,7 @@
  *   data-fx="left"|"right"  enters from one side (the global site's gesture)
  *   data-fx="scale"         eases out of a zoom, giving a sense of material
  *   data-fx="lines"         reveals its children line by line, behind a mask
+ *   data-fx="mosaic"        uncovers its children with a wipe, staggered
  *   data-fx="parallax"      moves slower than the scroll
  *   data-fx-stagger         staggers the direct children
  *   data-fx-delay="200"     delay in milliseconds
@@ -73,8 +74,30 @@
     transition-delay: calc(var(--i, 0) * 90ms);
   }
 
+  /* Mosaic: each tile is uncovered by a wipe rather than merely appearing,
+     easing out of a slight zoom at the same time. Alternating the wipe's
+     direction is what keeps a grid of them from marching in lockstep. */
+  html.js [data-fx='mosaic'] > * {
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+    transform: scale(1.14);
+    transition:
+      opacity 0.5s var(--ease),
+      clip-path 1.1s var(--ease),
+      transform 1.2s var(--ease);
+    transition-delay: calc(var(--i, 0) * 110ms);
+  }
+  html.js [data-fx='mosaic'] > *:nth-child(even) {
+    clip-path: inset(100% 0 0 0);
+  }
+  html.js [data-fx='mosaic'].fx-visible > * {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    transform: none;
+  }
+
   /* --- Reveal -------------------------------------------------------------- */
-  html.js [data-fx].fx-visible,
+  html.js [data-fx]:not([data-fx='mosaic']).fx-visible,
   html.js [data-fx-stagger].fx-visible > *,
   html.js [data-fx='lines'].fx-visible > * {
     opacity: 1;
@@ -109,9 +132,11 @@
   @media (prefers-reduced-motion: reduce) {
     html.js [data-fx],
     html.js [data-fx-stagger] > *,
-    html.js [data-fx='lines'] > * {
+    html.js [data-fx='lines'] > *,
+    html.js [data-fx='mosaic'] > * {
       opacity: 1 !important;
       transform: none !important;
+      clip-path: none !important;
       transition: none !important;
       animation: none !important;
     }
@@ -119,9 +144,11 @@
 
   html.fx-fallback [data-fx],
   html.fx-fallback [data-fx-stagger] > *,
-  html.fx-fallback [data-fx='lines'] > * {
+  html.fx-fallback [data-fx='lines'] > *,
+  html.fx-fallback [data-fx='mosaic'] > * {
     opacity: 1 !important;
     transform: none !important;
+    clip-path: none !important;
   }
 </style>
 
@@ -146,7 +173,7 @@
   if (!reduce) {
     // Index per child, so CSS can stagger without a timer per element.
     document
-      .querySelectorAll<HTMLElement>('[data-fx-stagger], [data-fx="lines"]')
+      .querySelectorAll<HTMLElement>('[data-fx-stagger], [data-fx="lines"], [data-fx="mosaic"]')
       .forEach((container) => {
         [...container.children].forEach((hijo, i) => {
           (hijo as HTMLElement).style.setProperty('--i', String(i));

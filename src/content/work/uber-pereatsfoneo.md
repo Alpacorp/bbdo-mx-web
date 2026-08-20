@@ -28,6 +28,21 @@ theme: dark
 # Vimeo id, read off the current site. That is where the campaign video lives.
 vimeo: '850970601'
 
+# COLLAGE — PENDING material. Between 3 and 8 photos of the campaign: stills,
+# making of, pieces in the street, product. Drop the files in
+# src/assets/work/<slug>/ and uncomment. See uber-mariachis for a live example.
+#
+# collage:
+#   title: 'En imágenes'
+#   images:
+#     - '../../assets/work/uber-pereatsfoneo/01.jpg'
+#     - '../../assets/work/uber-pereatsfoneo/02.jpg'
+#     - '../../assets/work/uber-pereatsfoneo/03.jpg'
+#   alt:
+#     - 'Qué se ve en la foto'
+#     - ''
+#     - ''
+
 previousSlug: '/portfolio/uber-pereatsfoneo/'
 order: 16
 featured: false
