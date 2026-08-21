@@ -7,6 +7,18 @@ import VideoHeadline from '../components/VideoHeadline.astro';
 import ScrollFX from '../components/ScrollFX.astro';
 import ClientWall from '../components/ClientWall.astro';
 import Awards from '../components/Awards.astro';
+import NewsCard from '../components/NewsCard.astro';
+
+/**
+ * The three most recent articles. Real ones: the home used to carry two
+ * invented entries titled "Titular de noticia pendiente de curaduría", and
+ * they linked to /news/, which did not exist. With one article published the
+ * strip shows one.
+ */
+const latest = (await getCollection('news'))
+  .filter((entry) => !entry.data.draft)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0, 3);
 
 /**
  * Home page.
@@ -60,45 +72,6 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
  */
 
 // Placeholder figures. Marketing has to confirm them before publishing.
-
-const noticias = [
-  {
-    titulo: 'BBDO México, reconocida como Agencia Transformadora del Año',
-    fecha: '2024-11-26',
-    slug: 'bbdo-premio-agencia-transformadora',
-    img: '/v/case-modelo.png',
-    extracto: 'El único contenido real que hoy existe en el sitio actual. Se migra tal cual.',
-  },
-  {
-    titulo: 'Titular de noticia pendiente de curaduría',
-    fecha: '2025-06-01',
-    slug: 'placeholder-2',
-    img: '/v/case-telcel.png',
-    extracto:
-      'Texto de relleno. El índice de noticias hoy no existe: el menú NEWS apunta a un post suelto.',
-  },
-  {
-    titulo: 'Titular de noticia pendiente de curaduría',
-    fecha: '2025-09-15',
-    slug: 'placeholder-3',
-    img: '/v/case-cerveza.png',
-    extracto: 'Texto de relleno.',
-  },
-];
-
-/**
- * new Date('2024-11-26') parses as midnight UTC, and formatting it in Mexico's
- * timezone (UTC-6) rolls back a day: it printed "25 de noviembre". Splitting
- * the string forces local interpretation.
- */
-function fechaLarga(iso: string) {
-  const [a, m, d] = iso.split('-').map(Number);
-  return new Date(a, m - 1, d).toLocaleDateString('es-MX', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-}
 ---
 
 <Base
@@ -179,29 +152,15 @@ function fechaLarga(iso: string) {
 
       <section class="news section-shell" aria-labelledby="news-title">
         <header class="section-head">
-          <h2 id="news-title" data-fx="up">Do Big Things</h2>
-          <a class="section-link" href="/news/">Ver todas las noticias</a>
+          <h2 id="news-title" data-fx="up">Noticias</h2>
+          <a class="section-link" href="/news/">Ver todas</a>
         </header>
 
         <ul class="news-list" data-fx-stagger>
           {
-            noticias.map((n) => (
+            latest.map((entry) => (
               <li>
-                <a href={`/news/${n.slug}/`}>
-                  <img
-                    src={n.img}
-                    alt=""
-                    width="800"
-                    height="450"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                  <div class="news-list__body">
-                    <time datetime={n.fecha}>{fechaLarga(n.fecha)}</time>
-                    <h3>{n.titulo}</h3>
-                    <p>{n.extracto}</p>
-                  </div>
-                </a>
+                <NewsCard entry={entry} />
               </li>
             ))
           }
@@ -298,85 +257,15 @@ function fechaLarga(iso: string) {
   }
 
   /* --- Noticias ---------------------------------------------------------- */
+  /* Only the grid stays here. Everything a card looks like moved into
+     NewsCard.astro, which the index page uses too — the card had been written
+     twice otherwise, and the two would have drifted. */
   .news-list {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
-    gap: var(--space-l) var(--space-m);
-  }
-  .news-list a {
-    text-decoration: none;
-    display: block;
-  }
-  .news-list img {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
-    border-radius: 4px;
-    background: var(--color-dark);
-  }
-  .news-list__body {
-    padding-top: var(--space-s);
-  }
-  .news-list time {
-    color: var(--color-dim);
-    font-size: 0.85rem;
-  }
-  .news-list h3 {
-    margin: var(--space-2xs) 0 var(--space-xs);
-    font-family: var(--font-display);
-    font-weight: 400;
-    font-size: clamp(1.1rem, 1.8vw, 1.45rem);
-    line-height: 1.2;
-  }
-  .news-list p {
-    margin: 0;
-    color: var(--color-dim);
-    font-size: 0.92rem;
-    line-height: 1.5;
-  }
-  .news-list a:hover h3 {
-    color: var(--color-red);
-  }
-
-  /* Short screens (landscape phone): 96px of padding top and bottom eats half
-     of a 390px-tall viewport. */
-  @media (max-height: 32rem) {
-    .claim {
-      min-height: auto;
-      padding-block: var(--space-xl);
-      gap: var(--space-m);
-    }
-    .work,
-    .awards,
-    .news {
-      padding-block: var(--space-xl);
-    }
-    .clients__inner {
-      padding-block: var(--space-xl);
-    }
-  }
-
-  @media (max-width: 60rem) {
-    .grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    .card--wide {
-      grid-column: span 2;
-    }
-  }
-  @media (max-width: 40rem) {
-    .grid {
-      grid-template-columns: 1fr;
-    }
-    .card--wide {
-      grid-column: span 1;
-    }
-    .card--wide img {
-      aspect-ratio: 16 / 9;
-    }
+    gap: var(--space-xl) var(--space-m);
   }
 </style>

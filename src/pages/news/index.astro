@@ -1,0 +1,88 @@
+---
+/**
+ * /news/ — the index the current site does not have.
+ *
+ * Section 2 of the brief lists this among the reasons for the rebuild: the
+ * NEWS item in the menu points at a single loose post instead of an index, so
+ * everything the agency publishes lands nowhere and accumulates nothing.
+ *
+ * There is exactly one article today. The page is built for the archive it
+ * will become, and says plainly that it is starting rather than pretending to
+ * be full.
+ */
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import ScrollFX from '../../components/ScrollFX.astro';
+import NewsCard from '../../components/NewsCard.astro';
+
+const articles = (await getCollection('news'))
+  .filter((entry) => !entry.data.draft)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<Base title="News" path="/news/" description="Noticias, premios y reconocimientos de BBDO México.">
+  <ScrollFX />
+
+  <main id="content" class="news-page">
+    <div class="section-shell">
+      <header class="news-page__head">
+        <h1 class="news-page__title" data-fx="lines"><span>News</span></h1>
+        <p class="news-page__intro" data-fx="up" data-fx-delay="120">
+          Lo que va pasando en BBDO México: premios, reconocimientos y trabajo que merece contarse.
+        </p>
+      </header>
+
+      {
+        articles.length > 0 ? (
+          <ul class="news-page__list" data-fx-stagger>
+            {articles.map((entry) => (
+              <li>
+                <NewsCard entry={entry} />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="news-page__empty">Todavía no hay nada publicado.</p>
+        )
+      }
+    </div>
+  </main>
+</Base>
+
+<style>
+  .news-page__title {
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    text-transform: uppercase;
+    font-size: clamp(3rem, 12vw, 8rem);
+    line-height: 0.95;
+    margin: 0;
+  }
+
+  /* One shell, not two: stacking a header shell on a list shell doubled the
+     vertical rhythm and left a 190px hole between the intro and the first
+     card. The gap between them is a margin now. */
+  .news-page__head {
+    margin-bottom: var(--space-xl);
+  }
+
+  .news-page__intro {
+    margin: var(--space-m) 0 0;
+    font-size: 1.15rem;
+    color: var(--color-dim);
+    max-width: 48ch;
+  }
+
+  .news-page__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+    gap: var(--space-xl) var(--space-m);
+  }
+
+  .news-page__empty {
+    color: var(--color-dim);
+  }
+</style>

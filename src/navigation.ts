@@ -20,7 +20,7 @@ export const NAVIGATION: NavItem[] = [
   { label: 'The Work', href: '/the-work/', built: true },
   { label: 'Nosotros', href: '/about/', built: false },
   { label: 'BBDOers', href: '/people/', built: true },
-  { label: 'News', href: '/news/', built: false },
+  { label: 'News', href: '/news/', built: true },
   { label: 'Contacto', href: '/contact/', built: false },
 ];
 
