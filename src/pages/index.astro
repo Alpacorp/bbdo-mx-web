@@ -6,6 +6,7 @@ import VideoBanner from '../components/VideoBanner.astro';
 import VideoHeadline from '../components/VideoHeadline.astro';
 import ScrollFX from '../components/ScrollFX.astro';
 import ClientWall from '../components/ClientWall.astro';
+import Awards from '../components/Awards.astro';
 
 /**
  * Home page.
@@ -59,12 +60,6 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
  */
 
 // Placeholder figures. Marketing has to confirm them before publishing.
-const awards = [
-  { figure: '00', name: 'Leones en Cannes', note: 'pendiente de confirmar' },
-  { figure: '00', name: 'Círculo de Oro', note: 'pendiente de confirmar' },
-  { figure: '00', name: 'El Sol', note: 'pendiente de confirmar' },
-  { figure: '00', name: 'Effie México', note: 'pendiente de confirmar' },
-];
 
 const noticias = [
   {
@@ -151,7 +146,7 @@ function fechaLarga(iso: string) {
         >
       </section>
 
-      <section class="work" aria-labelledby="work-title">
+      <section class="work section-shell" aria-labelledby="work-title">
         <header class="section-head">
           <h2 id="work-title" data-fx="up">The Work</h2>
           <a class="section-link" href="/the-work/">Ver todo The Work</a>
@@ -180,24 +175,9 @@ function fechaLarga(iso: string) {
 
       <ClientWall />
 
-      <section class="awards" aria-labelledby="premios-title">
-        <header class="section-head">
-          <h2 id="premios-title" data-fx="up">Premios</h2>
-        </header>
-        <ul class="awards__list" data-fx-stagger>
-          {
-            awards.map((p) => (
-              <li>
-                <span class="awards__figure">{p.figure}</span>
-                <span class="awards__name">{p.name}</span>
-                <span class="awards__note">{p.note}</span>
-              </li>
-            ))
-          }
-        </ul>
-      </section>
+      <Awards />
 
-      <section class="news" aria-labelledby="news-title">
+      <section class="news section-shell" aria-labelledby="news-title">
         <header class="section-head">
           <h2 id="news-title" data-fx="up">Do Big Things</h2>
           <a class="section-link" href="/news/">Ver todas las noticias</a>
@@ -272,16 +252,6 @@ function fechaLarga(iso: string) {
     padding-bottom: 4px;
   }
 
-  /* --- Secciones claras -------------------------------------------------- */
-  .work,
-  .awards,
-  .news {
-    padding-inline: var(--gutter);
-    padding-block: var(--space-2xl);
-    max-width: var(--max-width);
-    margin-inline: auto;
-  }
-
   /* --- Work: grid asimetrica ----------------------------------------- */
   .grid {
     list-style: none;
@@ -325,38 +295,6 @@ function fechaLarga(iso: string) {
   }
   .card a:hover .card__brand {
     color: var(--color-red);
-  }
-
-  /* --- Premios ----------------------------------------------------------- */
-  .awards__list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    /* 8rem and not 10: a 375px phone leaves 335px usable, and two 10rem
-       columns plus the 24px gap add up to 344. At 8rem they total 280 and fit. */
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
-    gap: var(--space-l) var(--space-m);
-  }
-  .awards__list li {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-  .awards__figure {
-    font-family: var(--font-display);
-    font-weight: var(--weight-display);
-    /* 2.5rem floor: at two columns on mobile, 3rem ate the width. */
-    font-size: clamp(2.5rem, 7vw, 5.5rem);
-    line-height: 1;
-    color: var(--color-red);
-  }
-  .awards__name {
-    font-size: 1.05rem;
-  }
-  .awards__note {
-    font-size: 0.8rem;
-    color: var(--color-dim);
   }
 
   /* --- Noticias ---------------------------------------------------------- */

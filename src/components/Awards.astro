@@ -1,0 +1,193 @@
+---
+/**
+ * Awards.astro — the awards section on the home page.
+ *
+ * WHY IT IS NOT A ROW OF COUNTERS
+ *   Counters need a tally, and there is not one: see src/awards.ts. A layout
+ *   that needs four numbers to look right is a layout that invites inventing
+ *   four numbers.
+ *
+ *   This reads as a ledger instead, so it works at one entry and at twenty.
+ *   The most recent award is set large — with one award that is the whole
+ *   section, and it lands as a statement rather than as a gap — and the rest
+ *   fall in underneath as rows. Nothing about the design changes as the
+ *   palmarés arrives; only the data does.
+ *
+ * THE ENTRANCE
+ *   data-fx="lines" on the award's name: each line rises from behind its own
+ *   mask. It is the vocabulary the headline already uses, and at this size it
+ *   is what the section has instead of an image.
+ */
+import { AWARDS } from '../awards';
+
+const [featured, ...rest] = AWARDS;
+
+/**
+ * The name is broken into lines here rather than left to wrap.
+ *
+ * data-fx="lines" masks each child and rises it into view, so a child that
+ * wraps on its own is revealed as one block and the effect is lost. Breaking
+ * on a character budget puts every visual line in its own span: at the size
+ * this is set, about fifteen characters is what fits across the measure on a
+ * desktop, and the same budget still fits a 390px screen because the type
+ * scales down with it.
+ *
+ * Greedy, and it never splits a word.
+ */
+function inLines(text: string, budget = 15): string[] {
+  const lines: string[] = [];
+  let line = '';
+
+  for (const word of text.split(' ')) {
+    if (line && (line + ' ' + word).length > budget) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = line ? line + ' ' + word : word;
+    }
+  }
+  if (line) lines.push(line);
+
+  return lines;
+}
+
+const featuredLines = featured ? inLines(featured.name) : [];
+/** The longest line is what decides how big the type can be. See the CSS. */
+const longestLine = Math.max(1, ...featuredLines.map((line) => line.length));
+---
+
+{
+  featured && (
+    <section class="awards section-shell" aria-labelledby="awards-title">
+      <header class="section-head">
+        <h2 id="awards-title" data-fx="up">
+          Premios
+        </h2>
+      </header>
+
+      <article class="award" style={`--award-chars:${longestLine}`}>
+        <p class="award__year" data-fx="up">
+          {featured.year}
+        </p>
+
+        <h3 class="award__name" data-fx="lines">
+          {featuredLines.map((line) => (
+            <span>{line}</span>
+          ))}
+        </h3>
+
+        <p class="award__org" data-fx="up" data-fx-delay="120">
+          {featured.org}
+          {featured.campaign && <span class="award__campaign">{featured.campaign}</span>}
+        </p>
+      </article>
+
+      {rest.length > 0 && (
+        <ul class="ledger" data-fx-stagger>
+          {rest.map((award) => (
+            <li class="ledger__row">
+              <span class="ledger__year">{award.year}</span>
+              <span class="ledger__name">
+                {award.level && <b>{award.level}</b>}
+                {award.name}
+              </span>
+              <span class="ledger__org">{award.org}</span>
+              <span class="ledger__campaign">{award.campaign ?? ''}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  )
+}
+
+<style>
+  .award__year {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    letter-spacing: 0.12em;
+    color: var(--color-red);
+    margin: 0 0 var(--space-xs);
+  }
+
+  .award__name {
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    text-transform: uppercase;
+    /* Bigger than a section heading on purpose: with one award this line is
+       the section, and it has to carry it.
+
+       The size is tied to the longest line rather than set to a fixed step.
+       The lines effect masks each line and clips at the box edge, so a line
+       that does not fit comes out cut rather than wrapped — "Transformadora"
+       is fourteen characters and overflowed by 3px at a hand-tuned 9vw. A
+       magic number tuned to one award name breaks on the next one, and the
+       agency has a palmarés to add.
+
+       --award-chars is the longest line's length, counted at build time. The
+       1.3 turns a character count into a width for this face, with room to
+       spare: it is deliberately below the measured 1.45 so a line of wide
+       letters still fits. */
+    --measure: calc(min(100vw, var(--max-width)) - 2 * var(--gutter));
+    /* min() and not clamp(): a lower bound is exactly what caused the problem
+       it was meant to solve. At 320px the 1.75rem floor overrode the fit and
+       clipped the line again. Legibility is already protected from the other
+       side — inLines caps a line at fifteen characters, so the type can never
+       be squeezed below roughly measure/15. */
+    font-size: min(6rem, 9vw, calc(var(--measure) / var(--award-chars) * 1.3));
+    line-height: 0.95;
+    margin: 0;
+  }
+
+  .award__org {
+    margin: var(--space-m) 0 0;
+    font-size: 1.05rem;
+    color: var(--color-dim);
+  }
+  .award__campaign {
+    display: block;
+    color: var(--color-fg);
+  }
+
+  /* --- The rest, once there are more ---------------------------------------
+     Untested against real data: there is exactly one award today. It is here
+     so the shape is decided before the palmarés lands, not so it can be
+     shipped unseen. */
+  .ledger {
+    list-style: none;
+    margin: var(--space-2xl) 0 0;
+    padding: 0;
+    border-top: 1px solid var(--color-line);
+  }
+  .ledger__row {
+    display: grid;
+    grid-template-columns: 4rem 1fr;
+    gap: 2px var(--space-m);
+    padding-block: var(--space-s);
+    border-bottom: 1px solid var(--color-line);
+  }
+  .ledger__year {
+    font-family: var(--font-display);
+    color: var(--color-red);
+    grid-row: span 2;
+  }
+  .ledger__name b {
+    color: var(--color-red);
+    margin-right: 0.5em;
+  }
+  .ledger__org,
+  .ledger__campaign {
+    font-size: 0.85rem;
+    color: var(--color-dim);
+  }
+
+  @media (min-width: 48rem) {
+    .ledger__row {
+      grid-template-columns: 5rem 2fr 1fr 1fr;
+      align-items: baseline;
+    }
+    .ledger__year {
+      grid-row: auto;
+    }
+  }
+</style>
