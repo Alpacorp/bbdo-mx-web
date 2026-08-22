@@ -46,3 +46,16 @@ parte reconocible de la URL se conserva.
   el título actual confunde la cervecera dueña con la marca anunciada.
 
 Total: 19 redirects de caso.
+
+## Noticias
+
+Generado desde `previousSlug` de la colección `news`. La sección 2 del brief
+marca que el menú NEWS apunta hoy a un post suelto en lugar de a un índice;
+ese post es el único que existe y cambia de URL al migrar.
+
+| Actual                                            | Nueva                                       |
+| ------------------------------------------------- | ------------------------------------------- |
+| `/2024/11/26/bbdo-premio-agencia-transformadora/` | `/news/bbdo-premio-agencia-transformadora/` |
+
+Falta decidir qué pasa con `/blog/`, que existe en `page-sitemap.xml` y queda
+sin destino: lo natural es 301 a `/news/`.

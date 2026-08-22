@@ -11,6 +11,18 @@
  * one section stays scoped where it is used.
  */
 
+/* The measure a section sits in: gutter, rhythm and the page's maximum width.
+   This lived in index.astro's scoped <style> as `.work, .awards, .news`, which
+   is why the awards section ran off the left edge the moment it became a
+   component — the same trap `section-head` fell into. Anything a section needs
+   in order to sit on the page belongs here, not next to one page's markup. */
+.section-shell {
+  padding-inline: var(--gutter);
+  padding-block: var(--space-2xl);
+  max-width: var(--max-width);
+  margin-inline: auto;
+}
+
 .section-head {
   display: flex;
   align-items: baseline;

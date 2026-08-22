@@ -183,4 +183,51 @@ const people = defineCollection({
   }),
 });
 
-export const collections = { work, people };
+/**
+ * `news` collection — the index the current site does not have.
+ *
+ * Section 2 of the brief lists it among the reasons for the rebuild: the NEWS
+ * item in the menu points at a single loose post from November 2024 rather
+ * than at an index. That post is the only one there is — post-sitemap.xml
+ * lists exactly one entry — so this collection starts with one file.
+ *
+ * ABOUT `source`
+ *   That article closes with "Tomado de Revista Expansión": the text is
+ *   Expansión's, republished. Reproducing someone else's article in full is a
+ *   permission question, not a migration question, so what is stored here is a
+ *   summary written for this site plus a link to the original. `source` exists
+ *   to make that attribution structural rather than something a writer has to
+ *   remember to add.
+ */
+const news = defineCollection({
+  loader: glob({ base: './src/content/news', pattern: '**/*.md' }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      /** Publication date, as the current site has it. Drives the ordering. */
+      date: z.coerce.date(),
+      /** One or two sentences. Feeds the cards, the index and the meta description. */
+      summary: z.string(),
+
+      /** Optional: an entry with no image renders as a typographic card. */
+      image: image().optional(),
+      imageAlt: z.string().default(''),
+
+      /** Where the text came from, when it did not come from here. */
+      source: z
+        .object({
+          name: z.string(),
+          // z.url() and not z.string().url(): the latter is deprecated in Zod 4
+          // and this project already imports zod directly to keep check clean.
+          url: z.url().optional(),
+        })
+        .optional(),
+
+      /** Path on the current site. Feeds the 301 redirect map. */
+      previousSlug: z.string().optional(),
+
+      draft: z.boolean().default(false),
+    }),
+});
+
+export const collections = { work, people, news };

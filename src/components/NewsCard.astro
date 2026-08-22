@@ -1,0 +1,104 @@
+---
+/**
+ * NewsCard.astro — one entry, on the home page and on the index.
+ *
+ * The image is optional on purpose. The only article that exists carries a
+ * generic stock photo that says nothing about the story, and a card that needs
+ * a picture to look finished is a card that invites shipping one. Without an
+ * image it falls back to a typographic card, which is the same language the
+ * awards section uses.
+ */
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import { longDate, isoDate } from '../dates';
+
+interface Props {
+  entry: CollectionEntry<'news'>;
+}
+
+const { entry } = Astro.props;
+const { title, date, summary, image, imageAlt, source } = entry.data;
+const href = `/news/${entry.id}/`;
+---
+
+<article class="card">
+  <a class="card__link" href={href}>
+    {
+      image ? (
+        <Image
+          class="card__media"
+          src={image}
+          alt={imageAlt}
+          widths={[400, 800]}
+          sizes="(min-width: 64rem) 33vw, 100vw"
+          loading="lazy"
+          decoding="async"
+        />
+      ) : (
+        <span class="card__media card__media--blank" aria-hidden="true" />
+      )
+    }
+
+    <time class="card__date" datetime={isoDate(date)}>{longDate(date)}</time>
+    <h3 class="card__title">{title}</h3>
+    <p class="card__summary">{summary}</p>
+    {source && <p class="card__source">Vía {source.name}</p>}
+  </a>
+</article>
+
+<style>
+  .card__link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .card__media {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    margin-bottom: var(--space-s);
+  }
+  /* A rule, not a field. A 16:9 block of flat colour takes the visual weight
+     of a photograph while carrying none of its information, and the only
+     article that exists has no image worth publishing — the current site
+     illustrates it with a stock photo used elsewhere on the site. */
+  .card__media--blank {
+    aspect-ratio: auto;
+    height: 6px;
+    background: var(--color-red);
+  }
+
+  .card__date {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-dim);
+  }
+
+  .card__title {
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    font-size: 1.35rem;
+    line-height: 1.15;
+    margin: var(--space-2xs) 0 var(--space-xs);
+  }
+  .card__link:hover .card__title {
+    color: var(--color-red);
+  }
+
+  .card__summary {
+    margin: 0;
+    color: var(--color-dim);
+    max-width: 46ch;
+  }
+
+  .card__source {
+    margin: var(--space-xs) 0 0;
+    font-size: 0.8rem;
+    color: var(--color-dim);
+  }
+</style>

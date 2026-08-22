@@ -1,0 +1,179 @@
+---
+/**
+ * /news/[slug] — one article.
+ *
+ * WHAT IT PUBLISHES AND WHAT IT DOES NOT
+ *   The one article that exists closes, on the current site, with "Tomado de
+ *   Revista Expansión". The text is Expansión's, republished. So what goes out
+ *   here is what is ours to publish — the fact, a summary written for this
+ *   site, and the attribution — with a link to the original. `source` is a
+ *   field on the collection rather than a line someone remembers to type, and
+ *   when it is set the page renders the credit and the link on its own.
+ *
+ * NewsArticle JSON-LD is emitted per article, tied to the organisation node in
+ * the layout. That is the half of the brief this page serves: section 2 lists
+ * "sin JSON-LD" among the findings, and an article is the easiest entity to
+ * declare correctly.
+ */
+import { getCollection, render } from 'astro:content';
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import ScrollFX from '../../components/ScrollFX.astro';
+import { longDate, isoDate } from '../../dates';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('news');
+  return articles
+    .filter((entry) => !entry.data.draft)
+    .map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { title, date, summary, image, imageAlt, source } = entry.data;
+const { Content } = await render(entry);
+
+const url = new URL(`/news/${entry.id}/`, Astro.site ?? 'https://bbdomexico.com/').href;
+
+const jsonLd: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': 'NewsArticle',
+  '@id': `${url}#article`,
+  headline: title,
+  description: summary,
+  datePublished: isoDate(date),
+  inLanguage: 'es-MX',
+  url,
+  publisher: { '@id': 'https://bbdomexico.com/#organization' },
+};
+/* The credit belongs in the structured data too, not only in the copy. */
+if (source) jsonLd.sourceOrganization = { '@type': 'Organization', name: source.name };
+---
+
+<Base title={title} path={`/news/${entry.id}/`} description={summary}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
+  </Fragment>
+
+  <ScrollFX />
+
+  <main id="content" class="article">
+    <header class="article__head section-shell">
+      <p class="article__kicker">
+        <a href="/news/">News</a>
+        <time datetime={isoDate(date)}>{longDate(date)}</time>
+      </p>
+
+      <h1 class="article__title" data-fx="up">{title}</h1>
+      <p class="article__summary" data-fx="up" data-fx-delay="100">{summary}</p>
+    </header>
+
+    {
+      image && (
+        <figure class="article__media section-shell">
+          <Image
+            src={image}
+            alt={imageAlt}
+            widths={[600, 1200, 1800]}
+            sizes="(min-width: 64rem) 60rem, 100vw"
+            loading="eager"
+          />
+        </figure>
+      )
+    }
+
+    <div class="article__body section-shell" data-fx="up">
+      <Content />
+
+      {
+        source && (
+          <p class="article__source">
+            Publicado originalmente por {source.name}.
+            {source.url && (
+              <>
+                {' '}
+                <a href={source.url} rel="noopener">
+                  Leer el artículo completo
+                </a>
+                .
+              </>
+            )}
+          </p>
+        )
+      }
+    </div>
+
+    <nav class="article__back section-shell">
+      <a class="section-link" href="/news/">Todas las noticias</a>
+    </nav>
+  </main>
+</Base>
+
+<style>
+  .article__head {
+    padding-bottom: var(--space-m);
+  }
+
+  .article__kicker {
+    display: flex;
+    gap: var(--space-s);
+    align-items: baseline;
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-dim);
+    margin: 0 0 var(--space-m);
+  }
+  .article__kicker a {
+    color: var(--color-red);
+    text-decoration: none;
+  }
+
+  .article__title {
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    text-transform: uppercase;
+    font-size: clamp(2rem, 6vw, 4.5rem);
+    line-height: 1;
+    margin: 0;
+    /* On the title, ch resolves against the display face, which is the whole
+       point: it is the title's own measure, not the body's. */
+    max-width: 18ch;
+  }
+
+  .article__summary {
+    margin: var(--space-m) 0 0;
+    font-size: 1.2rem;
+    color: var(--color-dim);
+    max-width: 52ch;
+  }
+
+  .article__media {
+    margin: 0;
+    padding-block: 0;
+  }
+  .article__media :global(img) {
+    width: 100%;
+    height: auto;
+  }
+
+  .article__body {
+    padding-top: var(--space-xl);
+  }
+  .article__body :global(p) {
+    max-width: 62ch;
+    line-height: 1.6;
+  }
+
+  .article__source {
+    margin-top: var(--space-xl);
+    padding-top: var(--space-s);
+    border-top: 1px solid var(--color-line);
+    font-size: 0.9rem;
+    color: var(--color-dim);
+  }
+
+  .article__back {
+    padding-top: 0;
+  }
+</style>
