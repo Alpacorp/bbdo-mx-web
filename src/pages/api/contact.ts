@@ -20,6 +20,7 @@
 import type { APIRoute } from 'astro';
 import { z } from 'zod';
 import { topicById, FALLBACK_INBOX } from '../../contact-routing';
+import { htmlBody, textBody, subjectFor } from '../../contact-email';
 
 /** On demand: everything else on this site is prerendered. */
 export const prerender = false;
@@ -55,7 +56,15 @@ function back(url: URL, state: string, extra?: Record<string, string>) {
   return new Response(null, { status: 303, headers: { Location: to.href } });
 }
 
-async function send(to: string, subject: string, text: string, replyTo: string) {
+interface Outgoing {
+  to: string;
+  subject: string;
+  text: string;
+  html: string;
+  replyTo: string;
+}
+
+async function send({ to, subject, text, html, replyTo }: Outgoing) {
   const key = import.meta.env.RESEND_API_KEY;
   const from = import.meta.env.CONTACT_FROM;
 
@@ -77,18 +86,11 @@ async function send(to: string, subject: string, text: string, replyTo: string) 
    */
   const override = import.meta.env.CONTACT_TO_OVERRIDE;
   const recipient = override || to;
-  const subjectLine = override ? `[PRUEBA → ${to}] ${subject}` : subject;
 
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      from,
-      to: [recipient],
-      subject: subjectLine,
-      text,
-      reply_to: replyTo,
-    }),
+    body: JSON.stringify({ from, to: [recipient], subject, text, html, reply_to: replyTo }),
   });
 
   if (!res.ok) {
@@ -140,26 +142,22 @@ export const POST: APIRoute = async ({ request, url }) => {
 
   const topic = topicById(data.topic)!;
   const inbox = topic.inbox ?? FALLBACK_INBOX;
-  /* When it lands in the recruitment inbox for want of a real one, say so in
-     the subject so whoever reads it knows to forward it. */
-  const misrouted = topic.inbox === null ? ' [SIN BUZÓN PROPIO — REENVIAR]' : '';
-
   try {
-    await send(
-      inbox,
-      `[${topic.label}]${misrouted} ${data.name}`,
-      [
-        `Tema: ${topic.label}`,
-        `Nombre: ${data.name}`,
-        `Correo: ${data.email}`,
-        data.company ? `Empresa: ${data.company}` : null,
-        '',
-        data.message,
-      ]
-        .filter((line) => line !== null)
-        .join('\n'),
-      data.email
-    );
+    const enquiry = {
+      topic,
+      name: data.name,
+      email: data.email,
+      company: data.company,
+      message: data.message,
+    };
+
+    await send({
+      to: inbox,
+      subject: subjectFor(enquiry, topic.inbox === null, import.meta.env.CONTACT_TO_OVERRIDE),
+      text: textBody(enquiry, topic.inbox === null),
+      html: htmlBody(enquiry, topic.inbox === null),
+      replyTo: data.email,
+    });
   } catch (error) {
     console.error('[contact] no se pudo enviar:', error);
     return wantsJson
