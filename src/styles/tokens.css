@@ -46,9 +46,24 @@
 
   --weight-display: 600;
 
-  /* The global site runs at 137px with line-height 140px (~1.02). No negative
-     letter-spacing and no text-transform: the caps come from the source text. */
-  --lh-display: 1.02;
+  /* Leading for the display face.
+     No negative letter-spacing and no text-transform: the caps come from the
+     source text, like the global's.
+
+     THE VALUE IS SET BY SPANISH, NOT BY TASTE
+       1.02 was measured off bbdo.com — 137px type on 140px leading. But the
+       global is an English site, and English capitals carry no accents. In
+       Outfit the ink of É, Á and Ó rises to 0.983em above the baseline (Ñ
+       0.918, Ü 0.923) against 0.703em for an unaccented cap. Measured at
+       112px: MÉXICO reaches 110px above the baseline, so a 0.95 line box is
+       106px and the accent spills 2px into the line above — which is exactly
+       what it did on /about/, where the acute of MÉXICO landed under BBDO and
+       read as a stray mark. At 1.02 the clearance is 1px, which is none.
+
+       1.05 leaves 3px at that size. Anything tighter is only safe in a
+       language this site is not written in, so tighter leading does not get
+       hard-coded per page: use this token. */
+  --lh-display: 1.05;
   --size-display: clamp(2.6rem, 9.2vw, 8.6rem);
   --size-case-brand: clamp(1.5rem, 2.4vw, 2rem); /* 32px on the global site */
 

@@ -20,6 +20,7 @@ import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import ScrollFX from '../../components/ScrollFX.astro';
 import { longDate, isoDate } from '../../dates';
+import { SITE_URL } from '../../organization';
 
 export async function getStaticPaths() {
   const articles = await getCollection('news');
@@ -32,7 +33,7 @@ const { entry } = Astro.props;
 const { title, date, summary, image, imageAlt, source } = entry.data;
 const { Content } = await render(entry);
 
-const url = new URL(`/news/${entry.id}/`, Astro.site ?? 'https://bbdomexico.com/').href;
+const url = new URL(`/news/${entry.id}/`, SITE_URL).href;
 
 const jsonLd: Record<string, unknown> = {
   '@context': 'https://schema.org',
@@ -43,7 +44,7 @@ const jsonLd: Record<string, unknown> = {
   datePublished: isoDate(date),
   inLanguage: 'es-MX',
   url,
-  publisher: { '@id': 'https://bbdomexico.com/#organization' },
+  publisher: { '@id': `${SITE_URL}/#organization` },
 };
 /* The credit belongs in the structured data too, not only in the copy. */
 if (source) jsonLd.sourceOrganization = { '@type': 'Organization', name: source.name };

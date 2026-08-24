@@ -52,3 +52,64 @@ export const AWARDS: Award[] = [
     source: 'https://bbdomexico.com/2024/11/26/bbdo-premio-agencia-transformadora/',
   },
 ];
+
+/**
+ * Recognitions belonging to BBDO Worldwide, not to BBDO México.
+ *
+ * They are kept apart from AWARDS deliberately. These are the network's, and
+ * presenting them as the Mexico office's would be the same kind of borrowed
+ * claim the "00" counters were. On /about/ they sit under a heading that names
+ * BBDO Worldwide, which is exactly how bbdo.com presents them: its own list is
+ * headed WORLDWIDE and every line ends in "BBDO Worldwide".
+ *
+ * They earn their place on a Mexican page because section 4 of the brief asks
+ * /about/ to establish the Omnicom chain, and the network's record is what
+ * that membership is worth.
+ *
+ * Read off https://bbdo.com/about/ on 2026-08-24. Facts, not copy: award,
+ * awarding body and years.
+ */
+export interface NetworkRecognition {
+  name: string;
+  org: string;
+  years: number[];
+}
+
+export const NETWORK_RECOGNITIONS: NetworkRecognition[] = [
+  { name: 'Network of the Decade', org: 'Cannes Lions', years: [2020] },
+  {
+    name: 'Network of the Year',
+    org: 'Cannes Lions',
+    years: [2007, 2008, 2009, 2010, 2011, 2017, 2018],
+  },
+  { name: 'Network of the Year', org: 'Clio Awards', years: [2022] },
+  {
+    name: 'Most Effective Network in the World',
+    org: 'Global Effie Index',
+    years: [2011, 2014, 2015, 2017, 2020],
+  },
+  {
+    name: 'Network of the Year',
+    org: 'World Advertising Research Center',
+    years: [2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019],
+  },
+  {
+    name: 'Global Creative Network of the Year',
+    org: 'The Big Won Report',
+    years: [2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2018],
+  },
+  { name: 'Global Network of the Year', org: 'Adweek', years: [2011, 2014] },
+  {
+    name: 'Network of the Year',
+    org: 'Campaign',
+    years: [2005, 2007, 2008, 2011, 2015, 2017],
+  },
+  {
+    name: 'Most Strategic Network in the World',
+    org: 'WARC 100',
+    years: [2014, 2015, 2016, 2017, 2018],
+  },
+  { name: 'Best of the Best Network', org: 'WARC', years: [2019] },
+  { name: 'MENA Network of the Year', org: 'Cannes Lions', years: [2023] },
+  { name: 'Pacific Network of the Year', org: 'Cannes Lions', years: [2023] },
+];

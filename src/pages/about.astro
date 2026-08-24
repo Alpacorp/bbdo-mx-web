@@ -1,0 +1,318 @@
+---
+/**
+ * /about/ — who the agency is, and whose network it belongs to.
+ *
+ * Section 4 of the brief asks for three things here: quiénes somos, liderazgo
+ * and pertenencia a Omnicom. The third is the one that does SEO work, because
+ * it is what declares the entity and its ownership chain, and section 2 lists
+ * "sin JSON-LD: cero entidad declarada, sin cadena de propiedad Omnicom" among
+ * the findings.
+ *
+ * WHERE THE CONTENT COMES FROM
+ *   Nothing here is written from imagination. The current site has no about
+ *   page at all, and the two sections on its home that look like one —
+ *   "Proceso BBDO_" and "Nuestros Servicios_" — are lorem ipsum in production.
+ *
+ *   So: the leadership names and roles are the agency's own roster, the same
+ *   data /people/ runs on. The network recognitions are BBDO Worldwide's, read
+ *   off bbdo.com and labelled as the network's. The facts about how the agency
+ *   works come from the Expansión article the agency itself republished, and
+ *   are stated as reported rather than as slogans.
+ *
+ *   What is NOT here is a brand manifesto. The global has one and it is very
+ *   good, and it is theirs. Ours has to be written by the creative director,
+ *   and a placeholder in its place would only get shipped by accident.
+ *
+ * PENDING, and flagged rather than guessed:
+ *   - Camilo Plazas is CEO according to the November 2024 article and the
+ *     JSON-LD block drafted in the proposal, but he does NOT appear anywhere
+ *     in the 117-person roster the current site publishes. Either he has left
+ *     or BBDOers does not list him. The page therefore makes no claim about
+ *     who runs the agency; it lists the leadership the roster does confirm.
+ *   - Razón social, foundingDate and the new-business address are the same
+ *     open questions the JSON-LD file carries.
+ */
+import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import ScrollFX from '../components/ScrollFX.astro';
+import { NETWORK_RECOGNITIONS } from '../awards';
+import { classify } from '../departments';
+import { portraitOf } from '../portraits';
+
+const everyone = await getCollection('people');
+
+/**
+ * classify() and not a copy of the leadership regex. The earlier version read
+ * the pattern out of DEPARTMENTS and tested it directly, with a comment
+ * claiming the two pages could not disagree. They only agreed because
+ * 'liderazgo' happens to sit first in the array: classify() returns the FIRST
+ * band that matches, so reordering it would have banded "Director General
+ * Creativo" as Creatividad on /people/ while /about/ still called them
+ * leadership. Going through the same function makes the claim true.
+ */
+const leadership = everyone
+  .filter((person) => classify(person.data.role).id === 'liderazgo')
+  .sort((a, b) => a.data.order - b.data.order || a.data.name.localeCompare(b.data.name, 'es'));
+
+/** Counted, never typed. A hard-coded headcount goes stale the first hire. */
+const headcount = everyone.length;
+---
+
+<Base
+  title="Nosotros"
+  path="/about/"
+  description={`BBDO México es parte de BBDO Worldwide, red creativa de Omnicom Group. ${headcount} BBDOers en Ciudad de México.`}
+>
+  <ScrollFX />
+
+  <main id="content">
+    <header class="section-shell section-shell--head">
+      {
+        /* The spaces are deliberate. data-fx="lines" makes each child a block,
+          so they stack whether or not there is whitespace between them — but
+          without it the accessible name and the indexed text both come out as
+          "SomosBBDOMéxico", one word. The same trap the headline hit with
+          "BIGTHINGS". */
+      }
+      <h1 class="hero" data-fx="lines">
+        <span>Somos </span>
+        <span>BBDO </span>
+        <span>México</span>
+      </h1>
+      <p class="lede" data-fx="up" data-fx-delay="120">
+        Una agencia de {headcount} personas en Ciudad de México, parte de BBDO Worldwide y del grupo Omnicom.
+      </p>
+    </header>
+
+    <section class="section-shell" aria-labelledby="who">
+      <header class="section-head">
+        <h2 id="who" data-fx="up">Cómo trabajamos</h2>
+      </header>
+
+      <div class="prose" data-fx="up">
+        <p>
+          La agencia reorganizó su forma de trabajar para dejar de responder únicamente a lo que
+          pide un brief y anticiparse a lo que el cliente todavía no ha pedido. Sumó perfiles
+          creativos con formación digital y de otras disciplinas, integró un departamento de Data y
+          juntó a los equipos para que las ideas se trabajen entre áreas y no en serie.
+        </p>
+        <p>
+          El equipo mezcla talento mexicano con profesionales de Venezuela, Chile, Colombia y
+          Argentina, y eso se nota en campañas que funcionan en varios mercados de América Latina y
+          no solo en México.
+        </p>
+      </div>
+    </section>
+
+    <section class="section-shell" aria-labelledby="leadership">
+      <header class="section-head">
+        <h2 id="leadership" data-fx="up">Liderazgo</h2>
+        <a class="section-link" href="/people/">Conoce a los {headcount} BBDOers</a>
+      </header>
+
+      <ul class="leaders" data-fx-stagger>
+        {
+          leadership.map(async (person) => {
+            const img = (await portraitOf(person.data.photo)).default;
+            return (
+              <li class="leader">
+                <Image
+                  class="leader__photo"
+                  src={img}
+                  alt={`Retrato de ${person.data.name}`}
+                  widths={[240, 480]}
+                  sizes="(min-width: 64rem) 240px, 45vw"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <p class="leader__name">{person.data.name}</p>
+                <p class="leader__role">{person.data.role}</p>
+              </li>
+            );
+          })
+        }
+      </ul>
+    </section>
+
+    <section class="network" aria-labelledby="network">
+      <div class="section-shell">
+        <header class="section-head section-head--dark">
+          <h2 id="network" data-fx="up">La red</h2>
+        </header>
+
+        <ol class="chain" data-fx-stagger>
+          <li><span>BBDO México</span><small>Ciudad de México</small></li>
+          <li><span>BBDO Worldwide</span><small>Red creativa global</small></li>
+          <li><span>Omnicom Group</span><small>NYSE: OMC</small></li>
+        </ol>
+
+        <h3 class="network__title" data-fx="up">Reconocimientos de BBDO Worldwide</h3>
+        <ul class="recognitions" data-fx-stagger>
+          {
+            NETWORK_RECOGNITIONS.map((item) => (
+              <li>
+                <span class="recognitions__name">{item.name}</span>
+                <span class="recognitions__org">{item.org}</span>
+                <span class="recognitions__years">{item.years.join(' · ')}</span>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="network__note">
+          Estos reconocimientos son de la red BBDO Worldwide, no de la oficina de México.
+        </p>
+      </div>
+    </section>
+  </main>
+</Base>
+
+<style>
+  .hero {
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    text-transform: uppercase;
+    font-size: clamp(2.5rem, 11vw, 7rem);
+    line-height: var(--lh-display);
+    margin: 0;
+  }
+  .lede {
+    margin: var(--space-m) 0 0;
+    font-size: 1.2rem;
+    color: var(--color-dim);
+    max-width: 44ch;
+  }
+
+  .prose p {
+    max-width: 62ch;
+    line-height: 1.6;
+    margin: 0 0 var(--space-m);
+  }
+
+  /* --- Liderazgo ----------------------------------------------------------- */
+  /* Fixed columns, not auto-fill: auto-fill packed seven tracks across a 90rem
+     container and left each portrait 144px wide with a stranded last row. Five
+     is the ceiling here — a face has to be recognisable for a leadership grid
+     to do anything at all. */
+  .leaders {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-l) var(--space-m);
+  }
+  .leader__photo {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    display: block;
+  }
+  .leader__name {
+    margin: var(--space-xs) 0 0;
+    font-family: var(--font-display);
+    line-height: 1.15;
+  }
+  .leader__role {
+    margin: 2px 0 0;
+    font-size: 0.85rem;
+    color: var(--color-dim);
+  }
+
+  /* --- La red -------------------------------------------------------------- */
+  .network {
+    background: var(--color-dark);
+    color: var(--color-on-dark);
+  }
+
+  /* The chain reads downwards on a phone and across on a desktop, because it
+     is an ownership chain and the direction is the information. */
+  .chain {
+    list-style: none;
+    margin: 0 0 var(--space-2xl);
+    padding: 0;
+    display: grid;
+    gap: var(--space-s);
+  }
+  .chain li {
+    display: flex;
+    flex-direction: column;
+    padding-left: var(--space-m);
+    border-left: 2px solid var(--color-red);
+  }
+  .chain span {
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    font-size: clamp(1.25rem, 4vw, 2rem);
+    text-transform: uppercase;
+    line-height: 1.1;
+  }
+  .chain small {
+    font-size: 0.85rem;
+    color: rgb(250 250 250 / 60%);
+  }
+
+  .network__title {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.9rem;
+    margin: 0 0 var(--space-m);
+    color: rgb(250 250 250 / 70%);
+  }
+
+  .recognitions {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid rgb(250 250 250 / 18%);
+  }
+  .recognitions li {
+    display: grid;
+    gap: 2px;
+    padding-block: var(--space-s);
+    border-bottom: 1px solid rgb(250 250 250 / 18%);
+  }
+  .recognitions__name {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+  }
+  .recognitions__org {
+    font-size: 0.85rem;
+    color: var(--color-red);
+  }
+  .recognitions__years {
+    font-size: 0.8rem;
+    color: rgb(250 250 250 / 60%);
+  }
+
+  .network__note {
+    margin: var(--space-m) 0 0;
+    font-size: 0.85rem;
+    color: rgb(250 250 250 / 60%);
+    max-width: 52ch;
+  }
+
+  @media (min-width: 40rem) {
+    .leaders {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  @media (min-width: 64rem) {
+    .leaders {
+      grid-template-columns: repeat(5, 1fr);
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .chain {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .recognitions li {
+      grid-template-columns: 2fr 1fr 1.4fr;
+      align-items: baseline;
+      gap: var(--space-m);
+    }
+  }
+</style>

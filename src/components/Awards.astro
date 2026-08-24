@@ -135,7 +135,7 @@ const longestLine = Math.max(1, ...featuredLines.map((line) => line.length));
        side — inLines caps a line at fifteen characters, so the type can never
        be squeezed below roughly measure/15. */
     font-size: min(6rem, 9vw, calc(var(--measure) / var(--award-chars) * 1.3));
-    line-height: 0.95;
+    line-height: var(--lh-display);
     margin: 0;
   }
 

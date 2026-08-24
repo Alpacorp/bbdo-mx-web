@@ -23,6 +23,14 @@
   margin-inline: auto;
 }
 
+/* A page's title block. It is a heading, not a section, so it does not carry a
+   section's closing rhythm: two shells stacked vertically add their padding and
+   leave a 192px hole, which is what opened up between the /about/ hero and the
+   first section. Use this on the block that introduces a page. */
+.section-shell--head {
+  padding-block-end: 0;
+}
+
 .section-head {
   display: flex;
   align-items: baseline;
