@@ -1,0 +1,123 @@
+---
+/**
+ * /legal/[slug] — the four notices, embedded from Omnicom's OneTrust tenant.
+ *
+ * The page ships the title, the chrome and an empty container; OneTrust fills
+ * it at runtime. That is how bbdomexico.com does it today and it is the point
+ * of the OMC directive: group legal edits the notice once and every agency
+ * site shows the new version without anybody redeploying.
+ *
+ * THE COST, STATED PLAINLY
+ *   This is the only third-party script on the site, and it is on the pages
+ *   where a visitor is least likely to expect one. Loading the privacy notice
+ *   contacts OneTrust, which records a view — the privacy page is the page
+ *   that phones home. It also pulls a webfont from gstatic.
+ *
+ *   And with JavaScript off, the notice does not render at all. A legally
+ *   required notice that only exists when a script runs is a weak way to make
+ *   it available, so there is a <noscript> route to the same document. That
+ *   limitation belongs to the mechanism Omnicom chose; it is written down here
+ *   rather than hidden.
+ *
+ * See src/legal.ts for what is wrong with the notices themselves.
+ */
+import Base from '../../layouts/Base.astro';
+import { NOTICES, noticeSource } from '../../legal';
+
+export function getStaticPaths() {
+  return NOTICES.map((notice) => ({ params: { slug: notice.slug }, props: { notice } }));
+}
+
+const { notice } = Astro.props;
+const containerId = `otnotice-${notice.noticeId}`;
+---
+
+<Base
+  title={notice.title}
+  path={`/legal/${notice.slug}/`}
+  description={`${notice.title} de BBDO México, parte de Omnicom Advertising Group.`}
+>
+  <main id="content">
+    <div class="section-shell section-shell--head">
+      <p class="kicker">Legal</p>
+      <h1 class="titulo">{notice.title}</h1>
+      <p class="intro">{notice.intro}</p>
+    </div>
+
+    <div class="section-shell">
+      {/* OneTrust requires this exact id and class. Do not rename. */}
+      <div id={containerId} class="otnotice"></div>
+
+      <noscript>
+        <p class="sinjs">
+          Este aviso lo publica Omnicom a través de OneTrust y necesita JavaScript para mostrarse.
+          Puedes consultarlo directamente en
+          <a href={noticeSource(notice.noticeId)} rel="noopener">el documento original</a>
+          o escribirnos y te lo enviamos.
+        </p>
+      </noscript>
+    </div>
+  </main>
+
+  {
+    /*
+    Written with literal attributes on purpose. With `is:inline` Astro drops
+    attributes whose values are expressions, and the id vanishing is not a
+    cosmetic loss: OneTrust finds its own tag by that id, so without it the
+    loader throws on a null getAttribute and no notice ever renders. The same
+    values are documented in legal.ts.
+  */
+  }
+  <script
+    is:inline
+    id="otprivacy-notice-script"
+    src="https://omnicom-privacy-cdn.my.onetrust.com/privacy-notice-scripts/otnotice-1.0.min.js"
+    settings="eyJjYWxsYmFja1VybCI6Imh0dHBzOi8vb21uaWNvbS1wcml2YWN5Lm15Lm9uZXRydXN0LmNvbS9yZXF1ZXN0L3YxL3ByaXZhY3lOb3RpY2VzL3N0YXRzL3ZpZXdzIn0="
+    charset="UTF-8"></script>
+  <script is:inline define:vars={{ src: noticeSource(notice.noticeId) }}>
+    OneTrust.NoticeApi.Initialized.then(function () {
+      OneTrust.NoticeApi.LoadNotices([src]);
+    });
+  </script>
+</Base>
+
+<style>
+  .kicker {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.8rem;
+    color: var(--color-red);
+    margin: 0 0 var(--space-xs);
+  }
+  .titulo {
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    text-transform: uppercase;
+    font-size: clamp(2rem, 7vw, 4rem);
+    line-height: var(--lh-display);
+    margin: 0;
+  }
+  .intro {
+    margin: var(--space-m) 0 0;
+    color: var(--color-dim);
+    max-width: 52ch;
+  }
+
+  /* OneTrust ships its own stylesheet and its own class names. These only set
+     the measure and let its type inherit the site's, so a legal document does
+     not arrive looking like a different website. */
+  .otnotice {
+    max-width: 78ch;
+  }
+  .otnotice :global(.otnotice-content) {
+    font-family: var(--font-ui);
+  }
+
+  .sinjs {
+    max-width: 60ch;
+    padding: var(--space-m);
+    border-left: 3px solid var(--color-red);
+    background: color-mix(in srgb, var(--color-fg) 5%, transparent);
+  }
+</style>
