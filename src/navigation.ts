@@ -18,7 +18,7 @@ export interface NavItem {
 export const NAVIGATION: NavItem[] = [
   { label: 'Inicio', href: '/', built: true },
   { label: 'The Work', href: '/the-work/', built: true },
-  { label: 'Nosotros', href: '/about/', built: false },
+  { label: 'Nosotros', href: '/about/', built: true },
   { label: 'BBDOers', href: '/people/', built: true },
   { label: 'News', href: '/news/', built: true },
   { label: 'Contacto', href: '/contact/', built: false },
