@@ -1,4 +1,5 @@
 ---
+import { SITE_NAME, SITE_URL, HR_EMAIL, organizationGraph } from '../organization';
 import '../styles/tokens.css';
 import '../styles/sections.css';
 import Header from '../components/Header.astro';
@@ -29,9 +30,6 @@ interface Props {
   overMedia?: boolean;
 }
 
-const SITE_NAME = 'BBDO México';
-const SITE_URL = 'https://bbdomexico.com';
-
 // Note: the current site has the "Omincon" typo site-wide (section 2). It is Omnicom.
 const DEFAULT_DESCRIPTION =
   'BBDO México es una de las agencias de publicidad más premiadas del país y forma parte de BBDO Worldwide, red creativa de Omnicom Group.';
@@ -58,90 +56,12 @@ const ogImageUrl = new URL(ogImage, SITE_URL).href;
  *   [ ] is Camilo Plazas still CEO after the Omnicom-IPG merger?
  *   [ ] a new business email address (today only quierotrabajaren@ exists)
  *   [ ] approximate numberOfEmployees (optional)
- * Validate at https://validator.schema.org/
+ * The graph itself, and what is deliberately not in it, is in
+ * src/organization.ts. Validate at https://validator.schema.org/
  */
 const jsonLd = {
   '@context': 'https://schema.org',
-  '@graph': [
-    {
-      '@type': 'AdvertisingAgency',
-      '@id': `${SITE_URL}/#organization`,
-      name: SITE_NAME,
-      alternateName: 'BBDO MX',
-      url: `${SITE_URL}/`,
-      description: DEFAULT_DESCRIPTION,
-      slogan: 'Do Big Things',
-      logo: {
-        '@type': 'ImageObject',
-        '@id': `${SITE_URL}/#logo`,
-        url: `${SITE_URL}/wp-content/uploads/2024/01/logo-bbdo-red.png`,
-        width: 800,
-        height: 286,
-        caption: SITE_NAME,
-      },
-      image: { '@id': `${SITE_URL}/#logo` },
-      parentOrganization: {
-        '@type': 'Organization',
-        '@id': 'https://bbdo.com/#organization',
-        name: 'BBDO Worldwide',
-        url: 'https://bbdo.com/',
-        parentOrganization: {
-          '@type': 'Organization',
-          name: 'Omnicom Group',
-          url: 'https://www.omnicomgroup.com/',
-          tickerSymbol: 'NYSE:OMC',
-        },
-      },
-      address: {
-        '@type': 'PostalAddress',
-        streetAddress: 'Calle Palo Santo 22, Piso 1, Lomas Altas',
-        addressLocality: 'Miguel Hidalgo',
-        addressRegion: 'Ciudad de México',
-        postalCode: '11950',
-        addressCountry: 'MX',
-      },
-      geo: {
-        '@type': 'GeoCoordinates',
-        latitude: 19.3968252,
-        longitude: -99.2276834,
-      },
-      telephone: '+52-55-5267-1500',
-      areaServed: { '@type': 'Country', name: 'México' },
-      knowsLanguage: ['es-MX', 'en'],
-      contactPoint: [
-        {
-          '@type': 'ContactPoint',
-          contactType: 'human resources',
-          email: 'quierotrabajaren@bbdomexico.com',
-          telephone: '+52-55-5267-1500',
-          areaServed: 'MX',
-          availableLanguage: ['Spanish', 'English'],
-        },
-      ],
-      sameAs: [
-        'https://www.linkedin.com/company/bbdomx/',
-        'https://www.instagram.com/bbdomx/',
-        'https://www.facebook.com/bbdomx',
-        'https://twitter.com/BBDOmx',
-      ],
-      employee: { '@id': `${SITE_URL}/#camilo-plazas` },
-    },
-    {
-      '@type': 'Person',
-      '@id': `${SITE_URL}/#camilo-plazas`,
-      name: 'Camilo Plazas',
-      jobTitle: 'Chief Executive Officer',
-      worksFor: { '@id': `${SITE_URL}/#organization` },
-    },
-    {
-      '@type': 'WebSite',
-      '@id': `${SITE_URL}/#website`,
-      url: `${SITE_URL}/`,
-      name: SITE_NAME,
-      inLanguage: 'es-MX',
-      publisher: { '@id': `${SITE_URL}/#organization` },
-    },
-  ],
+  '@graph': organizationGraph(),
 };
 ---
 
@@ -214,7 +134,7 @@ const jsonLd = {
         </nav>
 
         <p class="footer__contact">
-          <a href="mailto:quierotrabajaren@bbdomexico.com">quierotrabajaren@bbdomexico.com</a>
+          <a href={`mailto:${HR_EMAIL}`}>{HR_EMAIL}</a>
         </p>
 
         <p class="footer__network">Parte de BBDO Worldwide, red creativa de Omnicom Group.</p>

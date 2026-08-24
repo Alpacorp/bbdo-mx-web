@@ -19,6 +19,7 @@
     "check:tokens": "node scripts/check-tokens.mjs"
   },
   "dependencies": {
+    "@astrojs/sitemap": "^3.7.3",
     "astro": "^7.2.3",
     "gsap": "^3.15.0"
   },
