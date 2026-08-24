@@ -25,3 +25,4 @@ pnpm-debug.log*
 
 # videos de placeholder: se descargan aparte, no se versionan
 public/v/*.mp4
+.vercel

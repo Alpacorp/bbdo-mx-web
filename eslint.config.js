@@ -11,7 +11,10 @@ import astro from 'eslint-plugin-astro';
  */
 export default defineConfig(
   {
-    ignores: ['dist/', '.astro/', 'node_modules/', 'public/'],
+    // '.vercel/' holds the adapter's build output: bundled server chunks that
+    // are generated, not written, and linting them reports hundreds of errors
+    // about code nobody edits.
+    ignores: ['dist/', '.astro/', 'node_modules/', 'public/', '.vercel/'],
   },
   js.configs.recommended,
   ...ts.configs.recommended,
@@ -44,6 +47,20 @@ export default defineConfig(
         HTMLVideoElement: 'readonly',
         SVGSVGElement: 'readonly',
         SVGGElement: 'readonly',
+      },
+    },
+  },
+  {
+    // API routes run on the server, against web-standard globals.
+    files: ['src/pages/api/**/*.ts'],
+    languageOptions: {
+      globals: {
+        Response: 'readonly',
+        Request: 'readonly',
+        URL: 'readonly',
+        fetch: 'readonly',
+        FormData: 'readonly',
+        console: 'readonly',
       },
     },
   },
