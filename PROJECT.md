@@ -189,10 +189,68 @@ bbdo-mx/
       2026-08-18. Es campaña global; localizarla a MX es lo correcto, no una
       desviación. El copy concreto lo sigue firmando el director creativo.
 - [ ] CMS: WordPress headless vs. Sanity/Storyblok.
-- [ ] Formulario: proveedor/approach.
+- [x] Formulario: **función serverless en Vercel**. Decidido el 2026-08-24.
+      Los datos no salen de la infraestructura del cliente y no hay coste de
+      terceros, a cambio del adaptador de Vercel: el sitio deja de ser
+      puramente estático en dos rutas, `/contact/` y `/api/contact`. Las otras
+      29 páginas se siguen prerenderizando. El envío lo hace Resend.
 - [ ] Aprobador único + fechas.
 - [ ] Confirmar con GLOBAL que no hay plan de consolidar dominios de mercado.
 - [ ] Design system: tokens en Figma (color, tipo, espaciado, motion) -> los mapeo a tokens.css.
+
+---
+
+## 10 bis. Bloqueos para publicar contacto y legales
+
+Nada de esto se arregla con código. Está construido y funcionando, pero **no
+debe publicarse** hasta que la agencia resuelva estos cuatro puntos.
+
+### 1. El aviso de privacidad no sirve para México — BLOQUEA EL FORMULARIO
+
+Los cuatro avisos legales los sirve **OneTrust desde el tenant de Omnicom**
+(`c0a325be-…`); las páginas del sitio llegan vacías y el script los inyecta.
+Replicamos ese mecanismo, no el texto. Pero al revisar los manifiestos el
+2026-08-24:
+
+- Se publican **solo en inglés**: cada aviso declara un único idioma, `en-us`.
+- El de privacidad es el del **RGPD europeo**. Su primer párrafo dice
+  _"agencies located in ES"_ — España. **No menciona México ni una vez.**
+- No contiene **LFPDPPP, derechos ARCO ni INAI**.
+
+La LFPDPPP exige un aviso que nombre al responsable y su domicilio, los datos
+tratados, las finalidades, cómo ejercer derechos ARCO y cómo revocar el
+consentimiento. Un aviso de jurisdicción española en inglés no cumple nada de
+eso, y el formulario enlaza a él en su casilla de consentimiento.
+
+**Acción:** pedir a Omnicom el aviso de México en su OneTrust. Cuando exista,
+aquí es cambiar un identificador en `src/legal.ts`.
+
+### 2. Faltan dos buzones
+
+La única dirección que publica el sitio es `quierotrabajaren@bbdomexico.com`,
+de reclutamiento. Nuevo negocio y prensa no tienen la suya, así que hoy caen
+ahí y el correo lo avisa con una franja roja y una etiqueta en el asunto. Se
+declaran como `inbox: null` en `src/contact-routing.ts` en lugar de apuntarlas
+calladamente a reclutamiento: una consulta de nuevo negocio perdida entre CVs
+es el peor resultado posible de este sitio.
+
+**Acción:** crear `nuevonegocio@` y `prensa@` (o las que la agencia decida) y
+ponerlas en ese fichero. El aviso se apaga solo.
+
+### 3. Resend necesita dominio verificado
+
+Sin dominio verificado solo se puede enviar desde `onboarding@resend.dev`, que
+**únicamente entrega al correo de la cuenta de Resend**. Con eso no se puede
+enviar a la agencia.
+
+**Acción:** verificar `bbdomexico.com` en Resend y poner `CONTACT_FROM` a una
+dirección de ese dominio.
+
+### 4. `CONTACT_TO_OVERRIDE` tiene que quedar vacía en producción
+
+Es el desvío de pruebas: manda todo a una sola dirección. Si se despliega con
+valor, una consulta real de nuevo negocio acabaría en un correo personal y no
+llegaría nunca a la agencia.
 
 ---
 
