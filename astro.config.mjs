@@ -2,6 +2,8 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
+import vercel from '@astrojs/vercel';
+
 /**
  * `site` is not decoration. Without it Astro.site is undefined, no sitemap can
  * be generated, and every absolute URL has to be built from a domain typed by
@@ -14,6 +16,7 @@ import sitemap from '@astrojs/sitemap';
  */
 export default defineConfig({
   site: 'https://bbdomexico.com',
+
   integrations: [
     /* No filter. The legal notices were excluded here before they existed,
        with a comment that did not explain why; they are real, indexable pages
@@ -21,4 +24,6 @@ export default defineConfig({
        there is no reason to hide them from the sitemap. */
     sitemap(),
   ],
+
+  adapter: vercel(),
 });

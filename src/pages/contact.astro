@@ -1,0 +1,443 @@
+---
+/**
+ * /contact/ — the one page that asks the visitor for something.
+ *
+ * Section 4 of the brief wants routing by enquiry: nuevo negocio, talento y
+ * prensa. Section 7 records that the global does it as a multi-step modal —
+ * topic, then region, then office. Region and office do not apply here: there
+ * is one office, and asking a visitor to pick it would be theatre.
+ *
+ * NO JAVASCRIPT REQUIRED, AND WHY THIS PAGE IS THE ONE THAT IS NOT STATIC
+ *   The form posts natively to /api/contact, which answers with a redirect
+ *   carrying the outcome in the query string. That is what renders the message
+ *   below. The script only intercepts it to avoid the round trip and keep what
+ *   the visitor typed.
+ *
+ *   That only works if the page is rendered per request. Prerendered, this
+ *   read of searchParams happens once at build time against an empty query and
+ *   the states never appear — which is exactly what it did until this comment
+ *   was written: the page claimed to work without JavaScript and silently
+ *   swallowed every outcome.
+ *
+ *   So this one page opts out of prerendering. Section 3 of the brief keeps
+ *   the site static "salvo el formulario", and this is the formulario. The
+ *   other 25 pages are untouched: it is one route, and it is the only route
+ *   whose output depends on what the visitor just did.
+ *
+ * BEFORE THIS GOES LIVE — see the note by the consent checkbox. Collecting
+ * personal data in Mexico requires an aviso de privacidad at the point of
+ * collection, and that page does not exist yet.
+ */
+import Base from '../layouts/Base.astro';
+import ScrollFX from '../components/ScrollFX.astro';
+import { TOPICS } from '../contact-routing';
+import { SITE_NAME, TELEPHONE, HR_EMAIL } from '../organization';
+
+/* Rendered per request: see the note above. */
+export const prerender = false;
+
+/* Rendered server-side from the redirect, so the states exist without JS. */
+const estado = Astro.url.searchParams.get('estado');
+const motivo = Astro.url.searchParams.get('motivo');
+---
+
+<Base
+  title="Contacto"
+  path="/contact/"
+  description={`Habla con ${SITE_NAME}: nuevo negocio, talento y prensa. Ciudad de México.`}
+>
+  <ScrollFX />
+
+  <main id="content">
+    <div class="section-shell section-shell--head">
+      <h1 class="hero" data-fx="lines">
+        <span>Hablemos</span>
+      </h1>
+      <p class="lede" data-fx="up" data-fx-delay="120">
+        Dinos de qué se trata y llega a quien tiene que llegar.
+      </p>
+    </div>
+
+    <section class="section-shell" aria-labelledby="form-title">
+      <header class="section-head">
+        <h2 id="form-title" data-fx="up">Escríbenos</h2>
+      </header>
+
+      {
+        estado === 'ok' && (
+          <p class="aviso aviso--ok" role="status">
+            Mensaje enviado. Te respondemos en cuanto podamos.
+          </p>
+        )
+      }
+      {
+        estado === 'datos' && (
+          <p class="aviso aviso--mal" role="alert">
+            {motivo ?? 'Revisa los datos y vuelve a intentarlo.'}
+          </p>
+        )
+      }
+      {
+        estado === 'error' && (
+          <p class="aviso aviso--mal" role="alert">
+            No pudimos enviar el mensaje. Escríbenos directamente a{' '}
+            <a href={`mailto:${HR_EMAIL}`}>{HR_EMAIL}</a>.
+          </p>
+        )
+      }
+
+      <form class="form" method="POST" action="/api/contact" data-contact-form>
+        <fieldset class="temas">
+          <legend>¿De qué se trata?</legend>
+          {
+            TOPICS.map((topic, i) => (
+              <label class="tema">
+                <input type="radio" name="topic" value={topic.id} required checked={i === 0} />
+                <span class="tema__label">{topic.label}</span>
+                <span class="tema__hint">{topic.hint}</span>
+              </label>
+            ))
+          }
+        </fieldset>
+
+        <div class="campos">
+          <label class="campo">
+            <span>Nombre</span>
+            <input
+              type="text"
+              name="name"
+              required
+              minlength="2"
+              maxlength="120"
+              autocomplete="name"
+            />
+          </label>
+
+          <label class="campo">
+            <span>Correo</span>
+            <input type="email" name="email" required maxlength="200" autocomplete="email" />
+          </label>
+
+          <label class="campo campo--ancho">
+            <span>Empresa <small>(opcional)</small></span>
+            <input type="text" name="company" maxlength="160" autocomplete="organization" />
+          </label>
+
+          <label class="campo campo--ancho">
+            <span>Mensaje</span>
+            <textarea name="message" required minlength="10" maxlength="4000" rows="6"></textarea>
+          </label>
+        </div>
+
+        {/* Hidden from people and from assistive tech; bots fill it anyway. */}
+        <div class="trampa" aria-hidden="true">
+          <label>
+            No llenes este campo
+            <input type="text" name="website" tabindex="-1" autocomplete="off" />
+          </label>
+        </div>
+
+        {
+          /*
+          REQUIRED BEFORE LAUNCH. Mexico's LFPDPPP obliges whoever collects
+          personal data to show an aviso de privacidad at the point of
+          collection. /legal/privacidad/ is still unbuilt, so this link has no
+          destination yet and the form must not be published until it does.
+          The text is legal drafting: it names the responsable, the purposes
+          and how to exercise ARCO rights, and it is not something to
+          improvise.
+        */
+        }
+        <label class="consent">
+          <input type="checkbox" name="consent" required />
+          <span>
+            He leído y acepto el <a href="/legal/privacidad/">aviso de privacidad</a>.
+          </span>
+        </label>
+
+        <button class="enviar" type="submit">Enviar mensaje</button>
+        <p class="form__estado" data-form-status role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="datos section-shell" aria-labelledby="datos-title">
+      <header class="section-head section-head--dark">
+        <h2 id="datos-title" data-fx="up">Dónde estamos</h2>
+      </header>
+
+      <ul class="tarjetas" data-fx-stagger>
+        <li>
+          <h3>Oficina</h3>
+          <p>
+            Calle Palo Santo 22, Piso 1<br />
+            Lomas Altas, Miguel Hidalgo<br />
+            11950 Ciudad de México
+          </p>
+        </li>
+        <li>
+          <h3>Teléfono</h3>
+          <p><a href={`tel:${TELEPHONE.replace(/-/g, '')}`}>{TELEPHONE}</a></p>
+        </li>
+        <li>
+          <h3>Talento</h3>
+          <p><a href={`mailto:${HR_EMAIL}`}>{HR_EMAIL}</a></p>
+        </li>
+      </ul>
+    </section>
+  </main>
+</Base>
+
+<style>
+  .hero {
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    text-transform: uppercase;
+    font-size: clamp(2.5rem, 11vw, 7rem);
+    line-height: var(--lh-display);
+    margin: 0;
+  }
+  .lede {
+    margin: var(--space-m) 0 0;
+    font-size: 1.2rem;
+    color: var(--color-dim);
+    max-width: 40ch;
+  }
+
+  /* --- Avisos -------------------------------------------------------------- */
+  .aviso {
+    margin: 0 0 var(--space-l);
+    padding: var(--space-s) var(--space-m);
+    border-left: 3px solid var(--color-red);
+    background: color-mix(in srgb, var(--color-fg) 5%, transparent);
+  }
+  .aviso--ok {
+    border-left-color: var(--color-fg);
+  }
+
+  /* --- Temas --------------------------------------------------------------- */
+  .temas {
+    border: 0;
+    padding: 0;
+    margin: 0 0 var(--space-xl);
+    display: grid;
+    gap: var(--space-xs);
+  }
+  .temas legend {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.8rem;
+    color: var(--color-dim);
+    padding: 0;
+    margin-bottom: var(--space-s);
+  }
+
+  .tema {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2px var(--space-s);
+    padding: var(--space-s) var(--space-m);
+    border: 1px solid var(--color-line);
+    cursor: pointer;
+  }
+  .tema input {
+    grid-row: span 2;
+    align-self: center;
+    accent-color: var(--color-red);
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+  .tema__label {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+  }
+  .tema__hint {
+    font-size: 0.9rem;
+    color: var(--color-dim);
+  }
+  .tema:has(input:checked) {
+    border-color: var(--color-fg);
+    background: color-mix(in srgb, var(--color-fg) 4%, transparent);
+  }
+  .tema:has(input:focus-visible) {
+    outline: 2px solid var(--color-red);
+    outline-offset: 2px;
+  }
+
+  /* --- Campos -------------------------------------------------------------- */
+  .campos {
+    display: grid;
+    gap: var(--space-m);
+  }
+  .campo {
+    display: grid;
+    gap: var(--space-2xs);
+  }
+  .campo > span {
+    font-size: 0.9rem;
+  }
+  .campo small {
+    color: var(--color-dim);
+  }
+  .campo input,
+  .campo textarea {
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid var(--color-line);
+    padding: var(--space-xs) 0;
+  }
+  .campo textarea {
+    border: 2px solid var(--color-line);
+    padding: var(--space-s);
+    resize: vertical;
+  }
+  .campo input:focus,
+  .campo textarea:focus {
+    outline: 0;
+    border-color: var(--color-red);
+  }
+
+  .trampa {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .consent {
+    display: flex;
+    gap: var(--space-s);
+    align-items: flex-start;
+    margin: var(--space-l) 0 0;
+    font-size: 0.9rem;
+  }
+  .consent input {
+    accent-color: var(--color-red);
+    width: 1.15rem;
+    height: 1.15rem;
+    flex: none;
+    margin-top: 2px;
+  }
+
+  .enviar {
+    margin-top: var(--space-l);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: var(--space-s) var(--space-l);
+    border: 0;
+    background: var(--color-fg);
+    color: var(--color-bg);
+    cursor: pointer;
+  }
+  .enviar:hover {
+    background: var(--color-red);
+    color: #fafafa;
+  }
+  .enviar[disabled] {
+    opacity: 0.5;
+    cursor: progress;
+  }
+
+  .form__estado:empty {
+    display: none;
+  }
+  .form__estado {
+    margin: var(--space-s) 0 0;
+    font-size: 0.9rem;
+  }
+
+  /* --- Datos --------------------------------------------------------------- */
+  .datos {
+    background: var(--color-dark);
+    color: var(--color-on-dark);
+    max-width: none;
+  }
+  .tarjetas {
+    list-style: none;
+    margin: 0 auto;
+    padding: 0;
+    max-width: var(--max-width);
+    display: grid;
+    gap: var(--space-l);
+  }
+  .tarjetas h3 {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.8rem;
+    color: var(--color-red);
+    margin: 0 0 var(--space-xs);
+  }
+  .tarjetas p {
+    margin: 0;
+    line-height: 1.6;
+  }
+  .tarjetas a {
+    color: inherit;
+  }
+
+  @media (min-width: 48rem) {
+    .campos {
+      grid-template-columns: 1fr 1fr;
+    }
+    .campo--ancho {
+      grid-column: 1 / -1;
+    }
+    .tarjetas {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .form {
+      max-width: 46rem;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * Enhancement only. Without it the form posts normally and the server
+   * redirects back with the outcome in the query string; this just saves the
+   * round trip and keeps what was typed when something fails.
+   */
+  const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+  const status = document.querySelector<HTMLElement>('[data-form-status]');
+
+  if (form && status) {
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+      if (button) button.disabled = true;
+      status.textContent = 'Enviando…';
+
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' },
+        });
+        const data = await res.json();
+
+        if (res.ok && data.ok) {
+          form.reset();
+          status.textContent = 'Mensaje enviado. Te respondemos en cuanto podamos.';
+        } else {
+          status.textContent =
+            data.error === 'envio' || !data.error
+              ? 'No pudimos enviar el mensaje. Escríbenos directamente.'
+              : data.error;
+        }
+      } catch {
+        /* Offline, or the endpoint is unreachable. Never claim it was sent. */
+        status.textContent = 'No pudimos enviar el mensaje. Revisa tu conexión.';
+      } finally {
+        if (button) button.disabled = false;
+      }
+    });
+  }
+</script>

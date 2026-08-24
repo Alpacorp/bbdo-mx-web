@@ -21,7 +21,7 @@ export const NAVIGATION: NavItem[] = [
   { label: 'Nosotros', href: '/about/', built: true },
   { label: 'BBDOers', href: '/people/', built: true },
   { label: 'News', href: '/news/', built: true },
-  { label: 'Contacto', href: '/contact/', built: false },
+  { label: 'Contacto', href: '/contact/', built: true },
 ];
 
 export const LEGAL_LINKS: NavItem[] = [
