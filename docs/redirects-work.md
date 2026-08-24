@@ -59,3 +59,16 @@ ese post es el único que existe y cambia de URL al migrar.
 
 Falta decidir qué pasa con `/blog/`, que existe en `page-sitemap.xml` y queda
 sin destino: lo natural es 301 a `/news/`.
+
+## Legales
+
+Generado desde `previousPath` de `src/legal.ts`. Las cuatro existen hoy y son
+indexables, pero **ninguna aparece en `page-sitemap.xml`** del sitio actual, así
+que hoy solo se llega a ellas por el pie de página.
+
+| Actual                        | Nueva                      |
+| ----------------------------- | -------------------------- |
+| `/aviso-de-privacidad/`       | `/legal/privacidad/`       |
+| `/aviso-de-terminos-de-uso/`  | `/legal/terminos/`         |
+| `/aviso-de-cookies/`          | `/legal/cookies/`          |
+| `/aviso-de-alerta-de-estafa/` | `/legal/alerta-de-estafa/` |

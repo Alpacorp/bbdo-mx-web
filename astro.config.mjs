@@ -15,9 +15,10 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   site: 'https://bbdomexico.com',
   integrations: [
-    sitemap({
-      // Section 11: the old post URLs are handled by 301s, not by listing them.
-      filter: (page) => !page.includes('/legal/'),
-    }),
+    /* No filter. The legal notices were excluded here before they existed,
+       with a comment that did not explain why; they are real, indexable pages
+       reachable from the footer, exactly as they are on the current site, so
+       there is no reason to hide them from the sitemap. */
+    sitemap(),
   ],
 });

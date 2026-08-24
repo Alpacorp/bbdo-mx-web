@@ -25,8 +25,8 @@ export const NAVIGATION: NavItem[] = [
 ];
 
 export const LEGAL_LINKS: NavItem[] = [
-  { label: 'Aviso de privacidad', href: '/legal/privacidad/', built: false },
-  { label: 'Términos de uso', href: '/legal/terminos/', built: false },
-  { label: 'Aviso de cookies', href: '/legal/cookies/', built: false },
-  { label: 'Alerta de estafa', href: '/legal/alerta-de-estafa/', built: false },
+  { label: 'Aviso de privacidad', href: '/legal/privacidad/', built: true },
+  { label: 'Términos de uso', href: '/legal/terminos/', built: true },
+  { label: 'Aviso de cookies', href: '/legal/cookies/', built: true },
+  { label: 'Alerta de estafa', href: '/legal/alerta-de-estafa/', built: true },
 ];
