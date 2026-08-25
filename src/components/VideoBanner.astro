@@ -369,6 +369,30 @@ const uidMovil = `${uid}-movil`;
 
 <script>
   /**
+   * ¿Vale la pena traerse el video en esta conexión?
+   *
+   * El clip del banner es material provisional y pesa 30,8 MB, doce veces el
+   * presupuesto que fija la sección 6 del brief. Esa misma sección advierte
+   * del 4G mexicano por su nombre. Mientras el archivo definitivo no llegue,
+   * quien navegue con ahorro de datos o con una conexión lenta se queda con
+   * el póster, que es lo que ya se ve durante el primer segundo de todos
+   * modos: el póster es el LCP y el video solo lo sustituye después.
+   *
+   * La API no existe en Safari, y ahí no se decide por el usuario: si no hay
+   * información, se carga. Esto recorta el caso malo conocido, no adivina.
+   */
+  function conexionAceptable(): boolean {
+    const c = (
+      navigator as Navigator & {
+        connection?: { saveData?: boolean; effectiveType?: string };
+      }
+    ).connection;
+    if (!c) return true;
+    if (c.saveData) return false;
+    return c.effectiveType !== 'slow-2g' && c.effectiveType !== '2g' && c.effectiveType !== '3g';
+  }
+
+  /**
    * The poster is the LCP. The video is not requested until the page has
    * finished loading, and it pauses off-viewport to save battery and CPU.
    */
@@ -377,6 +401,7 @@ const uidMovil = `${uid}-movil`;
       const v = el.querySelector('video');
       if (!v) return;
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if (!conexionAceptable()) return;
 
       v.preload = 'auto';
       v.play().catch(() => {});

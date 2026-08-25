@@ -23,6 +23,10 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
-# videos de placeholder: se descargan aparte, no se versionan
-public/v/*.mp4
+# Los videos SÍ se versionan: son el efecto firma de la sección 5 del brief y
+# sin ellos el sitio desplegado no tiene video en ninguna parte.
+#
+# Provisionales, y por encima del presupuesto de 2,5 MB de la sección 6: los
+# clips del titular rondan 3,6 MB y banner-home.mp4 son 30,8 MB. Se sustituyen
+# por los definitivos comprimidos cuando la agencia los entregue.
 .vercel
