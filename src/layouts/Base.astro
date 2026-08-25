@@ -45,6 +45,14 @@ const {
 
 const pageTitle = isHome ? SITE_NAME : `${title} — ${SITE_NAME}`;
 const canonical = new URL(path ?? Astro.url.pathname, SITE_URL).href;
+
+/**
+ * robots.txt cierra el rastreo en las previsualizaciones, pero un rastreador
+ * que llegue por un enlace directo no lo consulta antes de indexar la página
+ * que ya tiene. La meta viaja con la página.
+ */
+const noIndexar =
+  import.meta.env.VERCEL_ENV !== undefined && import.meta.env.VERCEL_ENV !== 'production';
 const ogImageUrl = new URL(ogImage, SITE_URL).href;
 
 /**
@@ -83,6 +91,7 @@ const jsonLd = {
 
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
+    {noIndexar && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonical} />
 
     <meta property="og:type" content="website" />

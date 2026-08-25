@@ -30,6 +30,20 @@ export function getStaticPaths() {
 
 const { notice } = Astro.props;
 const containerId = `otnotice-${notice.noticeId}`;
+
+/**
+ * `settings` no es un atributo de <script> que TypeScript conozca, y con él
+ * escrito directamente `astro check` daba error. No se puede quitar: OneTrust
+ * lo lee de su propia etiqueta. Se pasa como propagación para que el tipado
+ * lo acepte sin renunciar al atributo.
+ *
+ * Es base64 de {"callbackUrl":"…/privacyNotices/stats/views"}, copiado del
+ * sitio actual: es lo que hace que el aviso reporte la visita a Omnicom.
+ */
+const ajustesOneTrust = {
+  settings:
+    'eyJjYWxsYmFja1VybCI6Imh0dHBzOi8vb21uaWNvbS1wcml2YWN5Lm15Lm9uZXRydXN0LmNvbS9yZXF1ZXN0L3YxL3ByaXZhY3lOb3RpY2VzL3N0YXRzL3ZpZXdzIn0=',
+};
 ---
 
 <Base
@@ -72,8 +86,8 @@ const containerId = `otnotice-${notice.noticeId}`;
     is:inline
     id="otprivacy-notice-script"
     src="https://omnicom-privacy-cdn.my.onetrust.com/privacy-notice-scripts/otnotice-1.0.min.js"
-    settings="eyJjYWxsYmFja1VybCI6Imh0dHBzOi8vb21uaWNvbS1wcml2YWN5Lm15Lm9uZXRydXN0LmNvbS9yZXF1ZXN0L3YxL3ByaXZhY3lOb3RpY2VzL3N0YXRzL3ZpZXdzIn0="
-    charset="UTF-8"></script>
+    charset="UTF-8"
+    {...ajustesOneTrust}></script>
   <script is:inline define:vars={{ src: noticeSource(notice.noticeId) }}>
     OneTrust.NoticeApi.Initialized.then(function () {
       OneTrust.NoticeApi.LoadNotices([src]);

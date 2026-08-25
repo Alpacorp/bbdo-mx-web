@@ -1,5 +1,0 @@
-# BBDO México
-User-agent: *
-Allow: /
-
-Sitemap: https://bbdomexico.com/sitemap-index.xml
