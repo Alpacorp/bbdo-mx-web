@@ -1,0 +1,177 @@
+---
+/**
+ * VimeoPlayer.astro — el video de la campaña, donde tiene que estar.
+ *
+ * POR QUÉ NO SE INCRUSTA EL IFRAME DIRECTAMENTE
+ *   Un iframe de Vimeo arrastra cerca de un megabyte de JavaScript de terceros
+ *   y empieza a hablar con sus servidores antes de que nadie le haya dado al
+ *   play. En una página de caso eso es peso y seguimiento para el 90% de la
+ *   gente que nunca reproduce el video.
+ *
+ *   Así que primero se pinta una fachada: el key visual, que ya es el
+ *   fotograma que Vimeo usa como miniatura, y un botón. El iframe se crea al
+ *   pulsar, con autoplay, y para entonces es exactamente lo que la persona
+ *   pidió. La página sigue pesando lo que pesaba.
+ *
+ * SIN JAVASCRIPT
+ *   El botón no existe y en su lugar hay un enlace al video en Vimeo. Se
+ *   pierde la reproducción incrustada, no el acceso al video.
+ *
+ * dnt=1 le pide a Vimeo que no rastree. No es opcional en una página que
+ * enlaza su propio aviso de privacidad.
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  /** Id numérico de Vimeo, tal como está en el front matter del caso. */
+  id: string;
+  poster: ImageMetadata;
+  posterAlt: string;
+  /** Se usa en el título del iframe y en la etiqueta del botón. */
+  title: string;
+}
+
+const { id, poster, posterAlt, title } = Astro.props;
+---
+
+<figure class="pelicula" data-vimeo={id} data-vimeo-title={title}>
+  <Image
+    class="pelicula__poster"
+    src={poster}
+    alt={posterAlt}
+    widths={[600, 1200, 1800]}
+    sizes="(max-width: 60rem) 100vw, 1200px"
+    loading="eager"
+  />
+
+  <button class="pelicula__play" type="button">
+    <span class="pelicula__icono" aria-hidden="true"></span>
+    <span class="pelicula__texto">Ver el video<span class="sr-only"> de {title}</span></span>
+  </button>
+
+  <noscript>
+    <a class="pelicula__enlace" href={`https://vimeo.com/${id}`} rel="noopener">
+      Ver el video en Vimeo
+    </a>
+  </noscript>
+</figure>
+
+<style>
+  .pelicula {
+    position: relative;
+    margin: 0;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: var(--color-dark);
+  }
+  .pelicula :global(img),
+  .pelicula :global(iframe) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+  .pelicula :global(img) {
+    object-fit: cover;
+  }
+
+  /* El botón cubre el póster entero: en un cartel de video, el objetivo es el
+     cartel, no un círculo de 48px en medio. */
+  .pelicula__play {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-s);
+    border: 0;
+    background: rgb(22 22 22 / 25%);
+    color: #fafafa;
+    cursor: pointer;
+    transition: background var(--dur-base) var(--ease);
+  }
+  .pelicula__play:hover,
+  .pelicula__play:focus-visible {
+    background: rgb(22 22 22 / 45%);
+  }
+  .pelicula__play:focus-visible {
+    outline: 3px solid var(--color-red);
+    outline-offset: -3px;
+  }
+
+  /* Un triángulo hecho con bordes: sin fuente de iconos y sin SVG que cargar. */
+  .pelicula__icono {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 14px 0 14px 24px;
+    border-color: transparent transparent transparent #fafafa;
+    filter: drop-shadow(0 2px 6px rgb(0 0 0 / 40%));
+  }
+  .pelicula__play:hover .pelicula__icono {
+    border-left-color: var(--color-red);
+  }
+
+  .pelicula__texto {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.9rem;
+    text-shadow: 0 1px 4px rgb(0 0 0 / 50%);
+  }
+
+  .pelicula__enlace {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: var(--space-s);
+    text-align: center;
+    background: var(--color-dark);
+    color: #fafafa;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pelicula__play {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * El iframe se crea al pulsar, nunca antes. Sustituye a la fachada entera
+   * para que el póster no siga ocupando memoria detrás del reproductor.
+   */
+  document.querySelectorAll<HTMLElement>('[data-vimeo]').forEach((figura) => {
+    const boton = figura.querySelector('button');
+    if (!boton) return;
+
+    boton.addEventListener('click', () => {
+      const id = figura.dataset.vimeo;
+      const titulo = figura.dataset.vimeoTitle ?? 'Video de la campaña';
+
+      const iframe = document.createElement('iframe');
+      /* dnt=1: sin seguimiento. autoplay: lo acaban de pedir. */
+      iframe.src = `https://player.vimeo.com/video/${id}?autoplay=1&dnt=1&title=0&byline=0&portrait=0`;
+      iframe.title = titulo;
+      iframe.allow = 'autoplay; fullscreen; picture-in-picture';
+      iframe.setAttribute('allowfullscreen', '');
+
+      figura.replaceChildren(iframe);
+      iframe.focus();
+    });
+  });
+</script>

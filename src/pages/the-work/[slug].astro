@@ -6,6 +6,7 @@ import Base from '../../layouts/Base.astro';
 import ScrollFX from '../../components/ScrollFX.astro';
 import VideoBanner from '../../components/VideoBanner.astro';
 import CaseBlock from '../../components/CaseBlock.astro';
+import VimeoPlayer from '../../components/VimeoPlayer.astro';
 import Collage from '../../components/Collage.astro';
 import { themeStyle } from '../../themes';
 
@@ -86,7 +87,11 @@ if (data.awards.length) jsonLd.award = data.awards;
 
       The video is still the shared one. MX campaign videos live on Vimeo (the
       id is in `vimeo`), and a Vimeo embed cannot act as a looping background:
-      that would need a silent mp4 per campaign. */
+      that would need a silent mp4 per campaign. The campaign's own video is
+      the section right below, played from Vimeo on demand.
+
+      No es banner-home.mp4: ese pesa 30,8 MB, doce veces el presupuesto de la
+      sección 6, y por eso no está versionado. */
   }
   <VideoBanner left="Do" right="Things" src="/v/banner-home.mp4" poster={data.image.src} />
 
@@ -120,18 +125,42 @@ if (data.awards.length) jsonLd.award = data.awards;
       }
     </header>
 
-    {/* The key visual, with parallax inside a frame that crops the overflow. */}
-    <figure class="case__frame" data-fx="scale">
-      <Image
-        src={data.image}
-        alt={data.imageAlt}
-        widths={[600, 1200, 1800]}
-        sizes="(max-width: 60rem) 100vw, 1200px"
-        loading="eager"
-        class="case__visual"
-        data-fx="parallax"
-      />
-    </figure>
+    {
+      /*
+      La segunda sección del caso es el video de la campaña, no una imagen
+      quieta. El key visual sigue estando: es el póster, y de hecho ya era el
+      fotograma que Vimeo usa como miniatura, así que la página se ve igual
+      hasta que alguien pulsa play.
+
+      Se pierde el parallax que tenía la imagen. Un cartel de video que se
+      desplaza mientras se hace scroll invita a fallar el clic, y aquí el
+      objetivo de pulsación es el cartel entero.
+    */
+    }
+    <div class="case__frame" data-fx="scale">
+      {
+        data.vimeo ? (
+          <VimeoPlayer
+            id={data.vimeo}
+            poster={data.image}
+            posterAlt={data.imageAlt}
+            title={data.campaign || data.title}
+          />
+        ) : (
+          /* `vimeo` es opcional en el esquema y hoy lo tienen los 19 casos,
+             pero un caso nuevo puede llegar sin video. Entonces la sección es
+             el key visual, que es lo que había antes. */
+          <Image
+            src={data.image}
+            alt={data.imageAlt}
+            widths={[600, 1200, 1800]}
+            sizes="(max-width: 60rem) 100vw, 1200px"
+            loading="eager"
+            class="case__visual"
+          />
+        )
+      }
+    </div>
 
     <section class="description" aria-labelledby="desc-titulo">
       <h2 id="desc-titulo" class="description__title" data-fx="up">La campaña</h2>
@@ -339,35 +368,22 @@ if (data.awards.length) jsonLd.award = data.awards;
     line-height: 1.5;
   }
 
-  /* The frame crops; the image inside is taller than the frame so the parallax
-     has travel without exposing the background. */
+  /* El marco ya no recorta nada: el reproductor trae su propia relación de
+     aspecto y su propio recorte. Lo que queda es el hueco y el fondo mientras
+     carga el póster. Los estilos de .case__visual se fueron con la imagen que
+     los usaba. */
   .case__frame {
     margin: 0 0 var(--space-l);
     border-radius: 4px;
     overflow: hidden;
-    background: var(--color-dark);
-    aspect-ratio: 16 / 9;
   }
+  /* Solo para el caso sin video: el reproductor trae su propia proporción. */
   .case__visual {
     width: 100%;
-    height: 118%;
-    margin-top: -9%;
+    height: auto;
+    aspect-ratio: 16 / 9;
     object-fit: cover;
     display: block;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    /* Without parallax the overflow is unnecessary, and the framing stays intact. */
-    .case__visual {
-      height: 100%;
-      margin-top: 0;
-    }
-  }
-  @media (max-width: 48rem) {
-    /* Parallax is off on mobile, so no overflow is needed here either. */
-    .case__visual {
-      height: 100%;
-      margin-top: 0;
-    }
   }
 
   .case__body {
