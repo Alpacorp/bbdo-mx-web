@@ -56,7 +56,7 @@ const bands = [...DEPARTMENTS, FALLBACK]
 >
   <main id="content" class="people">
     <header class="intro">
-      <h1 data-fx="lines"><span>BBDOers</span></h1>
+      <h1 class="page-title" data-fx="lines"><span>BBDOers</span></h1>
       <p class="intro__note" data-fx="up" data-fx-delay="150">
         {everyone.length} personas · {bands.length} áreas
       </p>
@@ -102,25 +102,18 @@ const bands = [...DEPARTMENTS, FALLBACK]
                     data-name={person.data.name.toLowerCase()}
                     data-role={person.data.role.toLowerCase()}
                   >
-                    <Image
-                      src={img}
-                      alt={`Retrato de ${person.data.name}`}
-                      widths={[280, 560]}
-                      sizes="(max-width: 40rem) 45vw, (max-width: 60rem) 30vw, 22vw"
-                      loading="lazy"
-                      class="person__photo"
-                    />
-                    <button
-                      class="person__toggle"
-                      type="button"
-                      aria-expanded="false"
-                      aria-controls={`info-${person.id}`}
-                    >
-                      <span class="sr-only">Ver el cargo de {person.data.name}</span>
-                      <span class="person__toggle-mark" aria-hidden="true" />
-                    </button>
+                    <span class="person__frame">
+                      <Image
+                        src={img}
+                        alt={`Retrato de ${person.data.name}`}
+                        widths={[280, 560]}
+                        sizes="(max-width: 40rem) 45vw, (max-width: 60rem) 30vw, 22vw"
+                        loading="lazy"
+                        class="person__photo"
+                      />
+                    </span>
 
-                    <div class="person__info" id={`info-${person.id}`}>
+                    <div class="person__info">
                       <h3 class="person__name">{person.data.name}</h3>
                       <p class="person__role">{person.data.role}</p>
                       {person.data.quote && <p class="person__quote">{person.data.quote}</p>}
@@ -249,16 +242,36 @@ const bands = [...DEPARTMENTS, FALLBACK]
     gap: var(--space-m);
   }
 
+  /* --- The card ------------------------------------------------------------
+     The name and the role used to live in a panel that slid up over the
+     portrait on hover or on tap. On a desktop that left 117 anonymous faces
+     and made finding one person a hunt: on a team page the name IS the
+     content, not the reward for pointing at it.
+
+     So the frame holds the portrait and the name sits under it, the way
+     /about/ already shows the leadership grid. The interaction that is left
+     is the one that adds something instead of hiding something: the portrait
+     comes into colour.
+
+     Only one of the 117 records carries a quote, which is the other reason
+     the panel is gone — it existed almost entirely to hold text that fits
+     perfectly well underneath. */
   .person {
+    display: flex;
+    flex-direction: column;
+  }
+  .person[hidden] {
+    display: none;
+  }
+
+  .person__frame {
+    display: block;
     position: relative;
     overflow: hidden;
     border-radius: 4px;
     background: rgba(0, 0, 0, 0.25);
     /* The source portraits are 800x1033. */
     aspect-ratio: 800 / 1033;
-  }
-  .person[hidden] {
-    display: none;
   }
 
   .person__photo {
@@ -274,28 +287,11 @@ const bands = [...DEPARTMENTS, FALLBACK]
       transform var(--dur-slow) var(--ease);
   }
 
-  /* A solid panel and not a gradient veil. The veil relied on the photo being
-     dark behind it, and roughly a third of these portraits are shot against
-     white: on those the white text sat on near-white and was unreadable. A
-     solid block guarantees contrast whatever the photo does, and brings brand
-     colour into a page that was otherwise all grayscale.
-
-     The brand red cannot be used here: #FF0000 with white text is 3.83:1 and
-     fails AA. --color-red-deep is 7.51:1. */
-  .person {
-    --person-panel: var(--color-red-deep);
-  }
-  /* On the red band a red panel would vanish into the background. */
-  .band[data-theme='red'] .person {
-    --person-panel: var(--color-dark);
-  }
-
+  /* No panel means no fixed white-on-red to keep legible: the text sits on the
+     band, and themeStyle() has already recomputed --color-fg and --color-dim
+     from that band's palette, with the contrast validated on import. */
   .person__info {
-    position: absolute;
-    inset: auto 0 0 0;
-    padding: var(--space-s);
-    color: #fafafa;
-    background: var(--person-panel);
+    padding-top: var(--space-xs);
   }
 
   .person__name {
@@ -303,29 +299,19 @@ const bands = [...DEPARTMENTS, FALLBACK]
     font-family: var(--font-display);
     font-weight: var(--weight-display);
     font-size: clamp(0.95rem, 2vw, 1.2rem);
-    line-height: 1.1;
+    line-height: 1.15;
+    transition: color var(--dur-fast) var(--ease);
   }
   .person__role {
     margin: 2px 0 0;
     font-size: clamp(0.75rem, 1.4vw, 0.9rem);
-    color: rgba(250, 250, 250, 0.8);
+    color: var(--color-dim);
   }
   .person__quote {
     margin: var(--space-xs) 0 0;
     font-size: 0.8rem;
     line-height: 1.35;
-    color: rgba(250, 250, 250, 0.75);
-  }
-
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
+    color: var(--color-dim);
   }
 
   .empty {
@@ -334,115 +320,17 @@ const bands = [...DEPARTMENTS, FALLBACK]
     color: var(--color-dim);
   }
 
-  /* --- The reveal -----------------------------------------------------------
-     Hidden only when JS is available, because opening it needs either a hover
-     or the toggle. Without JS the panel stays put and everyone can read it.
-
-     Pointer devices open it on hover; touch devices open it on tap, through
-     the toggle. The button exists on both: without a focusable element inside
-     the card, keyboard users could not reach the role at all. */
-  :global(html.js) .person__info {
-    transform: translateY(101%);
-    transition: transform var(--dur-base) var(--ease);
-  }
-  :global(html.js) .person.is-open .person__info {
-    transform: translateY(0);
-  }
-
-  /* The handle.
-     It was a filled red circle with a plus in it and it sat on the portrait
-     like a sticker. This is the grabber of a bottom sheet instead: a hairline
-     bar at the foot of the photo. It says "there is something under here"
-     without competing with the face above it. The button around it is bigger
-     than the bar it draws, because the visible mark is 3px tall and a touch
-     target must not be. */
-  .person__toggle {
-    display: none;
-    position: absolute;
-    z-index: 1;
-    inset: auto 0 0 0;
-    width: 100%;
-    height: 30px;
-    padding: 0;
-    border: 0;
-    background: none;
-    cursor: pointer;
-    place-items: center;
-  }
-  /* Only shown when it can do something. */
-  :global(html.js) .person__toggle {
-    display: grid;
-  }
-  .person__toggle-mark {
-    display: block;
-    width: 28px;
-    height: 3px;
-    border-radius: 2px;
-    background: #fafafa;
-    /* A hairline ring so the bar survives a white background, which is half
-       of these portraits. */
-    box-shadow: 0 0 0 1px rgb(0 0 0 / 18%);
-    transition: transform var(--dur-fast) var(--ease);
-  }
-  .person__toggle:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: -2px;
-  }
-  /* Once the panel is up it covers the handle anyway. */
-  .person.is-open .person__toggle {
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  /* A rule that draws itself across the top of the panel on entry. In paper
-     and not in accent: on a red panel an accent-coloured rule disappears. */
-  .person__info::before {
-    content: '';
-    position: absolute;
-    inset: 0 0 auto 0;
-    height: 3px;
-    background: #fafafa;
-    transform: scaleX(0);
-    transform-origin: left center;
-    transition: transform var(--dur-base) var(--ease) 0.1s;
-  }
-  .person.is-open .person__photo {
-    filter: grayscale(0%) contrast(1);
-    transform: scale(1.04);
-  }
-  .person.is-open .person__info::before {
-    transform: scaleX(1);
-  }
-
-  /* Hover only where a hover really exists: on touch, :hover sticks after a
-     tap and would leave cards open at random. There the toggle does the job. */
+  /* The only thing left of the old reveal: the portrait comes into colour.
+     Nothing is hidden behind it any more, so there is nothing to open, no
+     handle to draw and no focus trap to manage — which is why the toggle
+     button and its script are gone rather than merely hidden. */
   @media (hover: hover) {
-    .person:hover .person__photo,
-    .person:focus-within .person__photo {
+    .person:hover .person__photo {
       filter: grayscale(0%) contrast(1);
       transform: scale(1.04);
     }
-    :global(html.js) .person:hover .person__info,
-    :global(html.js) .person:focus-within .person__info {
-      transform: translateY(0);
-    }
-    .person:hover .person__info::before,
-    .person:focus-within .person__info::before {
-      transform: scaleX(1);
-    }
-    /* On a mouse the handle is noise: hover already opens the card. But it is
-       still the only way in from the keyboard, so it is hidden the way a skip
-       link is — out of sight, in the tab order — and comes back on focus. */
-    :global(html.js) .person__toggle {
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip-path: inset(50%);
-    }
-    :global(html.js) .person__toggle:focus-visible {
-      width: auto;
-      height: 30px;
-      clip-path: none;
+    .person:hover .person__name {
+      color: var(--color-accent);
     }
   }
 
@@ -464,10 +352,7 @@ const bands = [...DEPARTMENTS, FALLBACK]
 
   @media (prefers-reduced-motion: reduce) {
     .person__photo,
-    .person__info,
-    .person__info::before,
-    .person__toggle,
-    .person__toggle-mark::before {
+    .person__name {
       transition: none;
     }
   }
@@ -486,47 +371,6 @@ const bands = [...DEPARTMENTS, FALLBACK]
   const empty = document.querySelector<HTMLElement>('.empty');
   const people = [...document.querySelectorAll<HTMLElement>('.person')];
   const bands = [...document.querySelectorAll<HTMLElement>('.band')];
-
-  /**
-   * The reveal.
-   *
-   * On a phone there is no hover, and leaving every panel up by default buried
-   * the portraits under 117 red rectangles. So the card opens on tap. The
-   * button is a real <button>, not a click handler on the <li>: that is what
-   * gives the keyboard and a screen reader a way in on any device — before it
-   * existed, nothing inside the card was focusable and the role was
-   * unreachable without a mouse.
-   *
-   * One open at a time. Two half-open cards next to each other read as a bug.
-   */
-  function close(card: HTMLElement) {
-    card.classList.remove('is-open');
-    card.querySelector('.person__toggle')?.setAttribute('aria-expanded', 'false');
-  }
-
-  for (const card of people) {
-    // The listener sits on the card, not on the handle: on a phone the handle
-    // is a 28px hint and the whole portrait is the target. The button's own
-    // click bubbles up to here, so both routes end in the same place.
-    card.addEventListener('click', () => {
-      const wasOpen = card.classList.contains('is-open');
-      for (const other of people) if (other !== card) close(other);
-
-      card.classList.toggle('is-open', !wasOpen);
-      card.querySelector('.person__toggle')?.setAttribute('aria-expanded', String(!wasOpen));
-    });
-  }
-
-  // A tap outside closes whatever is open, the way any popover behaves.
-  document.addEventListener('click', (e) => {
-    if ((e.target as HTMLElement).closest('.person')) return;
-    for (const card of people) close(card);
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key !== 'Escape') return;
-    for (const card of people) close(card);
-  });
 
   if (input && count && empty) {
     /**
@@ -547,7 +391,6 @@ const bands = [...DEPARTMENTS, FALLBACK]
       for (const person of people) {
         const match = !q || (haystack.get(person) ?? '').includes(q);
         person.hidden = !match;
-        if (!match) close(person);
         if (match) shown += 1;
       }
 

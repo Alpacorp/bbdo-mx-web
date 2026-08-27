@@ -47,6 +47,15 @@ export interface Client {
   invert: boolean;
   /** Only for two-tone marks that need a background between the two. */
   chip?: 'mid';
+  /**
+   * Gives the mark a chip two cells wide, to lead the wall with it.
+   *
+   * Deliberately unset on every entry. Which clients get the big chip is a
+   * commercial decision — it says who the agency wants read first — and it is
+   * not a developer's to make. The wall renders it the moment someone here
+   * writes `feature: true`.
+   */
+  feature?: boolean;
 }
 
 export const CLIENTS: Client[] = [

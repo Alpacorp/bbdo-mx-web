@@ -34,7 +34,7 @@ const cases = (await getCollection('work', ({ data }) => !data.draft)).sort(
 >
   <main id="content" class="pagina">
     <header class="page-header">
-      <h1 data-fx="lines"><span>The Work</span></h1>
+      <h1 class="page-title" data-fx="lines"><span>The Work</span></h1>
       <p class="header__note" data-fx="up" data-fx-delay="0.2">{cases.length} cases</p>
     </header>
 
