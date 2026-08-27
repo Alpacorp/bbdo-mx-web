@@ -1,0 +1,242 @@
+---
+/**
+ * PortraitWall.astro — 117 faces, edge to edge, at the top of /people/.
+ *
+ * WHAT IT IS FOR
+ *   The page's whole subject is that this agency is 117 people, and until now
+ *   it said so in a line of 12px type above a tidy five-column grid. The wall
+ *   makes the number something you see before you read it. It is the one place
+ *   on this site where the strongest set of real assets we have — 117 portraits
+ *   shot the same way, in the same black and white — is used as a single image
+ *   rather than as a list.
+ *
+ * IT IS DECORATIVE, AND MARKED AS SUCH
+ *   aria-hidden, because every face here appears again ten centimetres below
+ *   with its name and role attached, inside the searchable roster. Leaving it
+ *   in the accessibility tree would make a screen reader walk 117 portraits
+ *   twice, and the second walk is the one with the information in it. The name
+ *   on hover is a reward for pointing, never the only way to learn something —
+ *   that mistake was already made once on the cards and taken back out.
+ *
+ * ONE LABEL, NOT 117
+ *   The name lives in a single element that the pointer updates, rather than a
+ *   caption per face. Same effect on screen, and the markup does not carry the
+ *   roster a second time.
+ *
+ * IT IS MEANT TO BE CROPPED
+ *   117 portraits at a size where a face is recognisable cannot fit in a band
+ *   on a phone: the arithmetic does not allow it. So the wall has a height and
+ *   what does not fit is cut, with the bottom edge faded. A wall running past
+ *   the frame is what a wall does.
+ */
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import { portraitOf } from '../portraits';
+
+const everyone = (await getCollection('people')).sort(
+  (a, b) => a.data.order - b.data.order || a.data.name.localeCompare(b.data.name, 'es')
+);
+---
+
+<section class="muro" aria-hidden="true">
+  <div class="muro__marco">
+    <ul class="muro__rejilla">
+      {
+        everyone.map(async (person, i) => {
+          const img = (await portraitOf(person.data.photo)).default;
+          return (
+            <li class="muro__cara" data-nombre={person.data.name} data-cargo={person.data.role}>
+              <Image
+                src={img}
+                alt=""
+                widths={[96, 192]}
+                sizes="(min-width: 64rem) 66px, 52px"
+                loading={i < 24 ? 'eager' : 'lazy'}
+                decoding="async"
+              />
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+
+  {
+    /* The <small> is in the markup and not created by the script on purpose.
+       It was built with document.createElement, and an element made that way
+       carries no data-astro-cid, so Astro's scoped `.muro__etiqueta small`
+       rule — which compiles with that attribute on BOTH sides — never matched
+       it. The role ran on into the name with no line break and no styling. */
+  }
+  <p class="muro__etiqueta" data-muro-etiqueta>
+    <span data-muro-nombre></span>
+    <small data-muro-cargo></small>
+  </p>
+</section>
+
+<style>
+  /* The section stays in the flow so the label can line up with the page's own
+     gutter; only the frame breaks out to full bleed. Bleeding the whole section
+     put the label 8px off from the heading below it — half a scrollbar, because
+     100vw includes it and the content column does not. */
+  .muro {
+    max-width: var(--max-width);
+    margin-inline: auto;
+  }
+
+  /* The crop and the fade live on the frame, not on the section. A mask applies
+     to everything inside the element it is set on, so with it one level up the
+     label faded out along with the faces it was meant to name. */
+  .muro__marco {
+    width: 100vw;
+    margin-inline: calc(50% - 50vw);
+    background: var(--color-dark); /* shows through the 1px gaps */
+    /* The wall is cropped on purpose; see the note at the top. The fade keeps
+       the cut from reading as a mistake. */
+    max-height: clamp(17rem, 46vh, 33rem);
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent);
+    mask-image: linear-gradient(to bottom, #000 72%, transparent);
+  }
+
+  .muro__rejilla {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    /* Face width scales with the viewport so a face stays recognisable on a
+       phone, which is what decides how many rows fit rather than the other way
+       round.
+
+       The desktop cap is deliberately small. At 88px only about 56 of the 117
+       were on screen, and the whole point of this band is that the number is
+       felt rather than read: at 66px it is 21 columns and roughly 105 of them. */
+    grid-template-columns: repeat(auto-fill, minmax(clamp(3.25rem, 4.6vw, 4.25rem), 1fr));
+    gap: 1px; /* the band showing through, like the client wall */
+  }
+
+  .muro__cara {
+    position: relative;
+    /* The source portraits are 800x1033. */
+    aspect-ratio: 800 / 1033;
+    overflow: hidden;
+    background: var(--color-dark-alt);
+  }
+  .muro__cara img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    /* Dimmed and flattened so the wall reads as one surface and a single face
+       lighting up is legible against it. */
+    filter: grayscale(100%) contrast(1.05) brightness(0.62);
+    transition:
+      filter var(--dur-base) var(--ease),
+      transform var(--dur-base) var(--ease);
+  }
+
+  @media (hover: hover) {
+    .muro__cara:hover img {
+      filter: grayscale(0%) contrast(1) brightness(1);
+      transform: scale(1.08);
+    }
+  }
+
+  /* Under the wall, not on it. Over the faces it was a solid block covering the
+     very people it was naming, and there is no good place to put it there: the
+     top of the band is dense and the bottom is where the faces dissolve into
+     the paper, so light type is unreadable and dark type needs a chip. Down
+     here the page's own text colours apply and both are already validated.
+
+     The height is reserved whether or not anything is named, so the page does
+     not jump every time the pointer enters or leaves the wall. */
+  .muro__etiqueta {
+    /* Pointer devices only. Naming a face is a hover idiom, and there is no
+       honest way to translate it to a tap: on a phone the wall is the picture
+       and the roster below it — searchable, with every name and role — is the
+       index. Hidden here rather than merely inert, so the reserved height does
+       not leave a gap on the one screen where vertical space is scarcest. */
+    display: none;
+    margin: 0;
+    padding: var(--space-s) var(--gutter) 0;
+    min-height: 4rem;
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    /* The floor is 24px because the name is BRAND RED, and #ff0000 on the paper
+       is 3.83:1 — under the 4.5 AA asks of normal text, over the 3 it asks of
+       large. Set smaller it would have to fall back to --color-red-deep, and
+       the whole point of the colour here is to cut through a page that is
+       otherwise entirely black and grey. */
+    font-size: clamp(1.5rem, 2.4vw, 1.9rem);
+    line-height: 1.15;
+    color: var(--color-red);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--dur-fast) var(--ease);
+  }
+  @media (hover: hover) {
+    .muro__etiqueta {
+      display: block;
+    }
+  }
+  .muro__etiqueta[data-visible] {
+    opacity: 1;
+  }
+  .muro__etiqueta small {
+    display: block;
+    font-family: var(--font-ui);
+    font-weight: 400;
+    /* 0.55 of a 24px floor is 13.2px, and --color-dim is 4.87:1 on the paper,
+       so the role clears AA as normal text at every size. */
+    font-size: 0.55em;
+    color: var(--color-dim);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .muro__cara img,
+    .muro__etiqueta {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  import { onPage } from '../lifecycle';
+
+  /**
+   * One label for 117 faces. Delegated from the grid rather than bound per
+   * cell: 117 listeners to show a string is 117 listeners too many, and the
+   * cells are replaced on every navigation anyway.
+   */
+  onPage(() => {
+    /* Same reasoning as the stylesheet: without a real pointer there is nothing
+       to name. Binding it anyway would leave a listener firing on every touch
+       drag to update an element nobody can see. */
+    if (!window.matchMedia('(hover: hover)').matches) return;
+
+    const muro = document.querySelector<HTMLElement>('.muro');
+    const etiqueta = muro?.querySelector<HTMLElement>('[data-muro-etiqueta]');
+    if (!muro || !etiqueta) return;
+
+    const nombre = etiqueta.querySelector<HTMLElement>('[data-muro-nombre]');
+    const cargo = etiqueta.querySelector<HTMLElement>('[data-muro-cargo]');
+    if (!nombre || !cargo) return;
+
+    const mostrar = (event: PointerEvent) => {
+      const cara = (event.target as HTMLElement).closest<HTMLElement>('.muro__cara');
+      if (!cara) return;
+      nombre.textContent = cara.dataset.nombre ?? '';
+      cargo.textContent = cara.dataset.cargo ?? '';
+      etiqueta.setAttribute('data-visible', '');
+    };
+    const ocultar = () => etiqueta.removeAttribute('data-visible');
+
+    muro.addEventListener('pointermove', mostrar);
+    muro.addEventListener('pointerleave', ocultar);
+
+    return () => {
+      muro.removeEventListener('pointermove', mostrar);
+      muro.removeEventListener('pointerleave', ocultar);
+    };
+  });
+</script>
