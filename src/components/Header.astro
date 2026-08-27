@@ -266,13 +266,33 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
 
     const links = () => [...menu.querySelectorAll<HTMLAnchorElement>('a')];
 
+    /* Everything the overlay covers. `inert` takes it out of the tab order AND
+       out of the accessibility tree, which the Tab trap below cannot do: a
+       screen reader's virtual cursor ignores focus traps and would happily read
+       a page nobody can see. */
+    const detras = () => [...document.querySelectorAll<HTMLElement>('main, footer')];
+
     function toggle(si: boolean) {
       nav!.classList.toggle('is-open', si);
       button!.setAttribute('aria-expanded', String(si));
       // Lock background scrolling while the overlay covers the page.
       document.documentElement.style.overflow = si ? 'hidden' : '';
-      if (si) links()[0]?.focus();
-      else button!.focus();
+      detras().forEach((el) => (si ? el.setAttribute('inert', '') : el.removeAttribute('inert')));
+
+      if (si) {
+        /* The menu transitions out of visibility:hidden, and focus() on a
+           hidden element is a silent no-op — which is exactly what used to
+           happen: the menu opened and focus stayed outside it, so a keyboard
+           user opened a menu they then had to tab all the way back into.
+
+           TWO frames, and that number is measured, not guessed. Focusing in the
+           same tick fails, and so does one requestAnimationFrame: visibility
+           only commits on the frame after the class lands. Two works. If the
+           transition on .nav__menu ever changes, re-measure this. */
+        requestAnimationFrame(() => requestAnimationFrame(() => links()[0]?.focus()));
+      } else {
+        button!.focus();
+      }
     }
 
     button.addEventListener('click', () => toggle(button.getAttribute('aria-expanded') !== 'true'));
@@ -312,8 +332,11 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
       document.removeEventListener('keydown', onEscape);
       // The overlay locks scrolling on documentElement, which survives a swap:
       // navigating from inside an open menu would leave the next page unable
-      // to scroll.
+      // to scroll. The inert flags do not survive — those elements are the ones
+      // being replaced — but clearing them costs nothing and keeps the two
+      // sides of this symmetric.
       document.documentElement.style.overflow = '';
+      detras().forEach((el) => el.removeAttribute('inert'));
     };
   });
 </script>

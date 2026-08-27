@@ -37,7 +37,7 @@ const articles = (await getCollection('news'))
           <ul class="news-page__list" data-fx-stagger>
             {articles.map((entry) => (
               <li>
-                <NewsCard entry={entry} />
+                <NewsCard entry={entry} level={2} />
               </li>
             ))}
           </ul>

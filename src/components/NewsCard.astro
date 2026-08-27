@@ -14,9 +14,17 @@ import { longDate, isoDate } from '../dates';
 
 interface Props {
   entry: CollectionEntry<'news'>;
+  /**
+   * Heading level for the card's title. Default 3, which is right under the
+   * home page's <h2>Noticias</h2>. On /news/ the card sits directly under the
+   * page's <h1> and has to be a 2 — jumping h1 to h3 leaves a screen reader
+   * announcing a level that has no parent.
+   */
+  level?: 2 | 3;
 }
 
-const { entry } = Astro.props;
+const { entry, level = 3 } = Astro.props;
+const Titulo = `h${level}` as 'h2' | 'h3';
 const { title, date, summary, image, imageAlt, source } = entry.data;
 const href = `/news/${entry.id}/`;
 ---
@@ -40,7 +48,7 @@ const href = `/news/${entry.id}/`;
     }
 
     <time class="card__date" datetime={isoDate(date)}>{longDate(date)}</time>
-    <h3 class="card__title">{title}</h3>
+    <Titulo class="card__title">{title}</Titulo>
     <p class="card__summary">{summary}</p>
     {source && <p class="card__source">Vía {source.name}</p>}
   </a>

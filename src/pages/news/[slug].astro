@@ -126,7 +126,10 @@ if (source) jsonLd.sourceOrganization = { '@type': 'Organization', name: source.
     margin: 0 0 var(--space-m);
   }
   .article__kicker a {
-    color: var(--color-red);
+    /* --color-red-deep, like .kicker on the legal pages and .award__year: the
+       brand red is 3.83:1 on the paper and this is 12.8px, which is normal
+       text. */
+    color: var(--color-red-deep);
     text-decoration: none;
   }
 
