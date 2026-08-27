@@ -1,0 +1,145 @@
+---
+/**
+ * Process.astro — the agency's method, on the home page.
+ *
+ * THE STEP NAMES ARE PROPOSED COPY and are waiting on the creative director.
+ * The current site names them GROWTH VALUE / PURPOSE / DISRUPTION / CREATIVE,
+ * which are marked B, B, D and O and do not start with those letters. See the
+ * note in src/process.ts; `sourceName` there holds the originals, so going
+ * back to them is one word in the markup below.
+ *
+ * WHY IT IS SHAPED LIKE THIS
+ *   The four steps are marked B, B, D and O: the agency numbers its own method
+ *   with its own name. That is the idea, so the letter is the loudest thing in
+ *   the section and everything else is set quietly around it. Anything that
+ *   competed with the letters — an image, a rule per row, a second accent —
+ *   would be spending attention on the part that is not the point.
+ *
+ *   The three inputs sit above the steps because that is what they are: what
+ *   the method starts from, not a fifth step. They carry the same drawn
+ *   underscore as the section titles, which is how the current site sets them.
+ *
+ * WHY A SECTION AND NOT A PAGE
+ *   One line per step is all the copy that exists — the "Read More" links on
+ *   the current site go nowhere. Four one-liners do not fill a page, and a
+ *   thin page is worse for search than no page. See src/process.ts.
+ *
+ * WHY DARK
+ *   It sits between the red claim and The Work on paper, so the band keeps the
+ *   home alternating instead of running light from the claim to the clients.
+ *   Red on --color-dark is 5.25:1, comfortably clear at this size.
+ */
+import { INPUTS, STEPS } from '../process';
+---
+
+<section class="process" aria-labelledby="process-title">
+  <div class="process__inner section-shell">
+    <span class="section-rail" aria-hidden="true">Proceso</span>
+
+    <header class="section-head section-head--dark">
+      <h2 id="process-title" data-fx="up">Proceso BBDO</h2>
+    </header>
+
+    <ul class="inputs" data-fx-stagger>
+      {INPUTS.map((input) => <li class="inputs__item underscored">{input.text}</li>)}
+    </ul>
+
+    <ol class="steps" data-fx-stagger>
+      {
+        STEPS.map((step) => (
+          <li class="step">
+            <span class="step__letter">{step.letter}</span>
+            <div class="step__body">
+              <h3 class="step__name">{step.name}</h3>
+              <p class="step__line">{step.line}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .process {
+    background: var(--color-dark);
+    color: var(--color-on-dark);
+  }
+  /* --- What the method starts from ------------------------------------- */
+  .inputs {
+    list-style: none;
+    margin: 0 0 var(--space-xl);
+    padding: 0;
+    display: grid;
+    gap: var(--space-s) var(--space-l);
+  }
+  .inputs__item {
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    font-size: clamp(0.95rem, 1.5vw, 1.15rem);
+    letter-spacing: 0.06em;
+    line-height: 1.3;
+    text-transform: uppercase;
+  }
+
+  /* --- The four steps --------------------------------------------------- */
+  .steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    /* One source for the letter's size, because the column it sits in has to
+       be derived from it: each <li> is its own grid, so an `auto` column would
+       size to that row's own letter and B, D and O would each start their copy
+       at a slightly different x. 0.85 of the size clears the widest of the
+       four capitals in Outfit with a little air. */
+    --letter: clamp(3.8rem, 11vw, 8rem);
+  }
+  .step {
+    display: grid;
+    grid-template-columns: calc(var(--letter) * 0.85) minmax(0, 1fr);
+    align-items: baseline;
+    gap: var(--space-s) var(--space-m);
+    padding-block: var(--space-l);
+    border-top: 1px solid rgb(250 250 250 / 18%);
+  }
+  .step:last-child {
+    border-bottom: 1px solid rgb(250 250 250 / 18%);
+  }
+
+  /* The letter is the section. A fixed column so the four line up in a
+     stack that reads down as B B D O, which is the only reason any of this
+     is lettered rather than numbered. */
+  .step__letter {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--letter);
+    line-height: 0.8;
+    color: var(--color-red);
+  }
+
+  .step__name {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    font-size: clamp(1.3rem, 3vw, 2.1rem);
+    line-height: 1.1;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+  }
+  .step__line {
+    margin: var(--space-xs) 0 0;
+    max-width: 44ch;
+    font-size: clamp(1rem, 1.5vw, 1.15rem);
+    line-height: 1.5;
+    color: rgb(250 250 250 / 72%);
+  }
+
+  @media (min-width: 48rem) {
+    .inputs {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .step {
+      gap: var(--space-l);
+    }
+  }
+</style>

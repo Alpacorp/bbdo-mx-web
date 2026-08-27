@@ -77,7 +77,10 @@
 /* /people/ groups its roster into bands whose headings are section titles too,
    even though they do not use .section-head. Listed here rather than repeated
    inside that page so the tic has one definition. */
-.band__title::after {
+.band__title::after,
+/* The opt-in, for markup that wants the tic without being a section heading.
+   The current site sets its three method inputs this way. */
+.underscored::after {
   content: '';
   display: inline-block;
   width: 0.38em;
