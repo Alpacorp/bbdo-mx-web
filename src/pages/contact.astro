@@ -399,45 +399,52 @@ const motivo = Astro.url.searchParams.get('motivo');
 </style>
 
 <script>
+  import { onPage } from '../lifecycle';
+
   /**
    * Enhancement only. Without it the form posts normally and the server
    * redirects back with the outcome in the query string; this just saves the
    * round trip and keeps what was typed when something fails.
+   *
+   * Per page: without this the form falls back to a full POST the moment
+   * someone reaches /contact/ by navigating rather than by landing on it.
    */
-  const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
-  const status = document.querySelector<HTMLElement>('[data-form-status]');
+  onPage(() => {
+    const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+    const status = document.querySelector<HTMLElement>('[data-form-status]');
 
-  if (form && status) {
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
+    if (form && status) {
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
 
-      const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
-      if (button) button.disabled = true;
-      status.textContent = 'Enviando…';
+        const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+        if (button) button.disabled = true;
+        status.textContent = 'Enviando…';
 
-      try {
-        const res = await fetch(form.action, {
-          method: 'POST',
-          body: new FormData(form),
-          headers: { Accept: 'application/json' },
-        });
-        const data = await res.json();
+        try {
+          const res = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: { Accept: 'application/json' },
+          });
+          const data = await res.json();
 
-        if (res.ok && data.ok) {
-          form.reset();
-          status.textContent = 'Mensaje enviado. Te respondemos en cuanto podamos.';
-        } else {
-          status.textContent =
-            data.error === 'envio' || !data.error
-              ? 'No pudimos enviar el mensaje. Escríbenos directamente.'
-              : data.error;
+          if (res.ok && data.ok) {
+            form.reset();
+            status.textContent = 'Mensaje enviado. Te respondemos en cuanto podamos.';
+          } else {
+            status.textContent =
+              data.error === 'envio' || !data.error
+                ? 'No pudimos enviar el mensaje. Escríbenos directamente.'
+                : data.error;
+          }
+        } catch {
+          /* Offline, or the endpoint is unreachable. Never claim it was sent. */
+          status.textContent = 'No pudimos enviar el mensaje. Revisa tu conexión.';
+        } finally {
+          if (button) button.disabled = false;
         }
-      } catch {
-        /* Offline, or the endpoint is unreachable. Never claim it was sent. */
-        status.textContent = 'No pudimos enviar el mensaje. Revisa tu conexión.';
-      } finally {
-        if (button) button.disabled = false;
-      }
-    });
-  }
+      });
+    }
+  });
 </script>

@@ -151,27 +151,34 @@ const { id, poster, posterAlt, title } = Astro.props;
 </style>
 
 <script>
+  import { onPage } from '../lifecycle';
+
   /**
    * El iframe se crea al pulsar, nunca antes. Sustituye a la fachada entera
    * para que el póster no siga ocupando memoria detrás del reproductor.
+   *
+   * Per page and with no teardown: every listener here is on an element inside
+   * the swapped body, so it goes when the element goes.
    */
-  document.querySelectorAll<HTMLElement>('[data-vimeo]').forEach((figura) => {
-    const boton = figura.querySelector('button');
-    if (!boton) return;
+  onPage(() => {
+    document.querySelectorAll<HTMLElement>('[data-vimeo]').forEach((figura) => {
+      const boton = figura.querySelector('button');
+      if (!boton) return;
 
-    boton.addEventListener('click', () => {
-      const id = figura.dataset.vimeo;
-      const titulo = figura.dataset.vimeoTitle ?? 'Video de la campaña';
+      boton.addEventListener('click', () => {
+        const id = figura.dataset.vimeo;
+        const titulo = figura.dataset.vimeoTitle ?? 'Video de la campaña';
 
-      const iframe = document.createElement('iframe');
-      /* dnt=1: sin seguimiento. autoplay: lo acaban de pedir. */
-      iframe.src = `https://player.vimeo.com/video/${id}?autoplay=1&dnt=1&title=0&byline=0&portrait=0`;
-      iframe.title = titulo;
-      iframe.allow = 'autoplay; fullscreen; picture-in-picture';
-      iframe.setAttribute('allowfullscreen', '');
+        const iframe = document.createElement('iframe');
+        /* dnt=1: sin seguimiento. autoplay: lo acaban de pedir. */
+        iframe.src = `https://player.vimeo.com/video/${id}?autoplay=1&dnt=1&title=0&byline=0&portrait=0`;
+        iframe.title = titulo;
+        iframe.allow = 'autoplay; fullscreen; picture-in-picture';
+        iframe.setAttribute('allowfullscreen', '');
 
-      figura.replaceChildren(iframe);
-      iframe.focus();
+        figura.replaceChildren(iframe);
+        iframe.focus();
+      });
     });
   });
 </script>

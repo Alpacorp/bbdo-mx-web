@@ -283,51 +283,69 @@ const sequence: Item[] = words.flatMap((word): Item[] => {
 
 <script>
   import { gsap } from 'gsap';
+  import { onPage } from '../lifecycle';
 
-  document.querySelectorAll<HTMLElement>('[data-video-headline]').forEach((el) => {
-    el.setAttribute('data-vh-ready', ''); // disarms the inline failsafe
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* Per page. This component is the reason ClientRouter had been left
+     unmounted: its timeline used to be built at module scope, so the headline
+     animated on the page you landed on and stayed frozen on every page after.
+     The timelines are killed on the way out — a GSAP timeline holds the nodes
+     it animates, and those nodes are about to be replaced. */
+  onPage(() => {
+    const timelines: gsap.core.Timeline[] = [];
+    const observers: IntersectionObserver[] = [];
 
-    if (reduce) {
-      gsap.set(el.querySelectorAll('.vh__w > i'), { y: 0 });
-      gsap.set(el.querySelectorAll('.vh__slot'), { scaleX: 1 });
-      return;
-    }
+    document.querySelectorAll<HTMLElement>('[data-video-headline]').forEach((el) => {
+      el.setAttribute('data-vh-ready', ''); // disarms the inline failsafe
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
+      if (reduce) {
+        gsap.set(el.querySelectorAll('.vh__w > i'), { y: 0 });
+        gsap.set(el.querySelectorAll('.vh__slot'), { scaleX: 1 });
+        return;
+      }
 
-    tl.to(el.querySelectorAll('.vh__w > i'), {
-      y: 0,
-      duration: 1.1,
-      stagger: 0.07,
-    }).to(
-      el.querySelectorAll('.vh__slot'),
-      {
-        scaleX: 1,
-        duration: 0.9,
-        stagger: 0.09,
-        onStart() {
-          // Clips start AFTER the headline: the LCP never competes.
-          el.querySelectorAll<HTMLVideoElement>('.vh__slot video').forEach((v) => {
-            v.preload = 'auto';
-            v.play().catch(() => {});
+      const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
+      timelines.push(tl);
+
+      tl.to(el.querySelectorAll('.vh__w > i'), {
+        y: 0,
+        duration: 1.1,
+        stagger: 0.07,
+      }).to(
+        el.querySelectorAll('.vh__slot'),
+        {
+          scaleX: 1,
+          duration: 0.9,
+          stagger: 0.09,
+          onStart() {
+            // Clips start AFTER the headline: the LCP never competes.
+            el.querySelectorAll<HTMLVideoElement>('.vh__slot video').forEach((v) => {
+              v.preload = 'auto';
+              v.play().catch(() => {});
+            });
+          },
+        },
+        '-=0.6'
+      );
+
+      // Pause off-viewport: battery and CPU.
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            const v = e.target as HTMLVideoElement;
+            if (e.isIntersecting) v.play().catch(() => {});
+            else v.pause();
           });
         },
-      },
-      '-=0.6'
-    );
+        { threshold: 0.1 }
+      );
+      el.querySelectorAll('.vh__slot video').forEach((v) => io.observe(v));
+      observers.push(io);
+    });
 
-    // Pause off-viewport: battery and CPU.
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          const v = e.target as HTMLVideoElement;
-          if (e.isIntersecting) v.play().catch(() => {});
-          else v.pause();
-        });
-      },
-      { threshold: 0.1 }
-    );
-    el.querySelectorAll('.vh__slot video').forEach((v) => io.observe(v));
+    return () => {
+      timelines.forEach((tl) => tl.kill());
+      observers.forEach((io) => io.disconnect());
+    };
   });
 </script>
