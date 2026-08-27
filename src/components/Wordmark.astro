@@ -1,0 +1,56 @@
+---
+/**
+ * Wordmark.astro — the BBDO mark, drawn rather than loaded.
+ *
+ * The outline comes from src/wordmark.ts, which scripts/build-icons.mjs traces
+ * off the one copy of the logo this repo has. Everywhere it is rendered it
+ * takes `currentColor`, so a red mark on paper and a white one over the banner
+ * are the same element with a different colour — the header used to do that by
+ * running a PNG through `filter: brightness(0) invert(1)`, which repaints a
+ * raster and promotes it to its own compositing layer to boot.
+ *
+ * DECORATIVE BY DEFAULT
+ *   The mark almost always sits next to, or inside, something that already
+ *   names it: the header's link carries "BBDO México — inicio", the footer says
+ *   the agency's name in text right above. So it is aria-hidden unless a label
+ *   is passed, which is the case that has to be asked for rather than the one
+ *   that has to be remembered.
+ */
+import { WORDMARK_PATH, WORDMARK_VIEWBOX } from '../wordmark';
+
+interface Props {
+  class?: string;
+  /**
+   * Accessible name. Pass one only where the mark is the sole identification
+   * of what it links to; leave it off and the mark is hidden from assistive
+   * tech, which is right whenever the text beside it already says BBDO.
+   */
+  label?: string;
+}
+
+/**
+ * THE REST HAS TO BE SPREAD, IT IS NOT COSMETIC
+ *   Astro hands a component the scope attribute of whoever rendered it — the
+ *   `data-astro-cid-*` that its parent's scoped CSS compiles into BOTH sides of
+ *   every selector. It arrives as a prop and goes nowhere unless it is put on
+ *   an element. Without this spread, Header's `.nav__mark { color: red }`
+ *   compiles to `.nav__mark[data-astro-cid-nen7h5rs]` and the <svg> below,
+ *   which carries no such attribute, silently never matches it: the mark falls
+ *   back to inheriting `currentColor` from the link and every rule the parent
+ *   wrote for it — width included — is dead CSS. Measured, not guessed.
+ */
+const { class: className, label, ...rest } = Astro.props;
+---
+
+<svg
+  class={className}
+  {...rest}
+  viewBox={WORDMARK_VIEWBOX}
+  fill="currentColor"
+  focusable="false"
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+>
+  <path d={WORDMARK_PATH}></path>
+</svg>
