@@ -71,6 +71,7 @@ export default defineConfig(
       globals: {
         console: 'readonly',
         process: 'readonly',
+        Buffer: 'readonly',
       },
     },
   }

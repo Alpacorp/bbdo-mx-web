@@ -16,7 +16,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "verify": "astro check && eslint . && prettier --check . && node scripts/check-tokens.mjs",
-    "check:tokens": "node scripts/check-tokens.mjs"
+    "check:tokens": "node scripts/check-tokens.mjs",
+    "icons": "node scripts/build-icons.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
