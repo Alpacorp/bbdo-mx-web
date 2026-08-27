@@ -39,14 +39,6 @@ export const SITE_URL = (import.meta.env.SITE ?? 'https://bbdomexico.com').repla
  * have somewhere obvious to land.
  */
 export const UNVERIFIED = {
-  /**
-   * Named CEO in the Expansión article of 2024-11-26 and in the proposal's
-   * JSON-LD draft, but absent from bbdomexico.com/bbdoers/. Either he has left
-   * or the roster does not list him. Until someone says which, the site makes
-   * no claim about who runs the agency.
-   */
-  ceo: { name: 'Camilo Plazas', jobTitle: 'Chief Executive Officer' },
-
   /** Razón social exacta, and whether it differs from the trading name. */
   legalName: null,
 
@@ -56,6 +48,14 @@ export const UNVERIFIED = {
   /** A new-business address. Today the only public one is recruitment. */
   newBusinessEmail: null,
 };
+
+const CEO = {
+  '@type': 'Person',
+  '@id': `${SITE_URL}/#jorge-obregon`,
+  name: 'Jorge Obregón',
+  jobTitle: 'Chief Executive Officer',
+  worksFor: { '@id': `${SITE_URL}/#organization` },
+} as const;
 
 /** Verified: read off the current site and unchanged for years. */
 const ADDRESS = {
@@ -129,8 +129,9 @@ export function organizationGraph(): Record<string, unknown>[] {
         },
       ],
       sameAs: SOCIAL,
-      /* No `employee` and no Person node: see UNVERIFIED.ceo. */
+      employee: { '@id': CEO['@id'] },
     },
+    CEO,
     {
       '@type': 'WebSite',
       '@id': `${SITE_URL}/#website`,
