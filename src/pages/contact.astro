@@ -279,6 +279,14 @@ const motivo = Astro.url.searchParams.get('motivo');
   .campo small {
     color: var(--color-dim);
   }
+  /* The phone and the email are links standing on their own in a list, not
+     inline in a sentence, so WCAG 2.2 asks 24px of them. They were 20. Padding
+     on the top only, so nothing moves down the card. */
+  .tarjetas p a {
+    display: inline-block;
+    padding-top: 5px;
+  }
+
   .campo input,
   .campo textarea {
     font: inherit;
@@ -287,6 +295,9 @@ const motivo = Astro.url.searchParams.get('motivo');
     border: 0;
     border-bottom: 2px solid var(--color-line);
     padding: var(--space-xs) 0;
+    /* The field was 21px tall on a phone, under the 24px WCAG 2.2 asks of a
+       target. A form field that small is also just hard to hit. */
+    min-height: 44px;
   }
   .campo textarea {
     border: 2px solid var(--color-line);
@@ -308,10 +319,15 @@ const motivo = Astro.url.searchParams.get('motivo');
     white-space: nowrap;
   }
 
+  /* The label IS the target for the checkbox inside it — a checkbox is 18px and
+     nobody is expected to hit it — so the label is what has to clear the 24px
+     WCAG 2.2 asks. It measured 23. One pixel, but a rule is a rule and this
+     costs nothing. */
   .consent {
     display: flex;
     gap: var(--space-s);
     align-items: flex-start;
+    min-height: 24px;
     margin: var(--space-l) 0 0;
     font-size: 0.9rem;
   }

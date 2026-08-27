@@ -208,15 +208,17 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
     justify-content: center;
     gap: var(--space-l);
   }
-  /* White on #ff0000 is 4.0:1. WCAG clears that only as large text — 24px at
-     any weight, or 18.66px at 600 and up — so the floor and the weight here
-     are an accessibility constraint, not a typographic preference. At the old
-     clamp floor of 1.05rem/400 this paragraph did not pass. */
+  /* White on #ff0000 is 4.0:1, which WCAG clears only as large text. The first
+     pass set this to 600 reading "18.66px and bold"; the checker disagreed, and
+     it is right to: bold means 700, and at 600 this was still being measured
+     against the 4.5:1 threshold for normal text. 700 at 19.2px and up is large
+     text, where the bar is 3:1. Both numbers here are the constraint, not a
+     preference. */
   .claim__text {
     max-width: 46ch;
     margin: 0;
     font-size: clamp(1.2rem, 1.7vw, 1.5rem);
-    font-weight: 600;
+    font-weight: 700;
     line-height: 1.45;
   }
   /* The same pill as .section-link, on the red band: this is the global site's
@@ -225,7 +227,9 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
   .claim__cta {
     align-self: start;
     font-family: var(--font-display);
-    font-weight: var(--weight-display);
+    /* 700 and not --weight-display, same reason as .claim__text above: on the
+       red band nothing below bold counts as large text. */
+    font-weight: 700;
     font-size: clamp(1.2rem, 2vw, 1.6rem);
     letter-spacing: 0.02em;
     text-transform: uppercase;

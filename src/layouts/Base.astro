@@ -112,6 +112,31 @@ const jsonLd = {
         }
         marcar();
         document.addEventListener('astro:after-swap', marcar);
+
+        /* Announce the new page. Only after a swap, never on the first load:
+           there the browser has already said the title out loud and repeating
+           it is noise. The delay lets the live region be re-read — a region
+           that is replaced wholesale in the same tick is often skipped.
+
+           The flag is a closure variable and NOT an attribute on <html>. That
+           was the first version, and it would never have announced anything:
+           ClientRouter replaces the <html> attributes with the incoming
+           document's on every swap, so the flag would have been wiped each time
+           and this would have taken the first-load branch forever. Same trap
+           that dropped the `js` class. */
+        var primera = true;
+        document.addEventListener('astro:page-load', function () {
+          if (primera) {
+            primera = false;
+            return;
+          }
+          var region = document.querySelector('[data-anuncio-ruta]');
+          if (!region) return;
+          region.textContent = '';
+          setTimeout(function () {
+            region.textContent = document.title;
+          }, 120);
+        });
       })();
     </script>
 
@@ -146,6 +171,22 @@ const jsonLd = {
   </head>
 
   <body>
+    {
+      /* First thing in the tab order, and the only way past the header without
+         going through it. It matters most on /people/, where the alternative
+         is tabbing through 117 portraits to reach anything. Off-screen until
+         focused, which is the one pattern screen-reader users expect. */
+    }
+    <a class="saltar" href="#content">Saltar al contenido</a>
+
+    {
+      /* Client-side navigation is silent. The browser announces a new page on a
+         real load; a swap changes the DOM under a screen reader without saying
+         anything, and Astro's own route announcer is not in the output — this
+         was measured, not assumed. So the page title is written here after each
+         navigation and read out. */
+    }
+    <p class="anuncio" aria-live="polite" aria-atomic="true" data-anuncio-ruta></p>
     <CurtainTransition />
     <Header overMedia={overMedia} current={Astro.url.pathname} />
 
@@ -222,6 +263,41 @@ const jsonLd = {
     color: inherit;
   }
 
+  .saltar {
+    position: absolute;
+    left: var(--space-s);
+    top: var(--space-s);
+    z-index: 101; /* over the curtain, which is 100 */
+    padding: 0.7em 1.2em;
+    background: var(--color-dark);
+    color: var(--color-on-dark);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    text-decoration: none;
+    border-radius: 999px;
+    /* Moved out of sight rather than hidden: display:none and visibility:hidden
+       both take it out of the tab order, which is the one thing it exists for. */
+    transform: translateY(-200%);
+    transition: transform var(--dur-fast) var(--ease);
+  }
+  .saltar:focus {
+    transform: translateY(0);
+  }
+
+  /* Announced, never seen. Not display:none and not visibility:hidden: both
+     take the element out of the accessibility tree, and then there is nothing
+     left to announce. */
+  .anuncio {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
   /* --- Pie --------------------------------------------------------------
      El global tiene un footer minimo (solo privacy notice + copyright). Aqui va
      more: las cuatro paginas legales del sitio current, incluida la alerta de
@@ -256,7 +332,12 @@ const jsonLd = {
     flex-wrap: wrap;
     gap: var(--space-s) var(--space-m);
   }
+  /* WCAG 2.2 asks 24x24 of any target that is not inline in a sentence, and a
+     row of legal links is not a sentence. These were 17px tall. The padding is
+     on the top only so the underline stays where it was, tight under the text. */
   .footer__legal a {
+    display: inline-block;
+    padding-top: 7px;
     text-decoration: none;
     border-bottom: 1px solid rgba(250, 250, 250, 0.35);
   }
@@ -265,6 +346,11 @@ const jsonLd = {
   }
   .footer__contact {
     margin: 0;
+  }
+  /* Same 24px floor as the legal row above. */
+  .footer__contact a {
+    display: inline-block;
+    padding-top: 7px;
   }
   .footer__network {
     margin: 0;

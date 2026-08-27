@@ -125,7 +125,9 @@ export function themeStyle(key: ThemeKey | undefined): string {
     `--color-accent:${t.accent}`,
     // Derived tones are recomputed from the theme text colour. Otherwise the
     // site's fixed grey disappears against dark backgrounds.
-    `--color-dim:color-mix(in srgb, ${t.text} 62%, transparent)`,
+    // 75%, for the same reason as --color-dim in tokens.css: at 62% the muted
+    // tone of the light themes lands at 3.3:1 against its own background.
+    `--color-dim:color-mix(in srgb, ${t.text} 75%, transparent)`,
     `--color-line:color-mix(in srgb, ${t.text} 22%, transparent)`,
   ]
     .filter(Boolean)

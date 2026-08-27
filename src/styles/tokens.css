@@ -37,7 +37,12 @@
   --color-fg: var(--color-ink);
 
   --color-line: rgba(64, 64, 64, 0.14);
-  --color-dim: rgba(64, 64, 64, 0.6);
+  /* 0.75 and not 0.6. Composited over --color-paper, 0.6 resolves to #8a8a8a,
+     which is 3.3:1 against the paper and misses the 4.5:1 AA asks of normal
+     text. It was one declaration failing in 76 places: this is the colour of
+     everything secondary on the site — dates, summaries, roles, section notes.
+     0.75 resolves to #6f6f6f, 4.87:1. Measured, not estimated. */
+  --color-dim: rgba(64, 64, 64, 0.75);
 
   /* --- Typography -------------------------------------------------------- */
   /* Outfit 600 is the global site's display face. Loaded in Base.astro. */

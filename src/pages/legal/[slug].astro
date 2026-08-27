@@ -101,7 +101,9 @@ const ajustesOneTrust = {
     text-transform: uppercase;
     letter-spacing: 0.12em;
     font-size: 0.8rem;
-    color: var(--color-red);
+    /* Same reason as .award__year: 12.8px is normal text and the brand red does
+       not reach 4.5:1 on the paper. */
+    color: var(--color-red-deep);
     margin: 0 0 var(--space-xs);
   }
   .titulo {

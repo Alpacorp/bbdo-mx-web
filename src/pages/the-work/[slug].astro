@@ -93,15 +93,19 @@ if (data.awards.length) jsonLd.award = data.awards;
       No es banner-home.mp4: ese pesa 30,8 MB, doce veces el presupuesto de la
       sección 6, y por eso no está versionado. */
   }
-  <VideoBanner
-    left="Do"
-    right="Things"
-    src="/v/banner-home.mp4"
-    poster={data.image.src}
-    transitionName={`portada-${caseEntry.id}`}
-  />
-
+  {
+    /* Inside <main>, like the home page has it. Outside, its two words sat in
+       no landmark at all and a screen reader reading by region skipped them. */
+  }
   <main id="content" class="case" style={themeVars} data-theme={data.theme}>
+    <VideoBanner
+      left="Do"
+      right="Things"
+      src="/v/banner-home.mp4"
+      poster={data.image.src}
+      transitionName={`portada-${caseEntry.id}`}
+    />
+
     <nav class="breadcrumb" aria-label="Ruta">
       <a href="/the-work/">The Work</a>
       <span aria-hidden="true">/</span>
