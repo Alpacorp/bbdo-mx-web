@@ -1,0 +1,93 @@
+---
+/**
+ * NotFound.astro — the body of a dead end, whichever kind it is.
+ *
+ * Two pages render it: /404.astro, which the platform serves for anything the
+ * filesystem does not have, and the [...legacy] catch-all, which uses it with
+ * a 410 for the pages the old WordPress site published and this one
+ * deliberately does not.
+ *
+ * The exits are the point. Astro's default 404 is a line of text with no
+ * header, no menu and no way back, and people WILL land here: the current site
+ * has 157 indexable URLs against this site's 29.
+ */
+import { NAVIGATION } from '../navigation';
+
+interface Props {
+  /** Shown big. The status code, so the page says what actually happened. */
+  code?: string;
+  title?: string;
+  text?: string;
+}
+
+const {
+  code = '404',
+  title = 'Esta página no existe',
+  text = 'Puede que haya cambiado de dirección o que el enlace esté mal escrito. Desde aquí llegas a todo lo demás.',
+} = Astro.props;
+
+const destinos = NAVIGATION.filter((item) => item.built && item.href !== '/');
+---
+
+<main id="content" class="section-shell">
+  <p class="codigo">{code}</p>
+  <h1 class="titulo">{title}</h1>
+  <p class="texto">{text}</p>
+
+  <ul class="destinos">
+    <li><a href="/">Inicio</a></li>
+    {
+      destinos.map((item) => (
+        <li>
+          <a href={item.href}>{item.label}</a>
+        </li>
+      ))
+    }
+  </ul>
+</main>
+
+<style>
+  .codigo {
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    font-size: clamp(4rem, 18vw, 11rem);
+    line-height: 0.9;
+    color: var(--color-red);
+    margin: 0;
+  }
+  .titulo {
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    text-transform: uppercase;
+    font-size: clamp(1.6rem, 5vw, 3rem);
+    line-height: var(--lh-display);
+    margin: var(--space-s) 0 0;
+  }
+  .texto {
+    margin: var(--space-m) 0 0;
+    color: var(--color-dim);
+    max-width: 46ch;
+  }
+
+  .destinos {
+    list-style: none;
+    margin: var(--space-xl) 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-s) var(--space-m);
+  }
+  .destinos a {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.95rem;
+    text-decoration: none;
+    border-bottom: 2px solid var(--color-line);
+    padding-bottom: 2px;
+  }
+  .destinos a:hover {
+    color: var(--color-red);
+    border-bottom-color: currentColor;
+  }
+</style>
