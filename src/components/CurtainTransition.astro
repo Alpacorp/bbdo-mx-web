@@ -1,0 +1,295 @@
+---
+/**
+ * CurtainTransition.astro — the brand's frame, used as the way pages change.
+ *
+ * The four-window curtain already opens every page from the banner. Here the
+ * same geometry closes over the screen, the swap happens behind it, and it
+ * opens again on the new page. It is the one transition on this site that
+ * could not belong to anyone else: the shape is BBDO's, from src/curtain.ts.
+ *
+ * NOT ON EVERY NAVIGATION
+ *   Going from the work grid into a case already has an animation — the card's
+ *   artwork morphs into the case's banner — and a red curtain over the top
+ *   would hide the better of the two. So the curtain is for navigation that
+ *   has no story of its own: the menu, the footer, the section links. The rule
+ *   is one line in `usaCortina` below, driven by what was clicked.
+ *
+ * HOW IT HOLDS THE SWAP
+ *   Astro hands `astro:before-preparation` a `loader`, and whatever replaces it
+ *   is awaited before the new document goes in. Wrapping it is what buys the
+ *   time for the curtain to close; without that the swap would land halfway
+ *   through the animation.
+ *
+ * WHY transition:persist
+ *   Astro replaces the body on every swap, so without it this element would be
+ *   destroyed at the exact moment it is covering the screen, and the new page
+ *   would appear with a hard cut. Persisting keeps the same node — and its
+ *   running animation — across the swap.
+ *
+ * WITHOUT JAVASCRIPT, OR WITH REDUCED MOTION
+ *   It never becomes visible. `hidden` is the resting state and only script
+ *   removes it, and the script returns early when the user has asked for less
+ *   motion. Navigation stays exactly as it was.
+ */
+import { CURTAIN_WIDE, CURTAIN_TALL } from '../curtain';
+---
+
+<div class="cortina" data-cortina transition:persist="cortina" aria-hidden="true" hidden>
+  <svg
+    class="cortina__svg cortina__svg--wide"
+    viewBox={CURTAIN_WIDE.viewBox}
+    preserveAspectRatio="none"
+    focusable="false"
+  >
+    <defs>
+      <mask id="cortina-wide">
+        <rect width="1440" height="750" fill="white"></rect>
+        <path class="ventana ventana--left" d={CURTAIN_WIDE.window.left} fill="black"></path>
+        <path class="ventana ventana--top" d={CURTAIN_WIDE.window.top} fill="black"></path>
+        <path class="ventana ventana--bottom" d={CURTAIN_WIDE.window.bottom} fill="black"></path>
+        <path class="ventana ventana--right" d={CURTAIN_WIDE.window.right} fill="black"></path>
+      </mask>
+    </defs>
+    <rect
+      width="1440"
+      height="750"
+      fill="var(--color-red)"
+      mask="url(#cortina-wide)"
+      shape-rendering="crispEdges"></rect>
+  </svg>
+
+  <svg
+    class="cortina__svg cortina__svg--tall"
+    viewBox={CURTAIN_TALL.viewBox}
+    preserveAspectRatio="none"
+    focusable="false"
+  >
+    <defs>
+      <mask id="cortina-tall">
+        <rect width="359" height="526" fill="white"></rect>
+        <path class="ventana ventana--left" d={CURTAIN_TALL.window.left} fill="black"></path>
+        <path class="ventana ventana--top" d={CURTAIN_TALL.window.top} fill="black"></path>
+        <path class="ventana ventana--bottom" d={CURTAIN_TALL.window.bottom} fill="black"></path>
+        <path class="ventana ventana--right" d={CURTAIN_TALL.window.right} fill="black"></path>
+      </mask>
+    </defs>
+    <rect
+      width="359"
+      height="526"
+      fill="var(--color-red)"
+      mask="url(#cortina-tall)"
+      shape-rendering="crispEdges"></rect>
+  </svg>
+</div>
+
+<style>
+  .cortina {
+    position: fixed;
+    inset: 0;
+    /* The stack on this site runs 0, 1, 2 and 10 for the header. 100 clears
+       all of it with room to spare and still reads as a number someone chose. */
+    z-index: 100;
+    pointer-events: none;
+  }
+  .cortina[hidden] {
+    display: none;
+  }
+
+  .cortina__svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  /* Same breakpoint the banner uses to choose between the two masks. */
+  .cortina__svg--wide {
+    display: none;
+  }
+  @media (min-width: 64rem), (orientation: landscape) {
+    .cortina__svg--tall {
+      display: none;
+    }
+    .cortina__svg--wide {
+      display: block;
+    }
+  }
+
+  .ventana {
+    transform-box: view-box;
+    transform-origin: 0 0;
+  }
+
+  /* Each panel's travel, as data rather than as sixteen keyframes. The wide
+     viewBox is 1440x750 and the tall one 359x526, so a panel has to clear its
+     own edge in its own units — that is the only thing that differs between
+     the two masks, and it belongs on the element, not in a separate animation. */
+  .ventana--left {
+    --dx: -800px;
+    --dy: 0;
+  }
+  .ventana--right {
+    --dx: 800px;
+    --dy: 0;
+  }
+  .ventana--top {
+    --dx: 0;
+    --dy: -200px;
+  }
+  .ventana--bottom {
+    --dx: 0;
+    --dy: 800px;
+  }
+  .cortina__svg--tall .ventana--left {
+    --dx: -260px;
+  }
+  .cortina__svg--tall .ventana--right {
+    --dx: 260px;
+  }
+  .cortina__svg--tall .ventana--top {
+    --dy: -120px;
+  }
+  .cortina__svg--tall .ventana--bottom {
+    --dy: 560px;
+  }
+
+  @keyframes ventanaSale {
+    to {
+      transform: translate(var(--dx), var(--dy));
+    }
+  }
+  @keyframes ventanaEntra {
+    from {
+      transform: translate(var(--dx), var(--dy));
+    }
+  }
+
+  /* --- Closing ------------------------------------------------------------
+     The windows are the holes. Sliding them off their own edge leaves the mask
+     with nothing cut out of it, which is a full red screen — so "closing the
+     curtain" is the banner's entrance run backwards, and faster.
+
+     The opacity ramp is not decoration. At rest the windows sit in place, and
+     that state is not invisible: it is the 16px red frame plus the brand marks.
+     Appearing on frame one would read as a glitch, so the whole overlay fades
+     in over the first third while the panels are already moving. */
+  .cortina[data-fase='cerrando'] {
+    animation: cortinaEntra 240ms linear both;
+  }
+  .cortina[data-fase='cerrando'] .ventana {
+    animation: ventanaSale 240ms cubic-bezier(0.7, 0, 0.84, 0) both;
+  }
+  .cortina[data-fase='cerrando'] .ventana--top,
+  .cortina[data-fase='cerrando'] .ventana--bottom {
+    animation-duration: 220ms;
+    animation-delay: 20ms;
+  }
+
+  /* --- Opening ------------------------------------------------------------
+     The panels return to their places and the overlay fades out over the last
+     stretch, for the same reason it faded in: the resting state is a red frame,
+     and the page underneath should be left clean. */
+  .cortina[data-fase='abriendo'] {
+    animation: cortinaSale 380ms linear both;
+  }
+  .cortina[data-fase='abriendo'] .ventana {
+    animation: ventanaEntra 380ms var(--ease) both;
+  }
+  .cortina[data-fase='abriendo'] .ventana--top,
+  .cortina[data-fase='abriendo'] .ventana--bottom {
+    animation-duration: 340ms;
+    animation-delay: 40ms;
+  }
+
+  @keyframes cortinaEntra {
+    from {
+      opacity: 0;
+    }
+    35% {
+      opacity: 1;
+    }
+  }
+  @keyframes cortinaSale {
+    70% {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+</style>
+
+<script>
+  const cortina = () => document.querySelector<HTMLElement>('[data-cortina]');
+
+  /**
+   * The curtain is for navigation that has no story of its own.
+   *
+   * A link marked data-morph is already animating — the card's artwork grows
+   * into the case's banner — so covering it would trade the better transition
+   * for this one. Everything else, the menu above all, gets the curtain.
+   *
+   * The marker is on the link and not a class because the first version keyed
+   * off `.card`, and NewsCard is a `.card` too: clicking a news item skipped
+   * the curtain and got no morph either, because news cards do not have one.
+   * A shared class name is a coincidence; an attribute is a statement.
+   */
+  function usaCortina(origen: Element | null | undefined): boolean {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
+    return !origen?.closest('[data-morph]');
+  }
+
+  const espera = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+  /**
+   * Resolves when the overlay's animations have finished.
+   *
+   * Asking the element beats hard-coding the duration in two places: the
+   * numbers live in the stylesheet next to the easing they belong to, and this
+   * cannot drift away from them. `allSettled` because an animation that is
+   * cancelled — a second navigation starting mid-flight — rejects, and that is
+   * a reason to carry on, not to stop.
+   */
+  function finDeAnimaciones(el: HTMLElement): Promise<unknown> {
+    /* The race is a safety net, not a timing choice. A decoration must never
+       be able to hold a navigation open: if an animation is somehow never
+       going to end, the page still arrives. */
+    return Promise.race([
+      Promise.allSettled(el.getAnimations({ subtree: true }).map((a) => a.finished)),
+      espera(1000),
+    ]);
+  }
+
+  function fase(el: HTMLElement, valor: string | null) {
+    if (valor === null) el.removeAttribute('data-fase');
+    else el.setAttribute('data-fase', valor);
+  }
+
+  document.addEventListener('astro:before-preparation', (event) => {
+    const el = cortina();
+    if (!el || !usaCortina(event.sourceElement)) return;
+
+    const cargar = event.loader;
+    event.loader = async () => {
+      el.hidden = false;
+      fase(el, 'cerrando');
+      // Flush styles so the animations exist before they are asked for; read
+      // straight after setting the attribute or getAnimations comes back empty
+      // and the curtain snaps shut instead of closing.
+      el.getBoundingClientRect();
+      await Promise.all([finDeAnimaciones(el), cargar()]);
+    };
+  });
+
+  document.addEventListener('astro:after-swap', () => {
+    const el = cortina();
+    if (!el || el.hidden) return;
+    fase(el, 'abriendo');
+    el.getBoundingClientRect();
+    finDeAnimaciones(el).then(() => {
+      // Only tidy up if nothing has started a new navigation in the meantime.
+      if (el.getAttribute('data-fase') !== 'abriendo') return;
+      fase(el, null);
+      el.hidden = true;
+    });
+  });
+</script>

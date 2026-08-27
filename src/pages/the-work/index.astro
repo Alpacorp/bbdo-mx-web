@@ -42,7 +42,9 @@ const cases = (await getCollection('work', ({ data }) => !data.draft)).sort(
       {
         cases.map((caseEntry, i) => (
           <li class="card">
-            <a href={`/the-work/${caseEntry.id}/`}>
+            {/* data-morph: esta navegación ya tiene animación propia, la
+                portada creciendo hasta la ficha. CurtainTransition lo lee. */}
+            <a href={`/the-work/${caseEntry.id}/`} data-morph>
               <Image
                 src={caseEntry.data.image}
                 alt={caseEntry.data.imageAlt}
