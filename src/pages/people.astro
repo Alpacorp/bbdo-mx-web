@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import ScrollFX from '../components/ScrollFX.astro';
+import PortraitWall from '../components/PortraitWall.astro';
 import { DEPARTMENTS, FALLBACK, classify } from '../departments';
 import { portraitOf } from '../portraits';
 import { themeStyle } from '../themes';
@@ -55,6 +56,13 @@ const bands = [...DEPARTMENTS, FALLBACK]
   description="Las personas de BBDO México: 117 BBDOers, de dirección creativa a producción, data y cuentas."
 >
   <main id="content" class="people">
+    {
+      /* The wall before the title: you see 117 faces, then you read that there
+         are 117 of them. It is decorative — every face is in the roster below
+         with its name — so it carries no heading of its own. */
+    }
+    <PortraitWall />
+
     <header class="intro">
       <h1 class="page-title" data-fx="lines"><span>BBDOers</span></h1>
       <p class="intro__note" data-fx="up" data-fx-delay="150">
@@ -103,10 +111,14 @@ const bands = [...DEPARTMENTS, FALLBACK]
                     data-role={person.data.role.toLowerCase()}
                   >
                     <span class="person__frame">
+                      {/* Four widths and not two: with only 280 and 560 the
+                          browser had no candidate in between, so a 317px column
+                          on a 1x screen was served the 560 — twice the bytes it
+                          could use, 117 times over. */}
                       <Image
                         src={img}
                         alt={`Retrato de ${person.data.name}`}
-                        widths={[280, 560]}
+                        widths={[280, 320, 400, 560]}
                         sizes="(max-width: 40rem) 45vw, (max-width: 60rem) 30vw, 22vw"
                         loading="lazy"
                         class="person__photo"
