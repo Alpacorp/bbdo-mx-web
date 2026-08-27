@@ -73,7 +73,7 @@ const { left, right, src, poster, transitionName } = Astro.props;
 // Unique, deterministic id per banner: if a page has two, their masks do not
 // collide, and it does not change between builds.
 const uid = `mask-${poster.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '')}`;
-const uidMovil = `${uid}-movil`;
+const uidTall = `${uid}-movil`;
 ---
 
 <section class="banner" data-video-banner>
@@ -122,7 +122,7 @@ const uidMovil = `${uid}-movil`;
     focusable="false"
   >
     <defs>
-      <mask id={uidMovil}>
+      <mask id={uidTall}>
         <rect width="359" height="526" fill="white"></rect>
         <path class="window window--left" d={CURTAIN_TALL.window.left} fill="black"></path>
         <path class="window window--top" d={CURTAIN_TALL.window.top} fill="black"></path>
@@ -134,7 +134,7 @@ const uidMovil = `${uid}-movil`;
       width="359"
       height="526"
       fill="var(--color-red)"
-      mask={`url(#${uidMovil})`}
+      mask={`url(#${uidTall})`}
       shape-rendering="crispEdges"></rect>
   </svg>
 
@@ -316,7 +316,7 @@ const uidMovil = `${uid}-movil`;
     }
   }
 
-  /* --- Las dos palabras -------------------------------------------------- */
+  /* --- The two words ----------------------------------------------------- */
   .banner__txt {
     position: absolute;
     bottom: 19px;
@@ -356,19 +356,20 @@ const uidMovil = `${uid}-movil`;
   import { onPage } from '../lifecycle';
 
   /**
-   * ¿Vale la pena traerse el video en esta conexión?
+   * Is this connection worth pulling the clip over?
    *
-   * El clip del banner es material provisional y pesa 30,8 MB, doce veces el
-   * presupuesto que fija la sección 6 del brief. Esa misma sección advierte
-   * del 4G mexicano por su nombre. Mientras el archivo definitivo no llegue,
-   * quien navegue con ahorro de datos o con una conexión lenta se queda con
-   * el póster, que es lo que ya se ve durante el primer segundo de todos
-   * modos: el póster es el LCP y el video solo lo sustituye después.
+   * The banner's film is placeholder material weighing 30.8 MB, twelve times
+   * the budget section 6 of the brief sets, and that same section names
+   * Mexican 4G specifically. Until the real file arrives, anyone browsing on
+   * data saver or on a slow connection keeps the poster — which is what shows
+   * for the first second regardless: the poster is the LCP and the video only
+   * replaces it afterwards.
    *
-   * La API no existe en Safari, y ahí no se decide por el usuario: si no hay
-   * información, se carga. Esto recorta el caso malo conocido, no adivina.
+   * The API does not exist in Safari, and there the decision is not made for
+   * the user: with no information, it loads. This trims the known bad case; it
+   * does not guess.
    */
-  function conexionAceptable(): boolean {
+  function connectionIsGoodEnough(): boolean {
     const c = (
       navigator as Navigator & {
         connection?: { saveData?: boolean; effectiveType?: string };
@@ -400,7 +401,7 @@ const uidMovil = `${uid}-movil`;
       const v = el.querySelector('video');
       if (!v) return;
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      if (!conexionAceptable()) return;
+      if (!connectionIsGoodEnough()) return;
 
       v.preload = 'auto';
       v.play().catch(() => {});
@@ -435,8 +436,8 @@ const uidMovil = `${uid}-movil`;
   function adjustCircle() {
     document.querySelectorAll<HTMLElement>('[data-video-banner]').forEach((el) => {
       const svg = el.querySelector<SVGSVGElement>('.banner__curtain--wide');
-      const capa = svg?.querySelector<SVGGElement>('.circle-layer');
-      if (!svg || !capa) return;
+      const layer = svg?.querySelector<SVGGElement>('.circle-layer');
+      if (!svg || !layer) return;
 
       const r = svg.getBoundingClientRect();
       if (!r.width || !r.height) return; // esta oculta: es la vertical la que manda
@@ -450,7 +451,7 @@ const uidMovil = `${uid}-movil`;
       const fits = CELL_WIDTH * sx * 0.93;
       const d = Math.min(wanted, fits);
 
-      capa.style.transform = `scale(${d / sx / DIAMETER}, ${d / sy / DIAMETER})`;
+      layer.style.transform = `scale(${d / sx / DIAMETER}, ${d / sy / DIAMETER})`;
     });
   }
 

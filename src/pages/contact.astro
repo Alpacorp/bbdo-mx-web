@@ -87,21 +87,21 @@ const motivo = Astro.url.searchParams.get('motivo');
       }
 
       <form class="form" method="POST" action="/api/contact" data-contact-form>
-        <fieldset class="temas">
+        <fieldset class="topics">
           <legend>¿De qué se trata?</legend>
           {
             TOPICS.map((topic, i) => (
-              <label class="tema">
+              <label class="topic">
                 <input type="radio" name="topic" value={topic.id} required checked={i === 0} />
-                <span class="tema__label">{topic.label}</span>
-                <span class="tema__hint">{topic.hint}</span>
+                <span class="topic__label">{topic.label}</span>
+                <span class="topic__hint">{topic.hint}</span>
               </label>
             ))
           }
         </fieldset>
 
-        <div class="campos">
-          <label class="campo">
+        <div class="fields">
+          <label class="field">
             <span>Nombre</span>
             <input
               type="text"
@@ -113,26 +113,26 @@ const motivo = Astro.url.searchParams.get('motivo');
             />
           </label>
 
-          <label class="campo">
+          <label class="field">
             <span>Correo</span>
             <input type="email" name="email" required maxlength="200" autocomplete="email" />
           </label>
 
-          <label class="campo campo--ancho">
+          <label class="field field--wide">
             <span>Empresa <small>(opcional)</small></span>
             <input type="text" name="company" maxlength="160" autocomplete="organization" />
           </label>
 
-          <label class="campo campo--ancho">
+          <label class="field field--wide">
             <span>Mensaje</span>
             <textarea name="message" required minlength="10" maxlength="4000" rows="6"></textarea>
           </label>
         </div>
 
         {/* Hidden from people and from assistive tech; bots fill it anyway. */}
-        <div class="trampa" aria-hidden="true">
+        <div class="honeypot" aria-hidden="true">
           <label>
-            No llenes este campo
+            No llenes este field
             <input type="text" name="website" tabindex="-1" autocomplete="off" />
           </label>
         </div>
@@ -165,7 +165,7 @@ const motivo = Astro.url.searchParams.get('motivo');
         <h2 id="datos-title" data-fx="up">Dónde estamos</h2>
       </header>
 
-      <ul class="tarjetas" data-fx-stagger>
+      <ul class="cards" data-fx-stagger>
         <li>
           <h3>Oficina</h3>
           <p>
@@ -215,14 +215,14 @@ const motivo = Astro.url.searchParams.get('motivo');
   }
 
   /* --- Temas --------------------------------------------------------------- */
-  .temas {
+  .topics {
     border: 0;
     padding: 0;
     margin: 0 0 var(--space-xl);
     display: grid;
     gap: var(--space-xs);
   }
-  .temas legend {
+  .topics legend {
     font-family: var(--font-display);
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -232,7 +232,7 @@ const motivo = Astro.url.searchParams.get('motivo');
     margin-bottom: var(--space-s);
   }
 
-  .tema {
+  .topic {
     display: grid;
     grid-template-columns: auto 1fr;
     gap: 2px var(--space-s);
@@ -240,55 +240,55 @@ const motivo = Astro.url.searchParams.get('motivo');
     border: 1px solid var(--color-line);
     cursor: pointer;
   }
-  .tema input {
+  .topic input {
     grid-row: span 2;
     align-self: center;
     accent-color: var(--color-red);
     width: 1.15rem;
     height: 1.15rem;
   }
-  .tema__label {
+  .topic__label {
     font-family: var(--font-display);
     font-size: 1.05rem;
   }
-  .tema__hint {
+  .topic__hint {
     font-size: 0.9rem;
     color: var(--color-dim);
   }
-  .tema:has(input:checked) {
+  .topic:has(input:checked) {
     border-color: var(--color-fg);
     background: color-mix(in srgb, var(--color-fg) 4%, transparent);
   }
-  .tema:has(input:focus-visible) {
+  .topic:has(input:focus-visible) {
     outline: 2px solid var(--color-red);
     outline-offset: 2px;
   }
 
   /* --- Campos -------------------------------------------------------------- */
-  .campos {
+  .fields {
     display: grid;
     gap: var(--space-m);
   }
-  .campo {
+  .field {
     display: grid;
     gap: var(--space-2xs);
   }
-  .campo > span {
+  .field > span {
     font-size: 0.9rem;
   }
-  .campo small {
+  .field small {
     color: var(--color-dim);
   }
   /* The phone and the email are links standing on their own in a list, not
      inline in a sentence, so WCAG 2.2 asks 24px of them. They were 20. Padding
      on the top only, so nothing moves down the card. */
-  .tarjetas p a {
+  .cards p a {
     display: inline-block;
     padding-top: 5px;
   }
 
-  .campo input,
-  .campo textarea {
+  .field input,
+  .field textarea {
     font: inherit;
     color: inherit;
     background: transparent;
@@ -299,18 +299,18 @@ const motivo = Astro.url.searchParams.get('motivo');
        target. A form field that small is also just hard to hit. */
     min-height: 44px;
   }
-  .campo textarea {
+  .field textarea {
     border: 2px solid var(--color-line);
     padding: var(--space-s);
     resize: vertical;
   }
-  .campo input:focus,
-  .campo textarea:focus {
+  .field input:focus,
+  .field textarea:focus {
     outline: 0;
     border-color: var(--color-red);
   }
 
-  .trampa {
+  .honeypot {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -374,7 +374,7 @@ const motivo = Astro.url.searchParams.get('motivo');
     color: var(--color-on-dark);
     max-width: none;
   }
-  .tarjetas {
+  .cards {
     list-style: none;
     margin: 0 auto;
     padding: 0;
@@ -382,7 +382,7 @@ const motivo = Astro.url.searchParams.get('motivo');
     display: grid;
     gap: var(--space-l);
   }
-  .tarjetas h3 {
+  .cards h3 {
     font-family: var(--font-display);
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -390,22 +390,22 @@ const motivo = Astro.url.searchParams.get('motivo');
     color: var(--color-red);
     margin: 0 0 var(--space-xs);
   }
-  .tarjetas p {
+  .cards p {
     margin: 0;
     line-height: 1.6;
   }
-  .tarjetas a {
+  .cards a {
     color: inherit;
   }
 
   @media (min-width: 48rem) {
-    .campos {
+    .fields {
       grid-template-columns: 1fr 1fr;
     }
-    .campo--ancho {
+    .field--wide {
       grid-column: 1 / -1;
     }
-    .tarjetas {
+    .cards {
       grid-template-columns: repeat(3, 1fr);
     }
     .form {

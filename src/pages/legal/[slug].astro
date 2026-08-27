@@ -32,15 +32,16 @@ const { notice } = Astro.props;
 const containerId = `otnotice-${notice.noticeId}`;
 
 /**
- * `settings` no es un atributo de <script> que TypeScript conozca, y con él
- * escrito directamente `astro check` daba error. No se puede quitar: OneTrust
- * lo lee de su propia etiqueta. Se pasa como propagación para que el tipado
- * lo acepte sin renunciar al atributo.
+ * `settings` is not a <script> attribute TypeScript knows about, and written
+ * inline it made `astro check` fail. It cannot be dropped either: OneTrust
+ * reads it off its own tag. Spreading it in is what makes the types accept it
+ * without giving the attribute up.
  *
- * Es base64 de {"callbackUrl":"…/privacyNotices/stats/views"}, copiado del
- * sitio actual: es lo que hace que el aviso reporte la visita a Omnicom.
+ * The value is base64 of {"callbackUrl":"…/privacyNotices/stats/views"},
+ * copied from the current site: it is what makes the notice report the view
+ * back to Omnicom.
  */
-const ajustesOneTrust = {
+const oneTrustSettings = {
   settings:
     'eyJjYWxsYmFja1VybCI6Imh0dHBzOi8vb21uaWNvbS1wcml2YWN5Lm15Lm9uZXRydXN0LmNvbS9yZXF1ZXN0L3YxL3ByaXZhY3lOb3RpY2VzL3N0YXRzL3ZpZXdzIn0=',
 };
@@ -54,7 +55,7 @@ const ajustesOneTrust = {
   <main id="content">
     <div class="section-shell section-shell--head">
       <p class="kicker">Legal</p>
-      <h1 class="titulo">{notice.title}</h1>
+      <h1 class="title">{notice.title}</h1>
       <p class="intro">{notice.intro}</p>
     </div>
 
@@ -63,8 +64,8 @@ const ajustesOneTrust = {
       <div id={containerId} class="otnotice"></div>
 
       <noscript>
-        <p class="sinjs">
-          Este aviso lo publica Omnicom a través de OneTrust y necesita JavaScript para mostrarse.
+        <p class="nojs">
+          Este notice lo publica Omnicom a través de OneTrust y necesita JavaScript para mostrarse.
           Puedes consultarlo directamente en
           <a href={noticeSource(notice.noticeId)} rel="noopener">el documento original</a>
           o escribirnos y te lo enviamos.
@@ -87,7 +88,7 @@ const ajustesOneTrust = {
     id="otprivacy-notice-script"
     src="https://omnicom-privacy-cdn.my.onetrust.com/privacy-notice-scripts/otnotice-1.0.min.js"
     charset="UTF-8"
-    {...ajustesOneTrust}></script>
+    {...oneTrustSettings}></script>
   <script is:inline define:vars={{ src: noticeSource(notice.noticeId) }}>
     OneTrust.NoticeApi.Initialized.then(function () {
       OneTrust.NoticeApi.LoadNotices([src]);
@@ -106,7 +107,7 @@ const ajustesOneTrust = {
     color: var(--color-red-deep);
     margin: 0 0 var(--space-xs);
   }
-  .titulo {
+  .title {
     font-family: var(--font-display);
     font-weight: var(--weight-display);
     text-transform: uppercase;
@@ -130,7 +131,7 @@ const ajustesOneTrust = {
     font-family: var(--font-ui);
   }
 
-  .sinjs {
+  .nojs {
     max-width: 60ch;
     padding: var(--space-m);
     border-left: 3px solid var(--color-red);

@@ -5,6 +5,7 @@ import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import ScrollFX from '../../components/ScrollFX.astro';
 import VideoBanner from '../../components/VideoBanner.astro';
+import { PLATFORM_CORNERS } from '../../platform';
 import CaseBlock from '../../components/CaseBlock.astro';
 import VimeoPlayer from '../../components/VimeoPlayer.astro';
 import Collage from '../../components/Collage.astro';
@@ -99,8 +100,8 @@ if (data.awards.length) jsonLd.award = data.awards;
   }
   <main id="content" class="case" style={themeVars} data-theme={data.theme}>
     <VideoBanner
-      left="Do"
-      right="Things"
+      left={PLATFORM_CORNERS.left}
+      right={PLATFORM_CORNERS.right}
       src="/v/banner-home.mp4"
       poster={data.image.src}
       transitionName={`portada-${caseEntry.id}`}
@@ -157,9 +158,9 @@ if (data.awards.length) jsonLd.award = data.awards;
             title={data.campaign || data.title}
           />
         ) : (
-          /* `vimeo` es opcional en el esquema y hoy lo tienen los 19 casos,
-             pero un caso nuevo puede llegar sin video. Entonces la sección es
-             el key visual, que es lo que había antes. */
+          /* `vimeo` is optional in the schema and all 19 cases carry one
+             today, but a new case can arrive without a film. Then the section
+             falls back to the key visual, which is what used to be there. */
           <Image
             src={data.image}
             alt={data.imageAlt}
@@ -172,8 +173,8 @@ if (data.awards.length) jsonLd.award = data.awards;
       }
     </div>
 
-    <section class="description" aria-labelledby="desc-titulo">
-      <h2 id="desc-titulo" class="description__title" data-fx="up">La campaña</h2>
+    <section class="description" aria-labelledby="desc-title">
+      <h2 id="desc-title" class="description__title" data-fx="up">La campaña</h2>
 
       {
         data.description && (
@@ -267,8 +268,8 @@ if (data.awards.length) jsonLd.award = data.awards;
       }
     </dl>
 
-    <section class="more" aria-labelledby="mas-titulo">
-      <h2 id="mas-titulo" data-fx="up">Más The Work</h2>
+    <section class="more" aria-labelledby="more-title">
+      <h2 id="more-title" data-fx="up">Más The Work</h2>
       <ul class="more__list">
         {
           related.map((otro, i) => (
@@ -378,16 +379,15 @@ if (data.awards.length) jsonLd.award = data.awards;
     line-height: 1.5;
   }
 
-  /* El marco ya no recorta nada: el reproductor trae su propia relación de
-     aspecto y su propio recorte. Lo que queda es el hueco y el fondo mientras
-     carga el póster. Los estilos de .case__visual se fueron con la imagen que
-     los usaba. */
+  /* The frame no longer crops anything: the player brings its own aspect ratio
+     and its own clipping. What is left is the slot and the background while the
+     poster loads. The .case__visual rules went with the image that used them. */
   .case__frame {
     margin: 0 0 var(--space-l);
     border-radius: 4px;
     overflow: hidden;
   }
-  /* Solo para el caso sin video: el reproductor trae su propia proporción. */
+  /* Only for a case with no film: the player brings its own ratio. */
   .case__visual {
     width: 100%;
     height: auto;

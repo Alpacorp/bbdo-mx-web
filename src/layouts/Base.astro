@@ -52,11 +52,11 @@ const pageTitle = isHome ? SITE_NAME : `${title} — ${SITE_NAME}`;
 const canonical = new URL(path ?? Astro.url.pathname, SITE_URL).href;
 
 /**
- * robots.txt cierra el rastreo en las previsualizaciones, pero un rastreador
- * que llegue por un enlace directo no lo consulta antes de indexar la página
- * que ya tiene. La meta viaja con la página.
+ * robots.txt closes crawling on the previews, but a crawler arriving by a
+ * direct link does not consult it before indexing the page it already has.
+ * The meta travels with the page.
  */
-const noIndexar =
+const noIndex =
   import.meta.env.VERCEL_ENV !== undefined && import.meta.env.VERCEL_ENV !== 'production';
 const ogImageUrl = new URL(ogImage, SITE_URL).href;
 
@@ -107,11 +107,11 @@ const jsonLd = {
          hamburguesa desaparece y el menu se despliega como lista. -->
     <script is:inline>
       (function () {
-        function marcar() {
+        function flagJs() {
           document.documentElement.classList.add('js');
         }
-        marcar();
-        document.addEventListener('astro:after-swap', marcar);
+        flagJs();
+        document.addEventListener('astro:after-swap', flagJs);
 
         /* Announce the new page. Only after a swap, never on the first load:
            there the browser has already said the title out loud and repeating
@@ -124,13 +124,13 @@ const jsonLd = {
            document's on every swap, so the flag would have been wiped each time
            and this would have taken the first-load branch forever. Same trap
            that dropped the `js` class. */
-        var primera = true;
+        var first = true;
         document.addEventListener('astro:page-load', function () {
-          if (primera) {
-            primera = false;
+          if (first) {
+            first = false;
             return;
           }
-          var region = document.querySelector('[data-anuncio-ruta]');
+          var region = document.querySelector('[data-route-announcer]');
           if (!region) return;
           region.textContent = '';
           setTimeout(function () {
@@ -142,7 +142,7 @@ const jsonLd = {
 
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
-    {noIndexar && <meta name="robots" content="noindex, nofollow" />}
+    {noIndex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonical} />
 
     <meta property="og:type" content="website" />
@@ -177,7 +177,7 @@ const jsonLd = {
          is tabbing through 117 portraits to reach anything. Off-screen until
          focused, which is the one pattern screen-reader users expect. */
     }
-    <a class="saltar" href="#content">Saltar al contenido</a>
+    <a class="skip" href="#content">Saltar al contenido</a>
 
     {
       /* Client-side navigation is silent. The browser announces a new page on a
@@ -186,7 +186,7 @@ const jsonLd = {
          was measured, not assumed. So the page title is written here after each
          navigation and read out. */
     }
-    <p class="anuncio" aria-live="polite" aria-atomic="true" data-anuncio-ruta></p>
+    <p class="announce" aria-live="polite" aria-atomic="true" data-route-announcer></p>
     <CurtainTransition />
     <Header overMedia={overMedia} current={Astro.url.pathname} />
 
@@ -263,7 +263,7 @@ const jsonLd = {
     color: inherit;
   }
 
-  .saltar {
+  .skip {
     position: absolute;
     left: var(--space-s);
     top: var(--space-s);
@@ -280,14 +280,14 @@ const jsonLd = {
     transform: translateY(-200%);
     transition: transform var(--dur-fast) var(--ease);
   }
-  .saltar:focus {
+  .skip:focus {
     transform: translateY(0);
   }
 
   /* Announced, never seen. Not display:none and not visibility:hidden: both
      take the element out of the accessibility tree, and then there is nothing
      left to announce. */
-  .anuncio {
+  .announce {
     position: absolute;
     width: 1px;
     height: 1px;

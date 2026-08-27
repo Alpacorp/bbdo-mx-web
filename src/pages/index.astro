@@ -8,6 +8,8 @@ import ScrollFX from '../components/ScrollFX.astro';
 import Process from '../components/Process.astro';
 import ClientWall from '../components/ClientWall.astro';
 import Awards from '../components/Awards.astro';
+import KineticBand from '../components/KineticBand.astro';
+import { PLATFORM_WORDS, PLATFORM_CORNERS, PLATFORM_ECHO } from '../platform';
 import NewsCard from '../components/NewsCard.astro';
 
 /**
@@ -39,7 +41,7 @@ const latest = (await getCollection('news'))
  *                JSON-LD already reserves an `award` field.
  *
  * THE BANDS ALTERNATE. Reading down: claim red, process dark, work paper,
- * clients dark, awards paper, news dark. Anything inserted between them has to
+ * clients dark, awards paper, kinetic band dark, news --color-dark-alt. Anything inserted between them has to
  * keep that going or the page flattens out, which is what it did before.
  *
  * VIDEO PLACEHOLDER: /v/banner-home.mp4 is head-team.mp4 from the current site
@@ -52,7 +54,9 @@ const latest = (await getCollection('news'))
  * WATCH THE COPY: every string here is PLACEHOLDER written by me. The brand
  * platform ("Do Big Things" localised vs. MX-specific language) is an open
  * section 10 decision and belongs to the creative director. Do not present
- * these words as proposed copy.
+ * these words as proposed copy. When it is decided, it changes in ONE place:
+ * src/platform.ts. The banner, the headline, the kinetic band and the CTA all
+ * read it from there.
  */
 
 const clips = [
@@ -95,7 +99,12 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
           own language. The video in between is the missing word, "BIG". The
           Spanish localisation lives in the headline below, not here. */
     }
-    <VideoBanner left="Do" right="Things" src="/v/banner-home.mp4" poster="/v/banner-home.png" />
+    <VideoBanner
+      left={PLATFORM_CORNERS.left}
+      right={PLATFORM_CORNERS.right}
+      src="/v/banner-home.mp4"
+      poster="/v/banner-home.png"
+    />
 
     {
       /* Content wrapper. The banner is sticky, and sticky is a positioned
@@ -104,26 +113,24 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
         banner and disappeared on scroll. The global site does the same with
         section.main-content-container. */
     }
-    <div class="contenido">
+    <div class="content">
       <section class="claim">
         {
           /* The '|' forces the break, so "Do Big Things" stays on one line
             instead of wrapping wherever the width happens to fall. */
         }
         <VideoHeadline
-          words={['Somos', 'BBDO', 'México', '|', 'Do', 'Big', 'Things']}
+          words={['Somos', 'BBDO', 'México', '|', ...PLATFORM_WORDS]}
           accentIndex={-1}
           clips={clips}
-          etiqueta="h1"
+          tag="h1"
         />
         <p class="claim__text" data-fx="up">
           Resolvemos problemas grandes con estrategia e ideas que dejan huella. Trabajamos con las
           marcas más ambiciosas de México. Contratamos talento grande y le damos oportunidades
           grandes.
         </p>
-        <a class="claim__cta" data-fx="up" data-fx-delay="0.15" href="/contact/"
-          >¿Quieres hacer cosas grandes?</a
-        >
+        <a class="claim__cta" data-fx="up" data-fx-delay="0.15" href="/contact/">{PLATFORM_ECHO}</a>
       </section>
 
       <Process />
@@ -161,6 +168,14 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
 
       <Awards />
 
+      {
+        /* The third beat of the platform, between the awards and the news. It
+           keeps the band alternation going — awards on paper, this on dark,
+           news on --color-dark-alt — and it is the only thing on the page that
+           moves because the reader moves. */
+      }
+      <KineticBand />
+
       <section class="news" aria-labelledby="news-title">
         <div class="news__inner section-shell">
           <span class="section-rail" aria-hidden="true">News</span>
@@ -191,7 +206,7 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
   /* Everything after the banner, on a single layer above it. The solid
      background is mandatory: without it the sticky banner shows through the
      sections that carry no background of their own. */
-  .contenido {
+  .content {
     position: relative;
     z-index: 1;
     background: var(--color-paper);

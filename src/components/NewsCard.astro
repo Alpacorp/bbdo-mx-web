@@ -24,7 +24,7 @@ interface Props {
 }
 
 const { entry, level = 3 } = Astro.props;
-const Titulo = `h${level}` as 'h2' | 'h3';
+const Heading = `h${level}` as 'h2' | 'h3';
 const { title, date, summary, image, imageAlt, source } = entry.data;
 const href = `/news/${entry.id}/`;
 ---
@@ -48,7 +48,7 @@ const href = `/news/${entry.id}/`;
     }
 
     <time class="card__date" datetime={isoDate(date)}>{longDate(date)}</time>
-    <Titulo class="card__title">{title}</Titulo>
+    <Heading class="card__title">{title}</Heading>
     <p class="card__summary">{summary}</p>
     {source && <p class="card__source">Vía {source.name}</p>}
   </a>
