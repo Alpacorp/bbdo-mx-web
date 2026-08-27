@@ -35,6 +35,10 @@ const latest = (await getCollection('news'))
  *   6. Awards  — a Mexican agency sells on local awards, and the per-case
  *                JSON-LD already reserves an `award` field.
  *
+ * THE BANDS ALTERNATE. Reading down: claim red, work paper, clients dark,
+ * awards paper, news dark. Anything inserted between them has to keep that
+ * going or the page flattens out, which is what it did before.
+ *
  * VIDEO PLACEHOLDER: /v/banner-home.mp4 is head-team.mp4 from the current site
  * (30.83 MB, 14.9s), downloaded by hand and picked by the developer. That is
  * twelve times the 2.5 MB budget for the whole hero (section 6 of the brief).
@@ -120,6 +124,7 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
       </section>
 
       <section class="work section-shell" aria-labelledby="work-title">
+        <span class="section-rail" aria-hidden="true">Work</span>
         <header class="section-head">
           <h2 id="work-title" data-fx="up">The Work</h2>
           <a class="section-link" href="/the-work/">Ver todo The Work</a>
@@ -150,21 +155,24 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
 
       <Awards />
 
-      <section class="news section-shell" aria-labelledby="news-title">
-        <header class="section-head">
-          <h2 id="news-title" data-fx="up">Noticias</h2>
-          <a class="section-link" href="/news/">Ver todas</a>
-        </header>
+      <section class="news" aria-labelledby="news-title">
+        <div class="news__inner section-shell">
+          <span class="section-rail" aria-hidden="true">News</span>
+          <header class="section-head section-head--dark">
+            <h2 id="news-title" data-fx="up">Noticias</h2>
+            <a class="section-link" href="/news/">Ver todas</a>
+          </header>
 
-        <ul class="news-list" data-fx-stagger>
-          {
-            latest.map((entry) => (
-              <li>
-                <NewsCard entry={entry} />
-              </li>
-            ))
-          }
-        </ul>
+          <ul class="news-list" data-fx-stagger>
+            {
+              latest.map((entry) => (
+                <li>
+                  <NewsCard entry={entry} />
+                </li>
+              ))
+            }
+          </ul>
+        </div>
       </section>
     </div>
 
@@ -194,21 +202,39 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
     justify-content: center;
     gap: var(--space-l);
   }
+  /* White on #ff0000 is 4.0:1. WCAG clears that only as large text — 24px at
+     any weight, or 18.66px at 600 and up — so the floor and the weight here
+     are an accessibility constraint, not a typographic preference. At the old
+     clamp floor of 1.05rem/400 this paragraph did not pass. */
   .claim__text {
     max-width: 46ch;
     margin: 0;
-    font-size: clamp(1.05rem, 1.7vw, 1.5rem);
+    font-size: clamp(1.2rem, 1.7vw, 1.5rem);
+    font-weight: 600;
     line-height: 1.45;
   }
+  /* The same pill as .section-link, on the red band: this is the global site's
+     CONTACT US. Its own rule rather than the shared class because the section
+     link inverts to red on hover, and on a red band that would erase it. */
   .claim__cta {
     align-self: start;
     font-family: var(--font-display);
     font-weight: var(--weight-display);
-    font-size: clamp(1.1rem, 2vw, 1.6rem);
+    font-size: clamp(1.2rem, 2vw, 1.6rem);
+    letter-spacing: 0.02em;
     text-transform: uppercase;
     text-decoration: none;
-    border-bottom: 3px solid currentColor;
-    padding-bottom: 4px;
+    border: 3px solid currentColor;
+    border-radius: 999px;
+    padding: 0.5em 1.5em;
+    transition:
+      background-color var(--dur-fast) var(--ease),
+      color var(--dur-fast) var(--ease);
+  }
+  .claim__cta:hover,
+  .claim__cta:focus-visible {
+    background: var(--color-on-dark);
+    color: var(--color-red);
   }
 
   /* --- Work: grid asimetrica ----------------------------------------- */
@@ -256,7 +282,26 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
     color: var(--color-red);
   }
 
-  /* --- Noticias ---------------------------------------------------------- */
+  /* --- Noticias ----------------------------------------------------------
+     The home now alternates paper / dark the way the global site alternates
+     red / black: work on paper, clients on --color-dark, awards on paper,
+     news here. Without it the page ran paper from The Work to the footer and
+     the rhythm flattened out over three sections.
+
+     --color-dark-alt and not --color-dark: the footer that follows is
+     --color-dark, and two identical darks in a row read as one band with a
+     gap in it. One step of value keeps them apart.
+
+     NewsCard reads --card-* if they are set, so the cards follow the band
+     without the component needing to know which page it is on. Custom
+     properties inherit across component scoping; class names do not. */
+  .news {
+    background: var(--color-dark-alt);
+    color: var(--color-on-dark);
+    --card-muted: rgba(250, 250, 250, 0.62);
+    --card-line: rgba(250, 250, 250, 0.18);
+  }
+
   /* Only the grid stays here. Everything a card looks like moved into
      NewsCard.astro, which the index page uses too — the card had been written
      twice otherwise, and the two would have drifted. */

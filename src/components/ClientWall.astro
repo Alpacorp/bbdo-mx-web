@@ -44,6 +44,7 @@ function logoOf(file: string) {
 
 <section class="clients" aria-labelledby="clients-title">
   <div class="clients__inner">
+    <span class="section-rail" aria-hidden="true">Clientes</span>
     <header class="section-head section-head--dark">
       <h2 id="clients-title" data-fx="up">Nuestros clientes</h2>
     </header>
@@ -53,7 +54,13 @@ function logoOf(file: string) {
         CLIENTS.map(async (client) => {
           const logo = await logoOf(client.file);
           return (
-            <li class:list={['wall__cell', client.chip === 'mid' && 'wall__cell--mid']}>
+            <li
+              class:list={[
+                'wall__cell',
+                client.chip === 'mid' && 'wall__cell--mid',
+                client.feature && 'wall__cell--feature',
+              ]}
+            >
               <span class="wall__panel" aria-hidden="true" />
               <span class="wall__frame">
                 <Image
@@ -80,6 +87,7 @@ function logoOf(file: string) {
     color: var(--color-on-dark);
   }
   .clients__inner {
+    position: relative; /* the rail is positioned against this */
     padding-inline: var(--gutter);
     padding-block: var(--space-2xl);
     max-width: var(--max-width);
@@ -90,28 +98,47 @@ function logoOf(file: string) {
      many tracks as fit — eight of them on a desktop — and eight chips across a
      90rem container leaves each mark about 160px wide. Several of these are
      wordmarks with a strapline under them, and at that size the strapline is
-     no longer legible. Six is the ceiling: it is what keeps a mark big enough
-     to be recognised, which is the only reason the section exists.
+     no longer legible.
 
-     Two on a phone for the same reason. */
+     Five and not six on a desktop. Six was set as the legibility ceiling, and
+     the wall was sitting on it: at 90rem that is a 216px chip for marks like
+     Johnnie Walker and Oscar Mayer, which carry a strapline. Five gives each
+     one a fifth more width and costs one extra row.
+
+     FLEX AND NOT GRID, for the tail. There are 27 marks and no column count
+     divides them evenly, so a grid always ends on a short row hard against
+     the left edge — which is most of what made the wall read as a table.
+     Flex-wrap with justify-content:center leaves the same short row centred,
+     which reads as the end of a wall rather than as missing data. */
   .wall {
+    --cols: 2;
     list-style: none;
     margin: 0;
     padding: 0;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     /* The rules between chips are the band showing through a 1px gap, not
        borders on the cells and not a background on the list. Borders would
        double up between neighbours; a background on the list would paint the
-       tail of the last row, and 26 marks rarely divide evenly into however
-       many columns fit, so that tail would read as an empty box. */
+       tail of the last row. */
     gap: 1px;
   }
   .wall__cell {
     position: relative;
     overflow: hidden;
+    flex: 0 0 calc((100% - (var(--cols) - 1) * 1px) / var(--cols));
     aspect-ratio: 3 / 2;
     background: var(--color-paper);
+  }
+  /* Two cells wide, for a mark the agency wants to lead with. Nothing sets it
+     today: which clients get the big chip is a commercial decision and not a
+     developer's. The mechanism is here so making it is a one-word edit in
+     src/clients.ts, and a couple of double cells also let the row count come
+     out even. */
+  .wall__cell--feature {
+    flex-basis: calc((100% - (var(--cols) - 1) * 1px) / var(--cols) * 2 + 1px);
+    aspect-ratio: 3 / 1;
   }
   /* Two files are two-tone — dark shape, white lettering — and lose half the
      mark on white. See the note in clients.ts. */
@@ -197,7 +224,7 @@ function logoOf(file: string) {
 
   @media (min-width: 40rem) {
     .wall {
-      grid-template-columns: repeat(3, 1fr);
+      --cols: 3;
     }
     .wall__frame {
       inset: var(--space-s);
@@ -205,12 +232,12 @@ function logoOf(file: string) {
   }
   @media (min-width: 56rem) {
     .wall {
-      grid-template-columns: repeat(4, 1fr);
+      --cols: 4;
     }
   }
   @media (min-width: 80rem) {
     .wall {
-      grid-template-columns: repeat(6, 1fr);
+      --cols: 5;
     }
     .wall__frame {
       inset: var(--space-m);

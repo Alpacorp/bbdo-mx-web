@@ -84,6 +84,7 @@ const sequence: Item[] = words.flatMap((word): Item[] => {
           class:list={['vh__slot', `vh__slot--${item.size ?? 'md'}`]}
           aria-hidden="true"
           data-label={item.label}
+          style={`background-image:url(${item.poster})`}
         >
           <video
             src={item.src}
@@ -190,7 +191,10 @@ const sequence: Item[] = words.flatMap((word): Item[] => {
     position: relative;
     overflow: hidden;
     border-radius: 0.117em;
-    background: var(--color-dark);
+    /* The poster is painted here as well as on the <video>, so the slot is
+       never an empty dark box: not while the poster decodes, and not under
+       reduced motion, where the clip is never requested at all. */
+    background: var(--color-dark) center / cover no-repeat;
 
     /* Tied to the em: scales with the type without media queries. */
     height: 0.81em;
@@ -259,9 +263,21 @@ const sequence: Item[] = words.flatMap((word): Item[] => {
     :global(html.js) .vh__slot {
       transform: scaleX(1);
     }
+    /* The video used to be display:none here, with a comment claiming the
+       poster took over. It does not: `poster` is an attribute OF the video, so
+       hiding the element hides the poster with it and the slot fell back to
+       its own --color-dark background. Anyone browsing with reduced motion —
+       and that is how this very page was reviewed — saw the signature effect
+       as three black rectangles inside the headline.
+
+       Nothing needs hiding. The script returns early under reduced motion, so
+       with preload="none" the element never fetches the clip and paints the
+       poster and only the poster. The background-image on the slot is the
+       belt: it shows even if the poster attribute has not decoded yet, so the
+       slot is never a black hole. */
     .vh__slot video {
-      display: none;
-    } /* static poster */
+      pointer-events: none;
+    }
   }
 </style>
 

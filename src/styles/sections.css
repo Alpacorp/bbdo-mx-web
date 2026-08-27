@@ -17,6 +17,8 @@
    component — the same trap `section-head` fell into. Anything a section needs
    in order to sit on the page belongs here, not next to one page's markup. */
 .section-shell {
+  /* The rail below is positioned against this box. */
+  position: relative;
   padding-inline: var(--gutter);
   padding-block: var(--space-2xl);
   max-width: var(--max-width);
@@ -56,12 +58,112 @@
   margin: 0;
 }
 
-.section-link {
-  font-size: 0.95rem;
-  text-decoration: none;
-  border-bottom: 1px solid currentColor;
-  padding-bottom: 2px;
+/* --- The underscore ------------------------------------------------------
+   bbdomexico.com sets its section titles as THE WORK_, NUESTROS CLIENTES_.
+   It is the only typographic tic the Mexican office owns, and it was lost in
+   the migration; this puts it back inside the global system.
+
+   Drawn rather than typed. `content: '_'` would be real text, and generated
+   content IS announced by Chrome and Safari, so every heading would end in
+   "underscore" for a screen reader. A box on the baseline looks the same and
+   says nothing.
+
+   On the page titles it hangs off the inner <span> and not off the h1: those
+   headings animate with data-fx="lines", which masks each child, so anything
+   attached to the h1 itself would sit outside the mask and be visible while
+   the word is still rising. */
+.section-head h2::after,
+.page-title span::after,
+/* /people/ groups its roster into bands whose headings are section titles too,
+   even though they do not use .section-head. Listed here rather than repeated
+   inside that page so the tic has one definition. */
+.band__title::after {
+  content: '';
+  display: inline-block;
+  width: 0.38em;
+  height: 0.085em;
+  margin-left: 0.05em;
+  vertical-align: -0.05em; /* an underscore sits just below the baseline */
+  background: var(--color-accent);
 }
-.section-link:hover {
-  color: var(--color-red);
+
+/* --- The rail ------------------------------------------------------------
+   bbdo.com runs the section's name down the margin in red, rotated. It costs
+   no content, it structures the scroll, and at a glance it reads as the brand.
+
+   Only from 75rem up: below that the gutter is narrower than the type and the
+   rail would either overlap the content or be cropped by the viewport. It is
+   decorative — the real heading is right there — so it is hidden from the
+   accessibility tree and simply absent on narrow screens. */
+.section-rail {
+  display: none;
+}
+
+@media (min-width: 75rem) {
+  .section-rail {
+    display: block;
+    position: absolute;
+    top: var(--space-2xl);
+    /* Sits inside the gutter rather than flush to the shell's edge: at 0 it
+       touches the viewport on any screen narrower than --max-width and reads
+       as cropped rather than as placed. */
+    left: calc(var(--gutter) * 0.15);
+    writing-mode: vertical-rl;
+    /* vertical-rl reads top to bottom; the global site reads bottom to top. */
+    transform: rotate(180deg);
+    transform-origin: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    /* The cap is the constraint, not the taste. --gutter tops out at 4.5rem
+       and the rail has to live inside it: in vertical writing mode the box is
+       about one em wide, so anything above 2.8rem leaves the rail three
+       pixels from the heading on a wide screen. This keeps roughly 15px of
+       air at every width from 75rem up. */
+    font-size: clamp(1.9rem, 3vw, 2.8rem);
+    line-height: 1;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    pointer-events: none;
+    user-select: none;
+  }
+}
+
+/* --- The section link ----------------------------------------------------
+   A pill, like the global site's VIEW ALL NEWS and CONTACT US. It used to be
+   0.95rem underlined text, which is the weakest possible signal at exactly
+   the point where we want someone to carry on.
+
+   The padding is what makes it a target and not just a label: 0.55em on a
+   1.05rem face clears the 44px minimum on every breakpoint, which the old
+   underlined text did not.
+
+   The claim's CTA does not use this class. It sits on the red band, where the
+   hover here — fill with --color-red — would erase it. */
+.section-link {
+  font-family: var(--font-display);
+  font-weight: var(--weight-display);
+  font-size: clamp(1.05rem, 1.4vw, 1.2rem);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  text-decoration: none;
+  /* No white-space:nowrap. "Conoce a los 117 BBDOers" is 24 characters and at
+     390px it clears the gutter by a hair; a longer label would push the page
+     sideways, and html/body carry overflow-x:clip, so it would be cropped
+     silently rather than reported. A pill that wraps to two lines is the far
+     better failure. */
+  text-align: center;
+  border: 2px solid currentColor;
+  border-radius: 999px;
+  padding: 0.55em 1.35em;
+  transition:
+    background-color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+}
+.section-link:hover,
+.section-link:focus-visible {
+  background: var(--color-red);
+  border-color: var(--color-red);
+  color: var(--color-on-dark);
 }

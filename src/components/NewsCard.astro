@@ -47,6 +47,15 @@ const href = `/news/${entry.id}/`;
 </article>
 
 <style>
+  /* The card is used on paper (/news/) and on the dark band of the home. The
+     muted tone is the one value that cannot survive both, so it comes in as a
+     custom property the section can override; custom properties inherit across
+     Astro's scoped styles, which is what makes this work without the component
+     knowing where it is. */
+  .card {
+    --card-dim: var(--card-muted, var(--color-dim));
+  }
+
   .card__link {
     display: block;
     text-decoration: none;
@@ -76,7 +85,7 @@ const href = `/news/${entry.id}/`;
     font-size: 0.8rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--color-dim);
+    color: var(--card-dim);
   }
 
   .card__title {
@@ -92,13 +101,13 @@ const href = `/news/${entry.id}/`;
 
   .card__summary {
     margin: 0;
-    color: var(--color-dim);
+    color: var(--card-dim);
     max-width: 46ch;
   }
 
   .card__source {
     margin: var(--space-xs) 0 0;
     font-size: 0.8rem;
-    color: var(--color-dim);
+    color: var(--card-dim);
   }
 </style>
