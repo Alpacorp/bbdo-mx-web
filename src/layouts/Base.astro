@@ -4,6 +4,7 @@ import '../styles/tokens.css';
 import '../styles/sections.css';
 import { ClientRouter } from 'astro:transitions';
 import Header from '../components/Header.astro';
+import CurtainTransition from '../components/CurtainTransition.astro';
 import { LEGAL_LINKS } from '../navigation';
 
 /**
@@ -145,6 +146,7 @@ const jsonLd = {
   </head>
 
   <body>
+    <CurtainTransition />
     <Header overMedia={overMedia} current={Astro.url.pathname} />
 
     <slot />

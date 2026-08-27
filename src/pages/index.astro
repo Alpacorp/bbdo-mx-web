@@ -139,7 +139,7 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
           {
             cases.map((c, i) => (
               <li class:list={['card', i === 0 && 'card--wide']}>
-                <a href={`/the-work/${c.id}/`}>
+                <a href={`/the-work/${c.id}/`} data-morph>
                   <Image
                     src={c.data.image}
                     alt={c.data.imageAlt}
