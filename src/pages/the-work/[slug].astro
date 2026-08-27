@@ -91,8 +91,13 @@ if (data.awards.length) jsonLd.award = data.awards;
       that would need a silent mp4 per campaign. The campaign's own video is
       the section right below, played from Vimeo on demand.
 
-      No es banner-home.mp4: ese pesa 30,8 MB, doce veces el presupuesto de la
-      sección 6, y por eso no está versionado. */
+      IT IS banner-home.mp4 TODAY, AND THAT IS A DEBT
+      The file is 31 MB — about twelve times section 6's budget — and it is
+      versioned, because a deployment with no video at all was worse. It loads
+      after the load event and behind a poster, so it does not cost the LCP,
+      but every one of the 19 cases still pulls it. This is waiting on the
+      agency's compressed masters; the note that used to sit here claimed the
+      opposite and had stopped being true. */
   }
   {
     /* Inside <main>, like the home page has it. Outside, its two words sat in
@@ -107,37 +112,53 @@ if (data.awards.length) jsonLd.award = data.awards;
       transitionName={`portada-${caseEntry.id}`}
     />
 
-    <nav class="breadcrumb" aria-label="Ruta">
-      <a href="/the-work/">The Work</a>
-      <span aria-hidden="true">/</span>
-      <span>{data.brand}</span>
-    </nav>
-
-    <header class="case__header">
-      <p class="case__brand" data-fx="up">{data.brand}</p>
-      {
-        /* The headline reveals line by line, each behind its own mask. The
-          same gesture as the home page headline, scaled down. */
-      }
-      <h1 class="case__title" data-fx="lines"><span>{data.campaign}</span></h1>
-      {
-        data.result && (
-          <h2 class="case__result" data-fx="up" data-fx-delay="0.15">
-            {data.result}
-          </h2>
-        )
-      }
-      {
-        data.summary && (
-          <p class="case__summary" data-fx="up" data-fx-delay="0.25">
-            {data.summary}
-          </p>
-        )
-      }
-    </header>
-
     {
-      /*
+      /* EVERYTHING AFTER THE BANNER RIDES IN HERE, AND IT IS NOT COSMETIC
+         The banner is sticky and positioned, so it paints in the positioned
+         layer — above every plain block that follows it. The page background
+         used to live on .case::before at z-index -1, which put it BELOW the
+         banner: the case heading ended up drawn straight onto the playing
+         video, dark type on a moving image, while the paper it was meant to
+         sit on stayed trapped underneath. Only the pieces ScrollFX transforms
+         showed at all, because a transform makes an element paint in the same
+         layer as the banner.
+
+         Wrapping the rest in its own stacking context above the banner is what
+         the file always claimed to do — "content scrolls over it instead of
+         letting it show through" — and now actually does. */
+    }
+    <div class="case__shell">
+      <nav class="breadcrumb" aria-label="Ruta">
+        <a href="/the-work/">The Work</a>
+        <span aria-hidden="true">/</span>
+        <span>{data.brand}</span>
+      </nav>
+
+      <header class="case__header">
+        <p class="case__brand" data-fx="up">{data.brand}</p>
+        {
+          /* The headline reveals line by line, each behind its own mask. The
+          same gesture as the home page headline, scaled down. */
+        }
+        <h1 class="case__title" data-fx="lines"><span>{data.campaign}</span></h1>
+        {
+          data.result && (
+            <h2 class="case__result" data-fx="up" data-fx-delay="0.15">
+              {data.result}
+            </h2>
+          )
+        }
+        {
+          data.summary && (
+            <p class="case__summary" data-fx="up" data-fx-delay="0.25">
+              {data.summary}
+            </p>
+          )
+        }
+      </header>
+
+      {
+        /*
       La segunda sección del caso es el video de la campaña, no una imagen
       quieta. El key visual sigue estando: es el póster, y de hecho ya era el
       fotograma que Vimeo usa como miniatura, así que la página se ve igual
@@ -147,149 +168,150 @@ if (data.awards.length) jsonLd.award = data.awards;
       desplaza mientras se hace scroll invita a fallar el clic, y aquí el
       objetivo de pulsación es el cartel entero.
     */
-    }
-    <div class="case__frame" data-fx="scale">
-      {
-        data.vimeo ? (
-          <VimeoPlayer
-            id={data.vimeo}
-            poster={data.image}
-            posterAlt={data.imageAlt}
-            title={data.campaign || data.title}
-          />
-        ) : (
-          /* `vimeo` is optional in the schema and all 19 cases carry one
+      }
+      <div class="case__frame" data-fx="scale">
+        {
+          data.vimeo ? (
+            <VimeoPlayer
+              id={data.vimeo}
+              poster={data.image}
+              posterAlt={data.imageAlt}
+              title={data.campaign || data.title}
+            />
+          ) : (
+            /* `vimeo` is optional in the schema and all 19 cases carry one
              today, but a new case can arrive without a film. Then the section
              falls back to the key visual, which is what used to be there. */
-          <Image
-            src={data.image}
-            alt={data.imageAlt}
-            widths={[600, 1200, 1800]}
-            sizes="(max-width: 60rem) 100vw, 1200px"
-            loading="eager"
-            class="case__visual"
+            <Image
+              src={data.image}
+              alt={data.imageAlt}
+              widths={[600, 1200, 1800]}
+              sizes="(max-width: 60rem) 100vw, 1200px"
+              loading="eager"
+              class="case__visual"
+            />
+          )
+        }
+      </div>
+
+      <section class="description" aria-labelledby="desc-title">
+        <h2 id="desc-title" class="description__title" data-fx="up">La campaña</h2>
+
+        {
+          data.description && (
+            <p class="description__lead" data-fx="up" data-fx-delay="80">
+              {data.description}
+            </p>
+          )
+        }
+
+        <div class="case__body" data-fx="up" data-fx-delay="140">
+          <Content />
+        </div>
+
+        {
+          data.credits.length > 0 && (
+            <ul class="credits" data-fx-stagger>
+              {data.credits.map((c) => (
+                <li>
+                  <span class="credits__role">{c.role}</span>
+                  <span class="credits__name">{c.name}</span>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </section>
+
+      {
+        data.collage && (
+          <Collage
+            title={data.collage.title}
+            images={data.collage.images}
+            alt={data.collage.alt}
+            caption={data.collage.caption}
           />
         )
       }
-    </div>
-
-    <section class="description" aria-labelledby="desc-title">
-      <h2 id="desc-title" class="description__title" data-fx="up">La campaña</h2>
 
       {
-        data.description && (
-          <p class="description__lead" data-fx="up" data-fx-delay="80">
-            {data.description}
-          </p>
-        )
-      }
-
-      <div class="case__body" data-fx="up" data-fx-delay="140">
-        <Content />
-      </div>
-
-      {
-        data.credits.length > 0 && (
-          <ul class="credits" data-fx-stagger>
-            {data.credits.map((c) => (
-              <li>
-                <span class="credits__role">{c.role}</span>
-                <span class="credits__name">{c.name}</span>
-              </li>
-            ))}
-          </ul>
-        )
-      }
-    </section>
-
-    {
-      data.collage && (
-        <Collage
-          title={data.collage.title}
-          images={data.collage.images}
-          alt={data.collage.alt}
-          caption={data.collage.caption}
-        />
-      )
-    }
-
-    {
-      /* Flexible blocks: image strips, quotes, figures, text and video. They
+        /* Flexible blocks: image strips, quotes, figures, text and video. They
         alternate the entrance side, like the global site. */
-    }
-    {
-      data.blocks.map((block, i) => (
-        <CaseBlock block={block} side={i % 2 === 0 ? 'left' : 'right'} />
-      ))
-    }
+      }
+      {
+        data.blocks.map((block, i) => (
+          <CaseBlock block={block} side={i % 2 === 0 ? 'left' : 'right'} />
+        ))
+      }
 
-    <dl class="facts" data-fx-stagger>
-      <div><dt>Cliente</dt><dd>{data.client}</dd></div>
-      <div><dt>Marca</dt><dd>{data.brand}</dd></div>
-      {
-        data.year && (
-          <div>
-            <>
-              <dt>Año</dt>
-              <dd>{data.year}</dd>
-            </>
-          </div>
-        )
-      }
-      {
-        data.industry && (
-          <div>
-            <>
-              <dt>Industria</dt>
-              <dd>{data.industry}</dd>
-            </>
-          </div>
-        )
-      }
-      {
-        data.capabilities.length > 0 && (
-          <div>
-            <>
-              <dt>Capacidades</dt>
-              <dd>{data.capabilities.join(', ')}</dd>
-            </>
-          </div>
-        )
-      }
-      {
-        data.awards.length > 0 && (
-          <div>
-            <>
-              <dt>Premios</dt>
-              <dd>{data.awards.join(' · ')}</dd>
-            </>
-          </div>
-        )
-      }
-    </dl>
-
-    <section class="more" aria-labelledby="more-title">
-      <h2 id="more-title" data-fx="up">Más The Work</h2>
-      <ul class="more__list">
+      <dl class="facts" data-fx-stagger>
+        <div><dt>Cliente</dt><dd>{data.client}</dd></div>
+        <div><dt>Marca</dt><dd>{data.brand}</dd></div>
         {
-          related.map((otro, i) => (
-            <li data-fx={i % 2 === 0 ? 'left' : 'right'} data-fx-scrub>
-              <a href={`/the-work/${otro.id}/`}>
-                <Image
-                  src={otro.data.image}
-                  alt={otro.data.imageAlt}
-                  widths={[400, 800]}
-                  sizes="(max-width: 40rem) 100vw, 33vw"
-                  loading="lazy"
-                />
-                <h3>{otro.data.brand}</h3>
-                <p>{otro.data.campaign}</p>
-              </a>
-            </li>
-          ))
+          data.year && (
+            <div>
+              <>
+                <dt>Año</dt>
+                <dd>{data.year}</dd>
+              </>
+            </div>
+          )
         }
-      </ul>
-    </section>
+        {
+          data.industry && (
+            <div>
+              <>
+                <dt>Industria</dt>
+                <dd>{data.industry}</dd>
+              </>
+            </div>
+          )
+        }
+        {
+          data.capabilities.length > 0 && (
+            <div>
+              <>
+                <dt>Capacidades</dt>
+                <dd>{data.capabilities.join(', ')}</dd>
+              </>
+            </div>
+          )
+        }
+        {
+          data.awards.length > 0 && (
+            <div>
+              <>
+                <dt>Premios</dt>
+                <dd>{data.awards.join(' · ')}</dd>
+              </>
+            </div>
+          )
+        }
+      </dl>
+
+      <section class="more" aria-labelledby="more-title">
+        <h2 id="more-title" data-fx="up">Más The Work</h2>
+        <ul class="more__list">
+          {
+            related.map((otro, i) => (
+              <li data-fx={i % 2 === 0 ? 'left' : 'right'} data-fx-scrub>
+                <a href={`/the-work/${otro.id}/`}>
+                  <Image
+                    src={otro.data.image}
+                    alt={otro.data.imageAlt}
+                    widths={[400, 800]}
+                    sizes="(max-width: 40rem) 100vw, 33vw"
+                    loading="lazy"
+                  />
+                  <h3>{otro.data.brand}</h3>
+                  <p>{otro.data.campaign}</p>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+    </div>
 
     <ScrollFX />
   </main>
@@ -307,15 +329,44 @@ if (data.awards.length) jsonLd.award = data.awards;
        enough on its own. */
     color: var(--color-fg);
     padding-inline: var(--gutter);
-    padding-block: var(--space-xl);
     max-width: var(--max-width);
     margin-inline: auto;
   }
 
-  /* The background lives on a full-width pseudo-element and not on .case:
-     .case is capped by max-width and its background let the banner show at the
-     sides. */
-  .case::before {
+  /* THE BANNER HAS TO ESCAPE THIS SHELL
+     VideoBanner is full-bleed by contract — its own docstring says so — but
+     this <main> is not: it carries the page gutter, the top padding and the
+     90rem cap. Left inside them the banner sat 72px in from each side and 64px
+     down, so every case opened with the video framed by a border of the case's
+     own theme colour. On the light themes that border is cream, and the
+     header's white logo landed on it and all but disappeared. The home page
+     never showed this because its <main> has no padding, so the banner filled
+     it by accident rather than by rule.
+
+     Same escape .band and .wall__frame use. 100vw includes the scrollbar, so
+     the section runs about 7px under it on each side; html and body carry
+     overflow-x: clip, which is what keeps that from adding a second scrollbar.
+     :global because .banner belongs to VideoBanner's scope, not this page's. */
+  .case > :global(.banner) {
+    width: 100vw;
+    margin-inline: calc(50% - 50vw);
+  }
+
+  /* z-index 1 puts this whole block above the sticky banner, which sits at 0.
+     The vertical padding lives here and not on .case so that the background
+     below covers it: on .case the bottom strip fell outside and showed the
+     body's paper through a dark case. */
+  .case__shell {
+    position: relative;
+    z-index: 1;
+    padding-block: var(--space-xl);
+  }
+
+  /* The background is a full-width pseudo-element and not a background on
+     .case__shell itself, because .case is capped by max-width and the gutter:
+     painted there it stopped at the content edge and let the banner show down
+     both sides. */
+  .case__shell::before {
     content: '';
     position: absolute;
     inset: 0;

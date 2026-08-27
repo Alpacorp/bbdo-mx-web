@@ -144,9 +144,12 @@ const uidTall = `${uid}-movil`;
 
 <style>
   .banner {
-    /* sticky and not fixed: same "content scrolls over it" effect,
-       without taking the section out of flow or needing a spacer. The
-       contenido posterior va envuelto con z-index mayor y fondo solido. */
+    /* sticky and not fixed: same "content scrolls over it" effect, without
+       taking the section out of flow or needing a spacer. It only works if
+       whatever follows rides in its own stacking context above this one, on an
+       opaque background — see .case__shell on the case page. A plain block
+       after this section paints UNDERNEATH it, because this one is positioned
+       and that one is not. */
     position: sticky;
     top: 0;
     z-index: 0;
@@ -430,7 +433,7 @@ const uidTall = `${uid}-movil`;
    */
   const VB_W = 1440,
     VB_H = 750;
-  const CELL_WIDTH = 816.525 - 623.552; // window entre panel izquierdo y derecho
+  const CELL_WIDTH = 816.525 - 623.552; // gap between the left and right panels
   const DIAMETER = 178.684;
 
   function adjustCircle() {
