@@ -38,14 +38,14 @@ const everyone = (await getCollection('people')).sort(
 );
 ---
 
-<section class="muro" aria-hidden="true">
-  <div class="muro__marco">
-    <ul class="muro__rejilla">
+<section class="wall" aria-hidden="true">
+  <div class="wall__frame">
+    <ul class="wall__grid">
       {
         everyone.map(async (person, i) => {
           const img = (await portraitOf(person.data.photo)).default;
           return (
-            <li class="muro__cara" data-nombre={person.data.name} data-cargo={person.data.role}>
+            <li class="wall__face" data-name={person.data.name} data-role={person.data.role}>
               <Image
                 src={img}
                 alt=""
@@ -64,13 +64,13 @@ const everyone = (await getCollection('people')).sort(
   {
     /* The <small> is in the markup and not created by the script on purpose.
        It was built with document.createElement, and an element made that way
-       carries no data-astro-cid, so Astro's scoped `.muro__etiqueta small`
+       carries no data-astro-cid, so Astro's scoped `.wall__label small`
        rule — which compiles with that attribute on BOTH sides — never matched
        it. The role ran on into the name with no line break and no styling. */
   }
-  <p class="muro__etiqueta" data-muro-etiqueta>
-    <span data-muro-nombre></span>
-    <small data-muro-cargo></small>
+  <p class="wall__label" data-wall-label>
+    <span data-wall-name></span>
+    <small data-wall-role></small>
   </p>
 </section>
 
@@ -79,7 +79,7 @@ const everyone = (await getCollection('people')).sort(
      gutter; only the frame breaks out to full bleed. Bleeding the whole section
      put the label 8px off from the heading below it — half a scrollbar, because
      100vw includes it and the content column does not. */
-  .muro {
+  .wall {
     max-width: var(--max-width);
     margin-inline: auto;
   }
@@ -87,7 +87,7 @@ const everyone = (await getCollection('people')).sort(
   /* The crop and the fade live on the frame, not on the section. A mask applies
      to everything inside the element it is set on, so with it one level up the
      label faded out along with the faces it was meant to name. */
-  .muro__marco {
+  .wall__frame {
     width: 100vw;
     margin-inline: calc(50% - 50vw);
     background: var(--color-dark); /* shows through the 1px gaps */
@@ -99,7 +99,7 @@ const everyone = (await getCollection('people')).sort(
     mask-image: linear-gradient(to bottom, #000 72%, transparent);
   }
 
-  .muro__rejilla {
+  .wall__grid {
     list-style: none;
     margin: 0;
     padding: 0;
@@ -115,14 +115,14 @@ const everyone = (await getCollection('people')).sort(
     gap: 1px; /* the band showing through, like the client wall */
   }
 
-  .muro__cara {
+  .wall__face {
     position: relative;
     /* The source portraits are 800x1033. */
     aspect-ratio: 800 / 1033;
     overflow: hidden;
     background: var(--color-dark-alt);
   }
-  .muro__cara img {
+  .wall__face img {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -136,7 +136,7 @@ const everyone = (await getCollection('people')).sort(
   }
 
   @media (hover: hover) {
-    .muro__cara:hover img {
+    .wall__face:hover img {
       filter: grayscale(0%) contrast(1) brightness(1);
       transform: scale(1.08);
     }
@@ -150,7 +150,7 @@ const everyone = (await getCollection('people')).sort(
 
      The height is reserved whether or not anything is named, so the page does
      not jump every time the pointer enters or leaves the wall. */
-  .muro__etiqueta {
+  .wall__label {
     /* Pointer devices only. Naming a face is a hover idiom, and there is no
        honest way to translate it to a tap: on a phone the wall is the picture
        and the roster below it — searchable, with every name and role — is the
@@ -175,14 +175,14 @@ const everyone = (await getCollection('people')).sort(
     transition: opacity var(--dur-fast) var(--ease);
   }
   @media (hover: hover) {
-    .muro__etiqueta {
+    .wall__label {
       display: block;
     }
   }
-  .muro__etiqueta[data-visible] {
+  .wall__label[data-visible] {
     opacity: 1;
   }
-  .muro__etiqueta small {
+  .wall__label small {
     display: block;
     font-family: var(--font-ui);
     font-weight: 400;
@@ -193,8 +193,8 @@ const everyone = (await getCollection('people')).sort(
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .muro__cara img,
-    .muro__etiqueta {
+    .wall__face img,
+    .wall__label {
       transition: none;
     }
   }
@@ -214,29 +214,29 @@ const everyone = (await getCollection('people')).sort(
        drag to update an element nobody can see. */
     if (!window.matchMedia('(hover: hover)').matches) return;
 
-    const muro = document.querySelector<HTMLElement>('.muro');
-    const etiqueta = muro?.querySelector<HTMLElement>('[data-muro-etiqueta]');
-    if (!muro || !etiqueta) return;
+    const wall = document.querySelector<HTMLElement>('.wall');
+    const label = wall?.querySelector<HTMLElement>('[data-wall-label]');
+    if (!wall || !label) return;
 
-    const nombre = etiqueta.querySelector<HTMLElement>('[data-muro-nombre]');
-    const cargo = etiqueta.querySelector<HTMLElement>('[data-muro-cargo]');
-    if (!nombre || !cargo) return;
+    const name = label.querySelector<HTMLElement>('[data-wall-name]');
+    const role = label.querySelector<HTMLElement>('[data-wall-role]');
+    if (!name || !role) return;
 
-    const mostrar = (event: PointerEvent) => {
-      const cara = (event.target as HTMLElement).closest<HTMLElement>('.muro__cara');
-      if (!cara) return;
-      nombre.textContent = cara.dataset.nombre ?? '';
-      cargo.textContent = cara.dataset.cargo ?? '';
-      etiqueta.setAttribute('data-visible', '');
+    const show = (event: PointerEvent) => {
+      const face = (event.target as HTMLElement).closest<HTMLElement>('.wall__face');
+      if (!face) return;
+      name.textContent = face.dataset.name ?? '';
+      role.textContent = face.dataset.role ?? '';
+      label.setAttribute('data-visible', '');
     };
-    const ocultar = () => etiqueta.removeAttribute('data-visible');
+    const hide = () => label.removeAttribute('data-visible');
 
-    muro.addEventListener('pointermove', mostrar);
-    muro.addEventListener('pointerleave', ocultar);
+    wall.addEventListener('pointermove', show);
+    wall.addEventListener('pointerleave', hide);
 
     return () => {
-      muro.removeEventListener('pointermove', mostrar);
-      muro.removeEventListener('pointerleave', ocultar);
+      wall.removeEventListener('pointermove', show);
+      wall.removeEventListener('pointerleave', hide);
     };
   });
 </script>

@@ -1,0 +1,169 @@
+---
+/**
+ * KineticBand.astro — the platform, repeated until it becomes a texture.
+ *
+ * The global site runs "DO BIG THINGS" across the page twice over, once solid
+ * and once in outline, and the audit listed it among the devices this
+ * migration had not taken. It costs no asset and no copy: the phrase is
+ * already the spine of the site — the banner splits it across two corners, the
+ * headline says it in full — and this is the third beat.
+ *
+ * IT MOVES WITH THE SCROLL, NOT WITH A CLOCK
+ *   A marquee on a timer runs whether or not anyone is looking, which is
+ *   battery for nothing and motion nobody asked for. Tied to `view()` the two
+ *   rows only travel while the band is crossing the viewport, they travel
+ *   exactly as far as the reader scrolls, and stopping the scroll stops them.
+ *   Same mechanism ScrollFX already uses for its parallax, same @supports
+ *   guard: where scroll-driven animations do not exist the band is simply
+ *   still, which is a perfectly good band.
+ *
+ * WHY IT IS aria-hidden
+ *   "Do Big Things" is real text in the headline above. Here it is the same
+ *   three words twelve times, and a screen reader reading them twelve times is
+ *   noise — as is handing a search engine the phrase a dozen times in a row.
+ *   The repetition is a texture, and textures are decorative.
+ */
+import { PLATFORM } from '../platform';
+
+interface Props {
+  /**
+   * The phrase. Defaults to the platform, which is what this band is for; the
+   * prop is here so the band can carry something else without being rewritten.
+   * Title case: the caps come from CSS, like the headline's.
+   */
+  text?: string;
+}
+
+const { text = PLATFORM } = Astro.props;
+
+/**
+ * How many copies fill a row, worked out from the phrase rather than fixed.
+ *
+ * A row travels a quarter of its own width, so the content has to span at
+ * least 1.33 screens or the tail pulls an empty gap into view at the end of
+ * the run. Six copies happened to be right for "Do Big Things"; they would not
+ * be for a shorter phrase, and this band is meant to outlive the campaign that
+ * is in it — the text is a prop precisely so the next platform can take its
+ * place without anyone reopening this file.
+ *
+ * 93px per character is the advance of one uppercase character of Outfit 700 at
+ * the band's 10rem cap, measured off the rendered row, not looked up. Spaces
+ * are narrower, so counting them the same way only adds slack. 2560 is the
+ * widest screen worth designing for and the 1.4 is margin on top of the 1.33
+ * the arithmetic demands.
+ */
+const CHAR_ADVANCE = 93;
+const WIDEST_SCREEN = 2560;
+const copies = Array.from(
+  {
+    length: Math.max(
+      4,
+      Math.ceil((WIDEST_SCREEN * 1.4) / (Math.max(1, text.length) * CHAR_ADVANCE))
+    ),
+  },
+  (_, i) => i
+);
+---
+
+<section class="band" aria-hidden="true">
+  <div class="band__row band__row--solid">
+    {copies.map(() => <span>{text}</span>)}
+  </div>
+  <div class="band__row band__row--outline">
+    {copies.map(() => <span>{text}</span>)}
+  </div>
+</section>
+
+<style>
+  .band {
+    width: 100vw;
+    margin-inline: calc(50% - 50vw);
+    padding-block: var(--space-xl);
+    background: var(--color-dark);
+    /* clip and NOT hidden. `hidden` makes this a scroll container, and then
+       view() on the rows inside resolves against THIS box instead of the page:
+       the timeline never advances because the band never scrolls, and the two
+       rows sit frozen at whatever progress they were born with. `clip` crops
+       without creating a scrollport. Base.astro carries the same note about
+       html and body for the same reason. */
+    overflow: clip;
+  }
+
+  .band__row {
+    display: flex;
+    width: max-content;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(3.5rem, 11vw, 10rem);
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+    /* The gap is the word space between one copy and the next: a margin would
+       collapse at the ends and leave the two rows out of step. */
+    gap: 0.35em;
+  }
+
+  .band__row--solid {
+    color: var(--color-on-dark);
+  }
+
+  /* Outline and not a second solid row: two filled lines of this size read as a
+     wall of type, and the point is that the phrase is one thing said twice.
+     It is also the device the global site uses.
+
+     KNOWN FALSE POSITIVE IN axe. It reports these five spans at 1.04:1, reading
+     #ffffff on #fafafa — both wrong. axe has no support for -webkit-text-stroke,
+     so it measures the knocked-out fill instead of the ink, and it misresolves
+     the background through the transformed, clipped row. Sampled off the
+     rendered pixels the stroke is #ff0000 on #161616: 4.53:1, against the 3:1
+     this size asks for. Declaring `color` red instead of transparent was tried
+     and does not move it — axe reads -webkit-text-fill-color too.
+
+     The declaration stays red anyway, because that is the truer statement about
+     what colour this text is. If a clean audit report ever matters more than
+     matching the global device, making this row solid red instead of outlined
+     is a one-line change and axe measures it correctly.
+
+     Only the -webkit- form exists; `text-stroke` was never standardised. */
+  .band__row--outline {
+    color: var(--color-red);
+    -webkit-text-fill-color: transparent;
+    -webkit-text-stroke: 2px var(--color-red);
+  }
+
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .band__row {
+        animation: linear both;
+        animation-timeline: view();
+        animation-range: entry 0% exit 100%;
+      }
+      .band__row--solid {
+        animation-name: rowLeft;
+      }
+      .band__row--outline {
+        animation-name: rowRight;
+      }
+    }
+  }
+
+  /* Opposite directions, and each starts where the other ends: the two rows
+     pass each other, which is what makes the band read as motion rather than
+     as a slide. */
+  @keyframes rowLeft {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-25%);
+    }
+  }
+  @keyframes rowRight {
+    from {
+      transform: translateX(-25%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+</style>

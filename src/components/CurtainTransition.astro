@@ -12,7 +12,7 @@
  *   artwork morphs into the case's banner — and a red curtain over the top
  *   would hide the better of the two. So the curtain is for navigation that
  *   has no story of its own: the menu, the footer, the section links. The rule
- *   is one line in `usaCortina` below, driven by what was clicked.
+ *   is one line in `usesCurtain` below, driven by what was clicked.
  *
  * HOW IT HOLDS THE SWAP
  *   Astro hands `astro:before-preparation` a `loader`, and whatever replaces it
@@ -34,56 +34,56 @@
 import { CURTAIN_WIDE, CURTAIN_TALL } from '../curtain';
 ---
 
-<div class="cortina" data-cortina transition:persist="cortina" aria-hidden="true" hidden>
+<div class="curtain" data-curtain transition:persist="curtain" aria-hidden="true" hidden>
   <svg
-    class="cortina__svg cortina__svg--wide"
+    class="curtain__svg curtain__svg--wide"
     viewBox={CURTAIN_WIDE.viewBox}
     preserveAspectRatio="none"
     focusable="false"
   >
     <defs>
-      <mask id="cortina-wide">
+      <mask id="curtain-wide">
         <rect width="1440" height="750" fill="white"></rect>
-        <path class="ventana ventana--left" d={CURTAIN_WIDE.window.left} fill="black"></path>
-        <path class="ventana ventana--top" d={CURTAIN_WIDE.window.top} fill="black"></path>
-        <path class="ventana ventana--bottom" d={CURTAIN_WIDE.window.bottom} fill="black"></path>
-        <path class="ventana ventana--right" d={CURTAIN_WIDE.window.right} fill="black"></path>
+        <path class="window window--left" d={CURTAIN_WIDE.window.left} fill="black"></path>
+        <path class="window window--top" d={CURTAIN_WIDE.window.top} fill="black"></path>
+        <path class="window window--bottom" d={CURTAIN_WIDE.window.bottom} fill="black"></path>
+        <path class="window window--right" d={CURTAIN_WIDE.window.right} fill="black"></path>
       </mask>
     </defs>
     <rect
       width="1440"
       height="750"
       fill="var(--color-red)"
-      mask="url(#cortina-wide)"
+      mask="url(#curtain-wide)"
       shape-rendering="crispEdges"></rect>
   </svg>
 
   <svg
-    class="cortina__svg cortina__svg--tall"
+    class="curtain__svg curtain__svg--tall"
     viewBox={CURTAIN_TALL.viewBox}
     preserveAspectRatio="none"
     focusable="false"
   >
     <defs>
-      <mask id="cortina-tall">
+      <mask id="curtain-tall">
         <rect width="359" height="526" fill="white"></rect>
-        <path class="ventana ventana--left" d={CURTAIN_TALL.window.left} fill="black"></path>
-        <path class="ventana ventana--top" d={CURTAIN_TALL.window.top} fill="black"></path>
-        <path class="ventana ventana--bottom" d={CURTAIN_TALL.window.bottom} fill="black"></path>
-        <path class="ventana ventana--right" d={CURTAIN_TALL.window.right} fill="black"></path>
+        <path class="window window--left" d={CURTAIN_TALL.window.left} fill="black"></path>
+        <path class="window window--top" d={CURTAIN_TALL.window.top} fill="black"></path>
+        <path class="window window--bottom" d={CURTAIN_TALL.window.bottom} fill="black"></path>
+        <path class="window window--right" d={CURTAIN_TALL.window.right} fill="black"></path>
       </mask>
     </defs>
     <rect
       width="359"
       height="526"
       fill="var(--color-red)"
-      mask="url(#cortina-tall)"
+      mask="url(#curtain-tall)"
       shape-rendering="crispEdges"></rect>
   </svg>
 </div>
 
 <style>
-  .cortina {
+  .curtain {
     position: fixed;
     inset: 0;
     /* The stack on this site runs 0, 1, 2 and 10 for the header. 100 clears
@@ -91,30 +91,30 @@ import { CURTAIN_WIDE, CURTAIN_TALL } from '../curtain';
     z-index: 100;
     pointer-events: none;
   }
-  .cortina[hidden] {
+  .curtain[hidden] {
     display: none;
   }
 
-  .cortina__svg {
+  .curtain__svg {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
   }
   /* Same breakpoint the banner uses to choose between the two masks. */
-  .cortina__svg--wide {
+  .curtain__svg--wide {
     display: none;
   }
   @media (min-width: 64rem), (orientation: landscape) {
-    .cortina__svg--tall {
+    .curtain__svg--tall {
       display: none;
     }
-    .cortina__svg--wide {
+    .curtain__svg--wide {
       display: block;
     }
   }
 
-  .ventana {
+  .window {
     transform-box: view-box;
     transform-origin: 0 0;
   }
@@ -123,41 +123,41 @@ import { CURTAIN_WIDE, CURTAIN_TALL } from '../curtain';
      viewBox is 1440x750 and the tall one 359x526, so a panel has to clear its
      own edge in its own units — that is the only thing that differs between
      the two masks, and it belongs on the element, not in a separate animation. */
-  .ventana--left {
+  .window--left {
     --dx: -800px;
     --dy: 0;
   }
-  .ventana--right {
+  .window--right {
     --dx: 800px;
     --dy: 0;
   }
-  .ventana--top {
+  .window--top {
     --dx: 0;
     --dy: -200px;
   }
-  .ventana--bottom {
+  .window--bottom {
     --dx: 0;
     --dy: 800px;
   }
-  .cortina__svg--tall .ventana--left {
+  .curtain__svg--tall .window--left {
     --dx: -260px;
   }
-  .cortina__svg--tall .ventana--right {
+  .curtain__svg--tall .window--right {
     --dx: 260px;
   }
-  .cortina__svg--tall .ventana--top {
+  .curtain__svg--tall .window--top {
     --dy: -120px;
   }
-  .cortina__svg--tall .ventana--bottom {
+  .curtain__svg--tall .window--bottom {
     --dy: 560px;
   }
 
-  @keyframes ventanaSale {
+  @keyframes windowOut {
     to {
       transform: translate(var(--dx), var(--dy));
     }
   }
-  @keyframes ventanaEntra {
+  @keyframes windowIn {
     from {
       transform: translate(var(--dx), var(--dy));
     }
@@ -172,14 +172,14 @@ import { CURTAIN_WIDE, CURTAIN_TALL } from '../curtain';
      that state is not invisible: it is the 16px red frame plus the brand marks.
      Appearing on frame one would read as a glitch, so the whole overlay fades
      in over the first third while the panels are already moving. */
-  .cortina[data-fase='cerrando'] {
-    animation: cortinaEntra 240ms linear both;
+  .curtain[data-phase='closing'] {
+    animation: curtainIn 240ms linear both;
   }
-  .cortina[data-fase='cerrando'] .ventana {
-    animation: ventanaSale 240ms cubic-bezier(0.7, 0, 0.84, 0) both;
+  .curtain[data-phase='closing'] .window {
+    animation: windowOut 240ms cubic-bezier(0.7, 0, 0.84, 0) both;
   }
-  .cortina[data-fase='cerrando'] .ventana--top,
-  .cortina[data-fase='cerrando'] .ventana--bottom {
+  .curtain[data-phase='closing'] .window--top,
+  .curtain[data-phase='closing'] .window--bottom {
     animation-duration: 220ms;
     animation-delay: 20ms;
   }
@@ -188,19 +188,19 @@ import { CURTAIN_WIDE, CURTAIN_TALL } from '../curtain';
      The panels return to their places and the overlay fades out over the last
      stretch, for the same reason it faded in: the resting state is a red frame,
      and the page underneath should be left clean. */
-  .cortina[data-fase='abriendo'] {
-    animation: cortinaSale 380ms linear both;
+  .curtain[data-phase='opening'] {
+    animation: curtainOut 380ms linear both;
   }
-  .cortina[data-fase='abriendo'] .ventana {
-    animation: ventanaEntra 380ms var(--ease) both;
+  .curtain[data-phase='opening'] .window {
+    animation: windowIn 380ms var(--ease) both;
   }
-  .cortina[data-fase='abriendo'] .ventana--top,
-  .cortina[data-fase='abriendo'] .ventana--bottom {
+  .curtain[data-phase='opening'] .window--top,
+  .curtain[data-phase='opening'] .window--bottom {
     animation-duration: 340ms;
     animation-delay: 40ms;
   }
 
-  @keyframes cortinaEntra {
+  @keyframes curtainIn {
     from {
       opacity: 0;
     }
@@ -208,7 +208,7 @@ import { CURTAIN_WIDE, CURTAIN_TALL } from '../curtain';
       opacity: 1;
     }
   }
-  @keyframes cortinaSale {
+  @keyframes curtainOut {
     70% {
       opacity: 1;
     }
@@ -219,7 +219,7 @@ import { CURTAIN_WIDE, CURTAIN_TALL } from '../curtain';
 </style>
 
 <script>
-  const cortina = () => document.querySelector<HTMLElement>('[data-cortina]');
+  const curtain = () => document.querySelector<HTMLElement>('[data-curtain]');
 
   /**
    * The curtain is for navigation that has no story of its own.
@@ -233,12 +233,12 @@ import { CURTAIN_WIDE, CURTAIN_TALL } from '../curtain';
    * the curtain and got no morph either, because news cards do not have one.
    * A shared class name is a coincidence; an attribute is a statement.
    */
-  function usaCortina(origen: Element | null | undefined): boolean {
+  function usesCurtain(source: Element | null | undefined): boolean {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
-    return !origen?.closest('[data-morph]');
+    return !source?.closest('[data-morph]');
   }
 
-  const espera = (ms: number) => new Promise((r) => setTimeout(r, ms));
+  const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
   /**
    * Resolves when the overlay's animations have finished.
@@ -249,46 +249,46 @@ import { CURTAIN_WIDE, CURTAIN_TALL } from '../curtain';
    * cancelled — a second navigation starting mid-flight — rejects, and that is
    * a reason to carry on, not to stop.
    */
-  function finDeAnimaciones(el: HTMLElement): Promise<unknown> {
+  function animationsSettled(el: HTMLElement): Promise<unknown> {
     /* The race is a safety net, not a timing choice. A decoration must never
        be able to hold a navigation open: if an animation is somehow never
        going to end, the page still arrives. */
     return Promise.race([
       Promise.allSettled(el.getAnimations({ subtree: true }).map((a) => a.finished)),
-      espera(1000),
+      wait(1000),
     ]);
   }
 
-  function fase(el: HTMLElement, valor: string | null) {
-    if (valor === null) el.removeAttribute('data-fase');
-    else el.setAttribute('data-fase', valor);
+  function phase(el: HTMLElement, valor: string | null) {
+    if (valor === null) el.removeAttribute('data-phase');
+    else el.setAttribute('data-phase', valor);
   }
 
   document.addEventListener('astro:before-preparation', (event) => {
-    const el = cortina();
-    if (!el || !usaCortina(event.sourceElement)) return;
+    const el = curtain();
+    if (!el || !usesCurtain(event.sourceElement)) return;
 
-    const cargar = event.loader;
+    const load = event.loader;
     event.loader = async () => {
       el.hidden = false;
-      fase(el, 'cerrando');
+      phase(el, 'closing');
       // Flush styles so the animations exist before they are asked for; read
       // straight after setting the attribute or getAnimations comes back empty
       // and the curtain snaps shut instead of closing.
       el.getBoundingClientRect();
-      await Promise.all([finDeAnimaciones(el), cargar()]);
+      await Promise.all([animationsSettled(el), load()]);
     };
   });
 
   document.addEventListener('astro:after-swap', () => {
-    const el = cortina();
+    const el = curtain();
     if (!el || el.hidden) return;
-    fase(el, 'abriendo');
+    phase(el, 'opening');
     el.getBoundingClientRect();
-    finDeAnimaciones(el).then(() => {
+    animationsSettled(el).then(() => {
       // Only tidy up if nothing has started a new navigation in the meantime.
-      if (el.getAttribute('data-fase') !== 'abriendo') return;
-      fase(el, null);
+      if (el.getAttribute('data-phase') !== 'opening') return;
+      phase(el, null);
       el.hidden = true;
     });
   });

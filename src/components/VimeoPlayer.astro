@@ -1,43 +1,42 @@
 ---
 /**
- * VimeoPlayer.astro — el video de la campaña, donde tiene que estar.
+ * VimeoPlayer.astro — the campaign's film, where it belongs.
  *
- * POR QUÉ NO SE INCRUSTA EL IFRAME DIRECTAMENTE
- *   Un iframe de Vimeo arrastra cerca de un megabyte de JavaScript de terceros
- *   y empieza a hablar con sus servidores antes de que nadie le haya dado al
- *   play. En una página de caso eso es peso y seguimiento para el 90% de la
- *   gente que nunca reproduce el video.
+ * WHY THE IFRAME IS NOT EMBEDDED DIRECTLY
+ *   A Vimeo iframe drags in close to a megabyte of third-party JavaScript and
+ *   starts talking to their servers before anyone has pressed play. On a case
+ *   page that is weight and tracking for the 90% of visitors who never watch.
  *
- *   Así que primero se pinta una fachada: el key visual, que ya es el
- *   fotograma que Vimeo usa como miniatura, y un botón. El iframe se crea al
- *   pulsar, con autoplay, y para entonces es exactamente lo que la persona
- *   pidió. La página sigue pesando lo que pesaba.
+ *   So a facade is painted first: the key visual — which is already the frame
+ *   Vimeo uses as its thumbnail — and a button. The iframe is built on click,
+ *   with autoplay, and by then it is exactly what the person asked for. The
+ *   page still weighs what it weighed.
  *
- * SIN JAVASCRIPT
- *   El botón no existe y en su lugar hay un enlace al video en Vimeo. Se
- *   pierde la reproducción incrustada, no el acceso al video.
+ * WITHOUT JAVASCRIPT
+ *   The button does not exist and a link to the film on Vimeo takes its place.
+ *   What is lost is the embedded playback, not access to the film.
  *
- * dnt=1 le pide a Vimeo que no rastree. No es opcional en una página que
- * enlaza su propio aviso de privacidad.
+ * dnt=1 asks Vimeo not to track. That is not optional on a page that links to
+ * its own privacy notice.
  */
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 
 interface Props {
-  /** Id numérico de Vimeo, tal como está en el front matter del caso. */
+  /** Vimeo's numeric id, exactly as it sits in the case's front matter. */
   id: string;
   poster: ImageMetadata;
   posterAlt: string;
-  /** Se usa en el título del iframe y en la etiqueta del botón. */
+  /** Used in the iframe's title and in the button's label. */
   title: string;
 }
 
 const { id, poster, posterAlt, title } = Astro.props;
 ---
 
-<figure class="pelicula" data-vimeo={id} data-vimeo-title={title}>
+<figure class="player" data-vimeo={id} data-vimeo-title={title}>
   <Image
-    class="pelicula__poster"
+    class="player__poster"
     src={poster}
     alt={posterAlt}
     widths={[600, 1200, 1800]}
@@ -45,28 +44,28 @@ const { id, poster, posterAlt, title } = Astro.props;
     loading="eager"
   />
 
-  <button class="pelicula__play" type="button">
-    <span class="pelicula__icono" aria-hidden="true"></span>
-    <span class="pelicula__texto">Ver el video<span class="sr-only"> de {title}</span></span>
+  <button class="player__play" type="button">
+    <span class="player__icon" aria-hidden="true"></span>
+    <span class="player__text">Ver el video<span class="sr-only"> de {title}</span></span>
   </button>
 
   <noscript>
-    <a class="pelicula__enlace" href={`https://vimeo.com/${id}`} rel="noopener">
+    <a class="player__link" href={`https://vimeo.com/${id}`} rel="noopener">
       Ver el video en Vimeo
     </a>
   </noscript>
 </figure>
 
 <style>
-  .pelicula {
+  .player {
     position: relative;
     margin: 0;
     aspect-ratio: 16 / 9;
     overflow: hidden;
     background: var(--color-dark);
   }
-  .pelicula :global(img),
-  .pelicula :global(iframe) {
+  .player :global(img),
+  .player :global(iframe) {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -74,13 +73,13 @@ const { id, poster, posterAlt, title } = Astro.props;
     border: 0;
     display: block;
   }
-  .pelicula :global(img) {
+  .player :global(img) {
     object-fit: cover;
   }
 
-  /* El botón cubre el póster entero: en un cartel de video, el objetivo es el
-     cartel, no un círculo de 48px en medio. */
-  .pelicula__play {
+  /* The button covers the whole poster: on a film's title card the target is
+     the card, not a 48px circle in the middle of it. */
+  .player__play {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -95,17 +94,17 @@ const { id, poster, posterAlt, title } = Astro.props;
     cursor: pointer;
     transition: background var(--dur-base) var(--ease);
   }
-  .pelicula__play:hover,
-  .pelicula__play:focus-visible {
+  .player__play:hover,
+  .player__play:focus-visible {
     background: rgb(22 22 22 / 45%);
   }
-  .pelicula__play:focus-visible {
+  .player__play:focus-visible {
     outline: 3px solid var(--color-red);
     outline-offset: -3px;
   }
 
-  /* Un triángulo hecho con bordes: sin fuente de iconos y sin SVG que cargar. */
-  .pelicula__icono {
+  /* A triangle made out of borders: no icon font and no SVG to load. */
+  .player__icon {
     width: 0;
     height: 0;
     border-style: solid;
@@ -113,11 +112,11 @@ const { id, poster, posterAlt, title } = Astro.props;
     border-color: transparent transparent transparent #fafafa;
     filter: drop-shadow(0 2px 6px rgb(0 0 0 / 40%));
   }
-  .pelicula__play:hover .pelicula__icono {
+  .player__play:hover .player__icon {
     border-left-color: var(--color-red);
   }
 
-  .pelicula__texto {
+  .player__text {
     font-family: var(--font-display);
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -125,7 +124,7 @@ const { id, poster, posterAlt, title } = Astro.props;
     text-shadow: 0 1px 4px rgb(0 0 0 / 50%);
   }
 
-  .pelicula__enlace {
+  .player__link {
     position: absolute;
     inset: auto 0 0 0;
     padding: var(--space-s);
@@ -144,7 +143,7 @@ const { id, poster, posterAlt, title } = Astro.props;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .pelicula__play {
+    .player__play {
       transition: none;
     }
   }
@@ -154,29 +153,29 @@ const { id, poster, posterAlt, title } = Astro.props;
   import { onPage } from '../lifecycle';
 
   /**
-   * El iframe se crea al pulsar, nunca antes. Sustituye a la fachada entera
-   * para que el póster no siga ocupando memoria detrás del reproductor.
+   * The iframe is built on click, never before. It replaces the whole facade so
+   * the poster is not left holding memory behind the player.
    *
    * Per page and with no teardown: every listener here is on an element inside
    * the swapped body, so it goes when the element goes.
    */
   onPage(() => {
-    document.querySelectorAll<HTMLElement>('[data-vimeo]').forEach((figura) => {
-      const boton = figura.querySelector('button');
-      if (!boton) return;
+    document.querySelectorAll<HTMLElement>('[data-vimeo]').forEach((figure) => {
+      const button = figure.querySelector('button');
+      if (!button) return;
 
-      boton.addEventListener('click', () => {
-        const id = figura.dataset.vimeo;
-        const titulo = figura.dataset.vimeoTitle ?? 'Video de la campaña';
+      button.addEventListener('click', () => {
+        const id = figure.dataset.vimeo;
+        const title = figure.dataset.vimeoTitle ?? 'Video de la campaña';
 
         const iframe = document.createElement('iframe');
         /* dnt=1: sin seguimiento. autoplay: lo acaban de pedir. */
         iframe.src = `https://player.vimeo.com/video/${id}?autoplay=1&dnt=1&title=0&byline=0&portrait=0`;
-        iframe.title = titulo;
+        iframe.title = title;
         iframe.allow = 'autoplay; fullscreen; picture-in-picture';
         iframe.setAttribute('allowfullscreen', '');
 
-        figura.replaceChildren(iframe);
+        figure.replaceChildren(iframe);
         iframe.focus();
       });
     });

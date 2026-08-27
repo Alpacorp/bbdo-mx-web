@@ -1,18 +1,19 @@
 /**
- * robots.txt — generado, no estático.
+ * robots.txt — generated, not static.
  *
- * Era un fichero fijo con `Allow: /`, y ese fichero se sirve igual desde el
- * dominio de producción que desde cada previsualización de Vercel. El
- * resultado es que bbdo-mx-web.vercel.app quedó abierto a los rastreadores:
- * un sitio a medias, con textos de relleno, indexable bajo la marca de la
- * agencia y compitiendo con su sitio real.
+ * It used to be a fixed file saying `Allow: /`, and that same file is served
+ * from the production domain and from every Vercel preview alike. The result
+ * was that bbdo-mx-web.vercel.app sat open to crawlers: a half-built site full
+ * of placeholder copy, indexable under the agency's name and competing with
+ * its real one.
  *
- * Los canonical apuntan a bbdomexico.com, que hoy sirve el WordPress viejo, y
- * varios de esos destinos son 404 — /news/ y la propia og:image entre ellos.
- * Un canonical que apunta a un 404 se ignora, así que no protege de nada.
+ * The canonicals point at bbdomexico.com, which today serves the old
+ * WordPress, and several of those destinations are 404s — /news/ and the
+ * og:image among them. A canonical pointing at a 404 is ignored, so it
+ * protects nothing.
  *
- * VERCEL_ENV vale "production" solo en el despliegue del dominio de
- * producción. Todo lo demás se cierra.
+ * VERCEL_ENV is "production" only on the production domain's deployment.
+ * Everything else is closed.
  */
 import type { APIRoute } from 'astro';
 

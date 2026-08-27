@@ -270,14 +270,14 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
        out of the accessibility tree, which the Tab trap below cannot do: a
        screen reader's virtual cursor ignores focus traps and would happily read
        a page nobody can see. */
-    const detras = () => [...document.querySelectorAll<HTMLElement>('main, footer')];
+    const behind = () => [...document.querySelectorAll<HTMLElement>('main, footer')];
 
     function toggle(si: boolean) {
       nav!.classList.toggle('is-open', si);
       button!.setAttribute('aria-expanded', String(si));
       // Lock background scrolling while the overlay covers the page.
       document.documentElement.style.overflow = si ? 'hidden' : '';
-      detras().forEach((el) => (si ? el.setAttribute('inert', '') : el.removeAttribute('inert')));
+      behind().forEach((el) => (si ? el.setAttribute('inert', '') : el.removeAttribute('inert')));
 
       if (si) {
         /* The menu transitions out of visibility:hidden, and focus() on a
@@ -336,7 +336,7 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
       // being replaced — but clearing them costs nothing and keeps the two
       // sides of this symmetric.
       document.documentElement.style.overflow = '';
-      detras().forEach((el) => el.removeAttribute('inert'));
+      behind().forEach((el) => el.removeAttribute('inert'));
     };
   });
 </script>
