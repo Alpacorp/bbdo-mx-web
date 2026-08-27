@@ -73,7 +73,7 @@ const { left, right, src, poster, transitionName } = Astro.props;
 // Unique, deterministic id per banner: if a page has two, their masks do not
 // collide, and it does not change between builds.
 const uid = `mask-${poster.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '')}`;
-const uidTall = `${uid}-movil`;
+const uidTall = `${uid}-tall`;
 ---
 
 <section class="banner" data-video-banner>
@@ -138,8 +138,8 @@ const uidTall = `${uid}-movil`;
       shape-rendering="crispEdges"></rect>
   </svg>
 
-  <p class="banner__txt banner__txt--izq">{left}</p>
-  <p class="banner__txt banner__txt--der">{right}</p>
+  <p class="banner__txt banner__txt--left">{left}</p>
+  <p class="banner__txt banner__txt--right">{right}</p>
 </section>
 
 <style>
@@ -335,10 +335,10 @@ const uidTall = `${uid}-movil`;
     text-transform: uppercase;
     color: var(--color-red);
   }
-  .banner__txt--izq {
+  .banner__txt--left {
     left: 40px;
   }
-  .banner__txt--der {
+  .banner__txt--right {
     right: 40px;
   }
 
@@ -346,10 +346,10 @@ const uidTall = `${uid}-movil`;
     .banner__txt {
       bottom: 14px;
     }
-    .banner__txt--izq {
+    .banner__txt--left {
       left: 20px;
     }
-    .banner__txt--der {
+    .banner__txt--right {
       right: 20px;
     }
   }

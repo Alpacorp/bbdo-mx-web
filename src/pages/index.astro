@@ -153,7 +153,7 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
                     widths={[400, 800, 1200]}
                     sizes="(max-width: 40rem) 100vw, (max-width: 60rem) 50vw, 33vw"
                     loading="lazy"
-                    transition:name={`portada-${c.id}`}
+                    transition:name={`cover-${c.id}`}
                   />
                   <h3 class="card__brand">{c.data.brand}</h3>
                   <p class="card__campaign">{c.data.campaign}</p>
