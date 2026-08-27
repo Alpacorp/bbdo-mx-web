@@ -3,7 +3,7 @@ import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 
 /** The type comes from the schema itself: change the collection, change this. */
-type Bloque = CollectionEntry<'work'>['data']['blocks'][number];
+type Block = CollectionEntry<'work'>['data']['blocks'][number];
 
 /**
  * CaseBlock.astro — one block in a case study body.
@@ -16,7 +16,7 @@ type Bloque = CollectionEntry<'work'>['data']['blocks'][number];
  * global site, where each strip enters from a different edge.
  */
 interface Props {
-  block: Bloque;
+  block: Block;
   /** Which side it enters from. The page alternates left/right. */
   side: 'left' | 'right';
 }
