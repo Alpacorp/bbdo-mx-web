@@ -25,5 +25,9 @@ export default defineConfig({
     sitemap(),
   ],
 
+  /* The redirect map is NOT here. Astro compiles `redirects` with the trailing
+     slash stripped, and every URL the current site publishes has one, so the
+     rules would match nothing. src/pages/[...legacy].astro does it instead,
+     and explains the whole reasoning. */
   adapter: vercel(),
 });

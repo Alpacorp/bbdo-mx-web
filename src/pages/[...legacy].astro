@@ -1,0 +1,64 @@
+---
+/**
+ * [...legacy].astro — answers every URL bbdomexico.com publishes.
+ *
+ * The current site has 157 indexable URLs and this one has 29. This route is
+ * where the other 128 land: 41 of them are real content and get a 301, the
+ * rest are WordPress theme demos and get a 410. The map, and why the demos are
+ * not simply pointed at the home, is in src/redirects.ts.
+ *
+ * WHY NOT astro.config's `redirects`
+ *   Because it does not match the URLs that are actually indexed. Astro strips
+ *   the trailing slash when it compiles a redirect, so `/about-us/` comes out
+ *   as `^/about-us$` — and WordPress publishes, and Google has indexed, the
+ *   slashed form. The adapter emits its own page routes as `^/contact/?$`,
+ *   with the slash optional, which is the tell: if the platform normalised
+ *   trailing slashes there would be no reason for that `/?`. So the config
+ *   route would sit there matching nothing.
+ *
+ * WHY NOT MIDDLEWARE
+ *   Middleware only runs when a request reaches the function, and without this
+ *   route it does not: the adapter sends everything unmatched straight to a
+ *   static 404.html. Making 404.astro on-demand does put the catch-all through
+ *   the function, but that route carries a forced `"status": 404` in the build
+ *   output and there is no way to check from here whether it overrides a 301
+ *   coming back from the function. This route compiles to
+ *   `^(?:/(.*?))?/?$ -> _render` with no status attached, so what the page
+ *   returns is what the visitor gets. No guessing.
+ *
+ * A 410 STILL RENDERS A PAGE. The status is for the crawler; the body is for
+ * the person who clicked a five-year-old link and deserves a way out.
+ */
+import Base from '../layouts/Base.astro';
+import NotFound from '../components/NotFound.astro';
+import { MOVED, isGone } from '../redirects';
+
+export const prerender = false;
+
+const path = Astro.url.pathname;
+const withSlash = path.endsWith('/') ? path : `${path}/`;
+
+const destination = MOVED[withSlash];
+if (destination) return Astro.redirect(destination, 301);
+
+const gone = isGone(path);
+Astro.response.status = gone ? 410 : 404;
+---
+
+<Base
+  title={gone ? 'Página retirada' : 'Página no encontrada'}
+  path="/404/"
+  description="La página que buscas no existe o cambió de dirección."
+>
+  {
+    gone ? (
+      <NotFound
+        code="410"
+        title="Esta página ya no existe"
+        text="Formaba parte del sitio anterior y no se migró. Desde aquí llegas a todo lo que sí está."
+      />
+    ) : (
+      <NotFound />
+    )
+  }
+</Base>
