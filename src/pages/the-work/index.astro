@@ -50,6 +50,7 @@ const cases = (await getCollection('work', ({ data }) => !data.draft)).sort(
                 sizes="(max-width: 40rem) 100vw, (max-width: 60rem) 50vw, 33vw"
                 loading={i < 3 ? 'eager' : 'lazy'}
                 class="card__img"
+                transition:name={`portada-${caseEntry.id}`}
               />
               <h2 class="card__brand">{caseEntry.data.brand}</h2>
               <p class="card__campaign">{caseEntry.data.campaign}</p>

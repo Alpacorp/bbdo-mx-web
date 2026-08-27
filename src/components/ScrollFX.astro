@@ -166,11 +166,23 @@
 </script>
 
 <script>
-  document.documentElement.classList.add('fx-ready'); // disarms the inline failsafe
+  import { onPage } from '../lifecycle';
+
+  /* Disarms the inline failsafe — and has to be re-applied after every swap
+     for the same reason html.js does: ClientRouter replaces the <html>
+     attributes with the incoming document's, which carry no class. Losing it
+     mid-session let the failsafe conclude the bundle had died and add
+     fx-fallback, which turns every animation off for the rest of the visit. */
+  const marcarListo = () => document.documentElement.classList.add('fx-ready');
+  marcarListo();
+  document.addEventListener('astro:after-swap', marcarListo);
 
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  if (!reduce) {
+  /* Per page: the elements it numbers and observes are replaced on every
+     navigation, and the observer has to let go of the old ones. */
+  onPage(() => {
+    if (reduce) return;
     // Index per child, so CSS can stagger without a timer per element.
     document
       .querySelectorAll<HTMLElement>('[data-fx-stagger], [data-fx="lines"], [data-fx="mosaic"]')
@@ -200,5 +212,7 @@
     document
       .querySelectorAll('[data-fx]:not([data-fx="parallax"]), [data-fx-stagger]')
       .forEach((el) => seen.observe(el));
-  }
+
+    return () => seen.disconnect();
+  });
 </script>

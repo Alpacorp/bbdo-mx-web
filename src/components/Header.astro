@@ -253,11 +253,17 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
 </style>
 
 <script>
-  const nav = document.querySelector<HTMLElement>('.nav');
-  const button = nav?.querySelector<HTMLButtonElement>('.nav__button');
-  const menu = nav?.querySelector<HTMLElement>('.nav__menu');
+  import { onPage } from '../lifecycle';
 
-  if (nav && button && menu) {
+  /* Per page, and with a teardown: the overlay's own listeners die with the
+     elements, but the Escape handler sits on document and would otherwise
+     stack up one copy per navigation. */
+  onPage(() => {
+    const nav = document.querySelector<HTMLElement>('.nav');
+    const button = nav?.querySelector<HTMLButtonElement>('.nav__button');
+    const menu = nav?.querySelector<HTMLElement>('.nav__menu');
+    if (!nav || !button || !menu) return;
+
     const links = () => [...menu.querySelectorAll<HTMLAnchorElement>('a')];
 
     function toggle(si: boolean) {
@@ -271,10 +277,11 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
 
     button.addEventListener('click', () => toggle(button.getAttribute('aria-expanded') !== 'true'));
 
-    document.addEventListener('keydown', (e) => {
+    const onEscape = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return;
       if (button.getAttribute('aria-expanded') === 'true') toggle(false);
-    });
+    };
+    document.addEventListener('keydown', onEscape);
 
     // Navigating from inside the overlay closes it: otherwise an anchor link
     // would leave the menu open on top of the destination.
@@ -300,5 +307,13 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
         last.focus();
       }
     });
-  }
+
+    return () => {
+      document.removeEventListener('keydown', onEscape);
+      // The overlay locks scrolling on documentElement, which survives a swap:
+      // navigating from inside an open menu would leave the next page unable
+      // to scroll.
+      document.documentElement.style.overflow = '';
+    };
+  });
 </script>

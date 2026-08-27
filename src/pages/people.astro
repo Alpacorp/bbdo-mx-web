@@ -366,51 +366,58 @@ const bands = [...DEPARTMENTS, FALLBACK]
 </style>
 
 <script>
-  const input = document.querySelector<HTMLInputElement>('.search__input');
-  const count = document.querySelector<HTMLElement>('.search__count');
-  const empty = document.querySelector<HTMLElement>('.empty');
-  const people = [...document.querySelectorAll<HTMLElement>('.person')];
-  const bands = [...document.querySelectorAll<HTMLElement>('.band')];
+  import { onPage } from '../lifecycle';
 
-  if (input && count && empty) {
-    /**
-     * Accents are stripped from both sides so "Martinez" finds "Martínez".
-     * Typing an accent on a phone keyboard is friction nobody should need to
-     * find a colleague.
-     */
-    const plain = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '');
+  /* Per page: the roster and the search box are replaced on every navigation,
+     and a handler bound to the old input would keep filtering a list that is
+     no longer on screen. */
+  onPage(() => {
+    const input = document.querySelector<HTMLInputElement>('.search__input');
+    const count = document.querySelector<HTMLElement>('.search__count');
+    const empty = document.querySelector<HTMLElement>('.empty');
+    const people = [...document.querySelectorAll<HTMLElement>('.person')];
+    const bands = [...document.querySelectorAll<HTMLElement>('.band')];
 
-    const haystack = new Map(
-      people.map((p) => [p, plain(`${p.dataset.name ?? ''} ${p.dataset.role ?? ''}`)])
-    );
+    if (input && count && empty) {
+      /**
+       * Accents are stripped from both sides so "Martinez" finds "Martínez".
+       * Typing an accent on a phone keyboard is friction nobody should need to
+       * find a colleague.
+       */
+      const plain = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '');
 
-    function filter() {
-      const q = plain(input!.value.trim().toLowerCase());
-      let shown = 0;
+      const haystack = new Map(
+        people.map((p) => [p, plain(`${p.dataset.name ?? ''} ${p.dataset.role ?? ''}`)])
+      );
 
-      for (const person of people) {
-        const match = !q || (haystack.get(person) ?? '').includes(q);
-        person.hidden = !match;
-        if (match) shown += 1;
+      function filter() {
+        const q = plain(input!.value.trim().toLowerCase());
+        let shown = 0;
+
+        for (const person of people) {
+          const match = !q || (haystack.get(person) ?? '').includes(q);
+          person.hidden = !match;
+          if (match) shown += 1;
+        }
+
+        // A band with nothing left in it is noise: hide the heading too.
+        for (const band of bands) {
+          const any = [...band.querySelectorAll<HTMLElement>('.person')].some((p) => !p.hidden);
+          band.hidden = !any;
+        }
+
+        empty!.hidden = shown > 0;
+        count!.textContent = q ? `${shown} de ${people.length}` : '';
       }
 
-      // A band with nothing left in it is noise: hide the heading too.
-      for (const band of bands) {
-        const any = [...band.querySelectorAll<HTMLElement>('.person')].some((p) => !p.hidden);
-        band.hidden = !any;
-      }
-
-      empty!.hidden = shown > 0;
-      count!.textContent = q ? `${shown} de ${people.length}` : '';
+      input.addEventListener('input', filter);
+      // Esc clears, which is what the native search field's × already suggests.
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          input.value = '';
+          filter();
+        }
+      });
     }
-
-    input.addEventListener('input', filter);
-    // Esc clears, which is what the native search field's × already suggests.
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        input.value = '';
-        filter();
-      }
-    });
-  }
+  });
 </script>

@@ -2,17 +2,21 @@
 import { SITE_NAME, SITE_URL, HR_EMAIL, organizationGraph } from '../organization';
 import '../styles/tokens.css';
 import '../styles/sections.css';
+import { ClientRouter } from 'astro:transitions';
 import Header from '../components/Header.astro';
 import { LEGAL_LINKS } from '../navigation';
 
 /**
  * Base.astro — root layout: head, meta, canonical, JSON-LD.
  *
- * NOTE on <ClientRouter />: section 7 of the brief warns that in Astro 6+ view
- * transitions changed event timing. It is NOT mounted yet because
- * VideoHeadline's <script> runs on module load, not on 'astro:page-load' —
- * with ClientRouter the headline would not re-animate on client-side
- * navigation. Whenever it gets enabled, the component has to be adapted first.
+ * <ClientRouter /> is mounted. It used not to be, and the note here explained
+ * why: every component's <script> did its work at module scope, so with
+ * client-side routing the headline would animate once and never again. All
+ * seven of them now hang off `astro:page-load` through src/lifecycle.ts, which
+ * is what made this safe to turn on.
+ *
+ * It respects prefers-reduced-motion on its own: with that setting the swap
+ * still happens, without the animation.
  */
 
 interface Props {
@@ -93,9 +97,21 @@ const jsonLd = {
     <!-- Marca que el JS corre, ANTES del primer paint: los estados iniciales
          de animacion cuelgan de html.js, asi que sin JS todo se ve completo y
          no hay flash. Este si va is:inline (no importa nada); el <script> de
-         VideoHeadline NO puede llevarlo, rompe el import de GSAP. -->
+         VideoHeadline NO puede llevarlo, rompe el import de GSAP.
+
+         Y HAY QUE VOLVER A PONERLA EN CADA NAVEGACION. ClientRouter copia los
+         atributos de <html> del documento entrante, y ese documento sale del
+         servidor sin clase ninguna, asi que el intercambio se lleva 'js' por
+         delante. Sin ella el header cae a su version sin JavaScript: la
+         hamburguesa desaparece y el menu se despliega como lista. -->
     <script is:inline>
-      document.documentElement.classList.add('js');
+      (function () {
+        function marcar() {
+          document.documentElement.classList.add('js');
+        }
+        marcar();
+        document.addEventListener('astro:after-swap', marcar);
+      })();
     </script>
 
     <title>{pageTitle}</title>
@@ -120,6 +136,8 @@ const jsonLd = {
     />
 
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
+
+    <ClientRouter />
 
     <!-- Each page can add its own tags to the head: /the-work/[slug] puts its
          CreativeWork JSON-LD here, IN ADDITION to the organisation block. -->
