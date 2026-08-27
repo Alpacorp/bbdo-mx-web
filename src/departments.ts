@@ -32,7 +32,7 @@ export const DEPARTMENTS: Department[] = [
     label: 'Liderazgo',
     theme: 'dark',
     match:
-      /\b(chief|vp |cfo|head of|general creativo|group business|contralor|ejecutivo planning|coms planning director)\b/,
+      /\b(ceo|chief|vp |cfo|head of|general creativo|group business|contralor|ejecutivo planning|coms planning director)\b/,
   },
   {
     id: 'creatividad',

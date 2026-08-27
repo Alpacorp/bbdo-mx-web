@@ -235,12 +235,6 @@
     "photo": "gabriela-marisol-resendiz-montalvo.jpg"
   },
   {
-    "id": "alonso-palomeque",
-    "name": "Alonso Palomeque",
-    "role": "IT Coordinator",
-    "photo": "alonso-palomeque.webp"
-  },
-  {
     "id": "eduardo-arenas",
     "name": "Eduardo Arenas",
     "role": "Maker Digital",
@@ -701,5 +695,12 @@
     "name": "Oscar Alessandro Garza Arzate",
     "role": "Strategist",
     "photo": "oscar-alessandro-garza-arzate.webp"
+  },
+  {
+    "id": "jorge-obregon",
+    "name": "Jorge Obregón",
+    "role": "CEO",
+    "photo": "jorge-obregon.webp",
+    "order": 1
   }
 ]
