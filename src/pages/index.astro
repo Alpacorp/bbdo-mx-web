@@ -5,6 +5,7 @@ import Base from '../layouts/Base.astro';
 import VideoBanner from '../components/VideoBanner.astro';
 import VideoHeadline from '../components/VideoHeadline.astro';
 import ScrollFX from '../components/ScrollFX.astro';
+import Process from '../components/Process.astro';
 import ClientWall from '../components/ClientWall.astro';
 import Awards from '../components/Awards.astro';
 import NewsCard from '../components/NewsCard.astro';
@@ -30,14 +31,16 @@ const latest = (await getCollection('news'))
  *   4. news-section
  *
  * What we add and the global site does NOT have, as a market difference:
- *   5. Clients — the current site has /nuestros-clientes/ with 985 words. It is
+ *   5. Process — the four B-B-D-O steps, recovered from bbdomexico.com's
+ *                /our-process/ page. See src/process.ts.
+ *   6. Clients — the current site has /nuestros-clientes/ with 985 words. It is
  *                MX-owned content that should not be lost in the migration.
- *   6. Awards  — a Mexican agency sells on local awards, and the per-case
+ *   7. Awards  — a Mexican agency sells on local awards, and the per-case
  *                JSON-LD already reserves an `award` field.
  *
- * THE BANDS ALTERNATE. Reading down: claim red, work paper, clients dark,
- * awards paper, news dark. Anything inserted between them has to keep that
- * going or the page flattens out, which is what it did before.
+ * THE BANDS ALTERNATE. Reading down: claim red, process dark, work paper,
+ * clients dark, awards paper, news dark. Anything inserted between them has to
+ * keep that going or the page flattens out, which is what it did before.
  *
  * VIDEO PLACEHOLDER: /v/banner-home.mp4 is head-team.mp4 from the current site
  * (30.83 MB, 14.9s), downloaded by hand and picked by the developer. That is
@@ -122,6 +125,8 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
           >¿Quieres hacer cosas grandes?</a
         >
       </section>
+
+      <Process />
 
       <section class="work section-shell" aria-labelledby="work-title">
         <span class="section-rail" aria-hidden="true">Work</span>
