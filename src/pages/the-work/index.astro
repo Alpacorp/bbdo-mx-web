@@ -32,10 +32,12 @@ const cases = (await getCollection('work', ({ data }) => !data.draft)).sort(
   path="/the-work/"
   description="El trabajo de BBDO México: campañas para Pepsi, Uber, Bayer, Pedigree, EA Sports, Tostitos y más."
 >
-  <main id="content" class="pagina">
+  <main id="content" class="page">
     <header class="page-header">
       <h1 class="page-title" data-fx="lines"><span>The Work</span></h1>
-      <p class="header__note" data-fx="up" data-fx-delay="0.2">{cases.length} cases</p>
+      <p class="header__note" data-fx="up" data-fx-delay="0.2">
+        {`${cases.length} ${cases.length === 1 ? 'caso' : 'casos'}`}
+      </p>
     </header>
 
     <ul class="grid" data-fx-stagger>
@@ -52,7 +54,7 @@ const cases = (await getCollection('work', ({ data }) => !data.draft)).sort(
                 sizes="(max-width: 40rem) 100vw, (max-width: 60rem) 50vw, 33vw"
                 loading={i < 3 ? 'eager' : 'lazy'}
                 class="card__img"
-                transition:name={`portada-${caseEntry.id}`}
+                transition:name={`cover-${caseEntry.id}`}
               />
               <h2 class="card__brand">{caseEntry.data.brand}</h2>
               <p class="card__campaign">{caseEntry.data.campaign}</p>
@@ -67,7 +69,7 @@ const cases = (await getCollection('work', ({ data }) => !data.draft)).sort(
 </Base>
 
 <style>
-  .pagina {
+  .page {
     padding-inline: var(--gutter);
     padding-block: var(--space-2xl);
     max-width: var(--max-width);
@@ -146,7 +148,7 @@ const cases = (await getCollection('work', ({ data }) => !data.draft)).sort(
     }
   }
   @media (max-height: 32rem) {
-    .pagina {
+    .page {
       padding-block: var(--space-xl);
     }
   }

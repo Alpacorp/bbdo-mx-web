@@ -5,6 +5,7 @@ import '../styles/sections.css';
 import { ClientRouter } from 'astro:transitions';
 import Header from '../components/Header.astro';
 import CurtainTransition from '../components/CurtainTransition.astro';
+import Wordmark from '../components/Wordmark.astro';
 import { LEGAL_LINKS } from '../navigation';
 
 /**
@@ -124,13 +125,13 @@ const jsonLd = {
            document's on every swap, so the flag would have been wiped each time
            and this would have taken the first-load branch forever. Same trap
            that dropped the `js` class. */
-        var first = true;
+        let first = true;
         document.addEventListener('astro:page-load', function () {
           if (first) {
             first = false;
             return;
           }
-          var region = document.querySelector('[data-route-announcer]');
+          const region = document.querySelector('[data-route-announcer]');
           if (!region) return;
           region.textContent = '';
           setTimeout(function () {
@@ -217,6 +218,19 @@ const jsonLd = {
         </p>
 
         <p class="footer__network">Parte de BBDO Worldwide, red creativa de Omnicom Group.</p>
+      </div>
+
+      {
+        /* The closing mark. The page used to end on four blocks of text and
+           then stop; this gives it a last beat that is the brand itself, at the
+           only size the page can give it. Cropped by the bottom edge on
+           purpose — a mark that runs off the page reads as bigger than the
+           page, which is the whole point of putting it here.
+
+           Decorative: "BBDO México" is written in text directly above it. */
+      }
+      <div class="footer__mark">
+        <Wordmark />
       </div>
     </footer>
   </body>
@@ -352,6 +366,32 @@ const jsonLd = {
     display: inline-block;
     padding-top: 7px;
   }
+  /* The container is shorter than the mark it holds, which is what does the
+     cropping: 573x96 against the mark's own 573x164 leaves a little under
+     three fifths of the letterforms showing. clip and not hidden, for the same
+     reason as everywhere else on this site. */
+  .footer__mark {
+    margin-top: var(--space-2xl);
+    aspect-ratio: 573 / 96;
+    /* min-height: 0 is what makes the crop happen, and it is not redundant.
+       A box with an aspect-ratio and an auto height takes a content-based
+       automatic minimum, so the full-height mark inside floors the container
+       at its own 408px and the ratio is quietly ignored — measured: 408 with
+       this line removed, 239 with it. `overflow: clip` does not lift the floor
+       on its own. */
+    min-height: 0;
+    overflow: clip;
+    line-height: 0;
+  }
+  .footer__mark svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    /* Barely above the ground it sits on. It is a closing note, not a second
+       logo competing with the one in the header. */
+    color: rgb(250 250 250 / 9%);
+  }
+
   .footer__network {
     margin: 0;
     color: rgba(250, 250, 250, 0.6);

@@ -1,5 +1,6 @@
 ---
 import { NAVIGATION } from '../navigation';
+import Wordmark from './Wordmark.astro';
 
 /**
  * Header.astro — logo, menu button and the menu itself.
@@ -33,7 +34,7 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
 
 <header class:list={['nav', overMedia && 'nav--over-media']}>
   <a class="nav__logo" href="/" aria-label="BBDO México — inicio">
-    <img src="/v/logo-bbdo.png" alt="BBDO" width="100" height="26" />
+    <Wordmark class="nav__mark" />
   </a>
 
   <button class="nav__button" type="button" aria-expanded="false" aria-controls="menu-principal">
@@ -92,15 +93,25 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
     line-height: 0;
     text-decoration: none;
   }
-  .nav__logo img {
-    width: 100px;
-    height: 26px;
-    object-fit: contain;
+  /* Drawn, not loaded, so the two states the header has are a colour rather
+     than a filter. It used to be a PNG repainted with
+     `filter: brightness(0) invert(1)`, which forces a raster through a filter
+     to change its colour and promotes it to its own compositing layer. */
+  /* 83px and not the 100 the old <img> declared, because those were never the
+     same measurement. The PNG's canvas is 600x179 and the mark inside it is
+     573x164, so a tenth of that box was transparent margin: at width 100 the
+     visible mark was 83px across. The path is traced tight to the ink, so
+     carrying the 100 over would have made the logo 20% bigger than it has been
+     — a size change smuggled in under a format change. Measured off the source
+     alpha, not eyeballed. */
+  .nav__mark {
+    display: block;
+    width: 83px;
+    height: auto;
+    color: var(--color-red);
   }
-  /* The only logo asset is red. Over the banner it is turned white:
-     brightness(0) takes it to black keeping the alpha, invert(1) lightens it. */
-  .nav--over-media .nav__logo img {
-    filter: brightness(0) invert(1);
+  .nav--over-media .nav__mark {
+    color: var(--color-on-dark);
   }
 
   /* --- Button ------------------------------------------------------------- */

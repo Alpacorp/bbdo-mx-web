@@ -37,8 +37,11 @@ import { SITE_NAME, TELEPHONE, HR_EMAIL } from '../organization';
 export const prerender = false;
 
 /* Rendered server-side from the redirect, so the states exist without JS. */
-const estado = Astro.url.searchParams.get('estado');
-const motivo = Astro.url.searchParams.get('motivo');
+/* The query-string keys stay in Spanish: they are the contract with
+   /api/contact and they show up in a URL the visitor can see. Only the local
+   names are English. */
+const state = Astro.url.searchParams.get('estado');
+const reason = Astro.url.searchParams.get('motivo');
 ---
 
 <Base
@@ -64,21 +67,21 @@ const motivo = Astro.url.searchParams.get('motivo');
       </header>
 
       {
-        estado === 'ok' && (
+        state === 'ok' && (
           <p class="aviso aviso--ok" role="status">
             Mensaje enviado. Te respondemos en cuanto podamos.
           </p>
         )
       }
       {
-        estado === 'datos' && (
+        state === 'datos' && (
           <p class="aviso aviso--mal" role="alert">
-            {motivo ?? 'Revisa los datos y vuelve a intentarlo.'}
+            {reason ?? 'Revisa los datos y vuelve a intentarlo.'}
           </p>
         )
       }
       {
-        estado === 'error' && (
+        state === 'error' && (
           <p class="aviso aviso--mal" role="alert">
             No pudimos enviar el mensaje. Escríbenos directamente a{' '}
             <a href={`mailto:${HR_EMAIL}`}>{HR_EMAIL}</a>.
@@ -155,8 +158,8 @@ const motivo = Astro.url.searchParams.get('motivo');
           </span>
         </label>
 
-        <button class="enviar" type="submit">Enviar mensaje</button>
-        <p class="form__estado" data-form-status role="status" aria-live="polite"></p>
+        <button class="submit" type="submit">Enviar mensaje</button>
+        <p class="form__status" data-form-status role="status" aria-live="polite"></p>
       </form>
     </section>
 
@@ -339,7 +342,7 @@ const motivo = Astro.url.searchParams.get('motivo');
     margin-top: 2px;
   }
 
-  .enviar {
+  .submit {
     margin-top: var(--space-l);
     font-family: var(--font-display);
     font-size: 1rem;
@@ -351,19 +354,19 @@ const motivo = Astro.url.searchParams.get('motivo');
     color: var(--color-bg);
     cursor: pointer;
   }
-  .enviar:hover {
+  .submit:hover {
     background: var(--color-red);
     color: #fafafa;
   }
-  .enviar[disabled] {
+  .submit[disabled] {
     opacity: 0.5;
     cursor: progress;
   }
 
-  .form__estado:empty {
+  .form__status:empty {
     display: none;
   }
-  .form__estado {
+  .form__status {
     margin: var(--space-s) 0 0;
     font-size: 0.9rem;
   }

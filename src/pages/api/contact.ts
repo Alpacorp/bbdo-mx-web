@@ -159,7 +159,7 @@ export const POST: APIRoute = async ({ request, url }) => {
       replyTo: data.email,
     });
   } catch (error) {
-    console.error('[contact] no se pudo enviar:', error);
+    console.error('[contact] send failed:', error);
     return wantsJson
       ? new Response(JSON.stringify({ ok: false, error: 'envio' }), {
           status: 502,
