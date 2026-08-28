@@ -293,18 +293,18 @@ if (data.awards.length) jsonLd.award = data.awards;
         <h2 id="more-title" data-fx="up">Más The Work</h2>
         <ul class="more__list">
           {
-            related.map((otro, i) => (
-              <li data-fx={i % 2 === 0 ? 'left' : 'right'} data-fx-scrub>
-                <a href={`/the-work/${otro.id}/`}>
+            related.map((other, i) => (
+              <li data-fx={i % 2 === 0 ? 'left' : 'right'}>
+                <a href={`/the-work/${other.id}/`}>
                   <Image
-                    src={otro.data.image}
-                    alt={otro.data.imageAlt}
+                    src={other.data.image}
+                    alt={other.data.imageAlt}
                     widths={[400, 800]}
                     sizes="(max-width: 40rem) 100vw, 33vw"
                     loading="lazy"
                   />
-                  <h3>{otro.data.brand}</h3>
-                  <p>{otro.data.campaign}</p>
+                  <h3>{other.data.brand}</h3>
+                  <p>{other.data.campaign}</p>
                 </a>
               </li>
             ))
