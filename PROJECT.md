@@ -246,7 +246,7 @@ Estas costaron tiempo. Están aquí para que no se paguen dos veces.
 ## 8. Estado real — qué está construido
 
 **30 páginas prerenderizadas** + `/contact/` y `/api/contact` en función.
-19 casos, 117 personas, 27 clientes, 1 nota, 1 premio.
+19 casos, 117 personas, 26 clientes, 1 nota, 1 premio.
 
 ### Contenido y datos
 

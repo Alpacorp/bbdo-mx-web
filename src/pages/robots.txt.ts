@@ -20,9 +20,9 @@ import type { APIRoute } from 'astro';
 export const prerender = false;
 
 export const GET: APIRoute = ({ site }) => {
-  const esProduccion = import.meta.env.VERCEL_ENV === 'production';
+  const isProduction = import.meta.env.VERCEL_ENV === 'production';
 
-  const cuerpo = esProduccion
+  const body = isProduction
     ? `# BBDO México
 User-agent: *
 Allow: /
@@ -34,7 +34,7 @@ User-agent: *
 Disallow: /
 `;
 
-  return new Response(cuerpo, {
+  return new Response(body, {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },
   });
 };

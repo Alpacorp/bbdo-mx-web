@@ -68,21 +68,21 @@ const reason = Astro.url.searchParams.get('motivo');
 
       {
         state === 'ok' && (
-          <p class="aviso aviso--ok" role="status">
+          <p class="feedback feedback--ok" role="status">
             Mensaje enviado. Te respondemos en cuanto podamos.
           </p>
         )
       }
       {
         state === 'datos' && (
-          <p class="aviso aviso--mal" role="alert">
+          <p class="feedback" role="alert">
             {reason ?? 'Revisa los datos y vuelve a intentarlo.'}
           </p>
         )
       }
       {
         state === 'error' && (
-          <p class="aviso aviso--mal" role="alert">
+          <p class="feedback" role="alert">
             No pudimos enviar el mensaje. Escríbenos directamente a{' '}
             <a href={`mailto:${HR_EMAIL}`}>{HR_EMAIL}</a>.
           </p>
@@ -206,14 +206,19 @@ const reason = Astro.url.searchParams.get('motivo');
     max-width: 40ch;
   }
 
-  /* --- Avisos -------------------------------------------------------------- */
-  .aviso {
+  /* --- Submission feedback --------------------------------------------------
+     The base IS the failure look — a red rule down the side — because that is
+     the state that has to catch the eye. Only success overrides it. There used
+     to be an `--mal` modifier on the two failure messages carrying no rule of
+     its own, which reads like a style that went missing rather than one that
+     was never needed. */
+  .feedback {
     margin: 0 0 var(--space-l);
     padding: var(--space-s) var(--space-m);
     border-left: 3px solid var(--color-red);
     background: color-mix(in srgb, var(--color-fg) 5%, transparent);
   }
-  .aviso--ok {
+  .feedback--ok {
     border-left-color: var(--color-fg);
   }
 
