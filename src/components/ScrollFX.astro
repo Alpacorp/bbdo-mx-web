@@ -10,8 +10,13 @@
  *   The previous version used GSAP + ScrollTrigger: 43.5 KB gzipped for a few
  *   reveals. This does the same with IntersectionObserver (~1 KB) and CSS
  *   transitions, and the parallax with `animation-timeline: view()`, which is
- *   native scroll with no JS at all. GSAP now only stays where it does
- *   something CSS cannot: the home page headline.
+ *   native scroll with no JS at all.
+ *
+ *   This used to end by saying GSAP stayed for the home page headline. It does
+ *   not: the headline moved to CSS as well and the dependency left the project
+ *   entirely. There is no GSAP anywhere here now. It would earn its weight back
+ *   for a timeline that has to be scrubbed or reversed, for sequencing driven
+ *   by measurements taken live, or for ScrollTrigger.
  *
  * VOCABULARY
  *   data-fx="up"            fades in from below
@@ -173,9 +178,9 @@
      attributes with the incoming document's, which carry no class. Losing it
      mid-session let the failsafe conclude the bundle had died and add
      fx-fallback, which turns every animation off for the rest of the visit. */
-  const marcarListo = () => document.documentElement.classList.add('fx-ready');
-  marcarListo();
-  document.addEventListener('astro:after-swap', marcarListo);
+  const markReady = () => document.documentElement.classList.add('fx-ready');
+  markReady();
+  document.addEventListener('astro:after-swap', markReady);
 
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -187,8 +192,8 @@
     document
       .querySelectorAll<HTMLElement>('[data-fx-stagger], [data-fx="lines"], [data-fx="mosaic"]')
       .forEach((container) => {
-        [...container.children].forEach((hijo, i) => {
-          (hijo as HTMLElement).style.setProperty('--i', String(i));
+        [...container.children].forEach((child, i) => {
+          (child as HTMLElement).style.setProperty('--i', String(i));
         });
       });
 
