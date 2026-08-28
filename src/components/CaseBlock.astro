@@ -128,7 +128,14 @@ const { block, side } = Astro.props;
     padding-inline: 24px;
   }
   .strip__frame {
-    overflow: hidden; /* crops the parallax overflow */
+    /* `clip` and NOT `hidden`, and it is the parallax inside that depends on
+       it. `hidden` makes this box a scroll container, so `animation-timeline:
+       view()` on the image resolves against THIS frame — which never scrolls —
+       and the timeline sits frozen at whatever progress it was born with. The
+       image was pinned at 0.53 forever. `clip` crops exactly the same and
+       creates no scrollport. KineticBand carries the same note for its rows,
+       and Base.astro for html and body. */
+    overflow: clip; /* crops the parallax overflow */
     border-radius: 4px;
     background: var(--color-dark);
   }
