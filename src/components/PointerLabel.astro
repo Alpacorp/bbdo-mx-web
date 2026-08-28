@@ -1,0 +1,237 @@
+---
+/**
+ * PointerLabel.astro — the red disc that follows the pointer over a grid of
+ * links and names what a click will do.
+ *
+ * The last of the audit's bets that depended on nobody. It is a signature
+ * micro-interaction, and it also fixes something plainer: the case cards carry
+ * no affordance beyond the brand name changing colour on hover, so a grid of
+ * nineteen images does not read as nineteen links.
+ *
+ * HOW IT IS USED
+ *   Mark a container with the label it should show:
+ *
+ *     <ul class="grid" data-pointer-label="VER">
+ *
+ *   Every element in the document carrying that attribute is wired up, and the
+ *   label is data because the verb is not always "see" — a grid of articles
+ *   would say LEER. Mounted once per page, like ScrollFX.
+ *
+ * WHERE IT IS *NOT* USED, AND WHY
+ *   The audit proposed this for the case grid AND for the client wall. It only
+ *   goes on the case grid. The wall's chips are not links — there is no page
+ *   for a client and nobody has asked for one — so a disc promising VER over
+ *   them would be pointing at a navigation that does not exist. The wall
+ *   already has its own hover, the red panel sliding back over the mark, and
+ *   that one is honest: it says "this reacts", not "this opens".
+ *
+ * THE NATIVE CURSOR STAYS
+ *   The obvious flourish is `cursor: none` over the grid so the disc replaces
+ *   the arrow. It is not done here. Hiding the system cursor takes away the
+ *   one pointer everybody's operating system has already tuned — size, colour,
+ *   contrast, the accessibility settings a person may depend on — and replaces
+ *   it with an 88px disc that trails behind by design. The disc accompanies
+ *   the cursor; it does not stand in for it.
+ *
+ * IT IS AN ENHANCEMENT, SO IT DEFAULTS TO ABSENT
+ *   ScrollFX's first rule is that the default state is visible and the hidden
+ *   states hang off html.js, so a dead bundle never leaves content invisible.
+ *   That rule is about content. This element has none: it is empty until the
+ *   script fills it. Defaulting it to hidden is the same principle applied to
+ *   the opposite case — if the script never runs, there is no stray red disc
+ *   parked in the corner of the page.
+ */
+---
+
+<div class="ptr" data-pointer-label-root aria-hidden="true">
+  <span class="ptr__disc"><span class="ptr__text"></span></span>
+</div>
+
+<style>
+  /* Fixed, so it is positioned against the viewport and the page can scroll
+     under it. It must not sit inside a transformed ancestor or `fixed` would
+     resolve against that element instead — which is why it is mounted as a
+     sibling of the grid and not inside it. */
+  .ptr {
+    position: fixed;
+    top: 0;
+    left: 0;
+    /* Above the content (1) and below the header (10), so an open menu covers
+       it rather than the other way round. */
+    z-index: 9;
+    pointer-events: none;
+    /* No transition: this transform is driven frame by frame by the script,
+       and a transition on top of that would fight the easing it already does. */
+    will-change: transform;
+  }
+
+  /* The scale and the fade live on the inner element precisely because the
+     outer one is being written to every frame. Two elements, two jobs: the
+     script moves, CSS reveals. */
+  .ptr__disc {
+    display: grid;
+    place-items: center;
+    width: 5.5rem;
+    height: 5.5rem;
+    border-radius: 50%;
+    background: var(--color-red);
+    color: var(--color-on-dark);
+    opacity: 0;
+    transform: scale(0.4);
+    transition:
+      opacity var(--dur-fast) var(--ease),
+      transform var(--dur-fast) var(--ease);
+  }
+  .ptr.is-on .ptr__disc {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* THE SIZE AND THE WEIGHT ARE AN ACCESSIBILITY CONSTRAINT, NOT A PREFERENCE.
+     --color-on-dark on pure red is 4.0:1. WCAG AA asks 4.5:1 of normal text
+     and 3:1 of large text, and large means 24px at any weight or 18.66px from
+     700 up. The first version of this was 0.8rem at --weight-display (600) and
+     axe was right to fail it: 600 is not bold, so it was still being measured
+     against 4.5. Same rule, same numbers, as .claim__text and .claim__cta on
+     the home page's red band. Below 1.2rem or below 700 this stops passing. */
+  .ptr__text {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.25rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    /* The tracking is applied on the right of the last letter too, which pushes
+       the word off-centre inside a circle. Half of it back. */
+    text-indent: 0.14em;
+  }
+
+  /* Pointer only. `hover: hover` alone is not enough: it is true for a stylus
+     and for some hybrid devices, and a disc that trails a finger is nonsense.
+     The script carries the same test, so nothing is bound either. */
+  @media not all and (hover: hover) and (pointer: fine) {
+    .ptr {
+      display: none;
+    }
+  }
+
+  /* Consistent with every other effect on this site: reduced motion turns it
+     off rather than softening it. The disc is 88px of red travelling across
+     the viewport under its own easing, which is exactly the kind of movement
+     the preference is asking not to see. The cards keep the affordance they
+     already had — the brand name changing colour. */
+  @media (prefers-reduced-motion: reduce) {
+    .ptr {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  import { onPage } from '../lifecycle';
+
+  /* Both conditions repeated from the stylesheet. The media query hides the
+     element; this stops the work being done at all — no listeners, no frame
+     loop — on the devices where it would never be seen. */
+  const FINE_POINTER = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /**
+   * Time constant of the follow, in milliseconds: how long the disc takes to
+   * cover ~63% of the distance to the pointer. Small enough to feel attached,
+   * large enough that the lag reads as deliberate rather than as jank.
+   */
+  const TAU = 70;
+
+  onPage(() => {
+    if (!FINE_POINTER || REDUCE) return;
+
+    const root = document.querySelector<HTMLElement>('[data-pointer-label-root]');
+    const zones = document.querySelectorAll<HTMLElement>('[data-pointer-label]');
+    if (!root || zones.length === 0) return;
+
+    const text = root.querySelector<HTMLElement>('.ptr__text');
+    if (!text) return;
+
+    let targetX = 0;
+    let targetY = 0;
+    let x = 0;
+    let y = 0;
+    let frame = 0;
+    let last = 0;
+
+    const draw = (now: number) => {
+      /* Frame-rate independent easing. A plain `x += (target - x) * 0.2` is
+         tuned to whatever refresh rate the developer happened to have: the
+         same constant chases twice as fast on a 120Hz screen. Expressing it as
+         a time constant makes the disc arrive at the same moment everywhere. */
+      const dt = last ? Math.min(now - last, 64) : 16;
+      last = now;
+      const k = 1 - Math.exp(-dt / TAU);
+
+      x += (targetX - x) * k;
+      y += (targetY - y) * k;
+      root.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+
+      frame = requestAnimationFrame(draw);
+    };
+
+    const stop = () => {
+      if (!frame) return;
+      cancelAnimationFrame(frame);
+      frame = 0;
+      last = 0;
+    };
+
+    const hide = () => {
+      root.classList.remove('is-on');
+      stop();
+    };
+
+    const move = (e: PointerEvent) => {
+      targetX = e.clientX;
+      targetY = e.clientY;
+    };
+
+    const enter = (zone: HTMLElement) => (e: PointerEvent) => {
+      /* A pointerenter fired by a stylus or a touch on a hybrid device: the
+         media query would not have caught it, since it answers for the primary
+         input, not for the one being used right now. */
+      if (e.pointerType !== 'mouse') return;
+
+      text.textContent = zone.dataset.pointerLabel ?? '';
+
+      /* Jump to the pointer before revealing, so the disc grows where the
+         cursor already is. Without this it flies in from wherever it was left,
+         which on a first entry is the top-left corner of the screen. */
+      targetX = x = e.clientX;
+      targetY = y = e.clientY;
+      root.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+
+      root.classList.add('is-on');
+      if (!frame) frame = requestAnimationFrame(draw);
+    };
+
+    const bound = [...zones].map((zone) => {
+      const onEnter = enter(zone);
+      zone.addEventListener('pointerenter', onEnter);
+      zone.addEventListener('pointermove', move);
+      zone.addEventListener('pointerleave', hide);
+      return { zone, onEnter };
+    });
+
+    /* Leaving the window entirely does not fire pointerleave on the zone in
+       every browser, and neither does the window losing focus — the disc would
+       stay lit over a page nobody is pointing at. */
+    window.addEventListener('blur', hide);
+
+    return () => {
+      stop();
+      window.removeEventListener('blur', hide);
+      bound.forEach(({ zone, onEnter }) => {
+        zone.removeEventListener('pointerenter', onEnter);
+        zone.removeEventListener('pointermove', move);
+        zone.removeEventListener('pointerleave', hide);
+      });
+    };
+  });
+</script>
