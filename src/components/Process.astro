@@ -15,6 +15,15 @@
  *   competed with the letters — an image, a rule per row, a second accent —
  *   would be spending attention on the part that is not the point.
  *
+ *   THEY READ ACROSS, NOT DOWN, and that is the whole redesign. The first
+ *   version stacked the four steps, one full-width row each, and cost 1359px
+ *   on a desktop — a screen and a half, 16% of the home page, for four
+ *   one-line steps. Space was the complaint; it was not the real problem.
+ *   Stacked, a reader has to hold three letters in their head to notice the
+ *   acrostic. Side by side they see BBDO at a glance, without being told,
+ *   which is the only reason this is lettered rather than numbered. The
+ *   compact version is the one that says the thing.
+ *
  *   The three inputs sit above the steps because that is what they are: what
  *   the method starts from, not a fifth step. They carry the same drawn
  *   underscore as the section titles, which is how the current site sets them.
@@ -66,12 +75,15 @@ import { INPUTS, STEPS } from '../process';
     color: var(--color-on-dark);
   }
   /* --- What the method starts from ------------------------------------- */
+  /* These are what the method starts FROM, so they sit close under the
+     heading rather than floating between it and the steps. At --space-xl they
+     read as a third block of their own and cost 64px saying so. */
   .inputs {
     list-style: none;
-    margin: 0 0 var(--space-xl);
+    margin: 0 0 var(--space-l);
     padding: 0;
     display: grid;
-    gap: var(--space-s) var(--space-l);
+    gap: var(--space-xs) var(--space-l);
   }
   .inputs__item {
     font-family: var(--font-display);
@@ -87,28 +99,31 @@ import { INPUTS, STEPS } from '../process';
     list-style: none;
     margin: 0;
     padding: 0;
-    /* One source for the letter's size, because the column it sits in has to
-       be derived from it: each <li> is its own grid, so an `auto` column would
+    display: grid;
+    gap: 0;
+    /* One source for the letter's size, because the column it sits in is
+       derived from it: each <li> is its own grid, so an `auto` column would
        size to that row's own letter and B, D and O would each start their copy
-       at a slightly different x. 0.85 of the size clears the widest of the
-       four capitals in Outfit with a little air. */
-    --letter: clamp(3.8rem, 11vw, 8rem);
+       at a slightly different x. 0.82 clears the widest of the four capitals
+       in Outfit with a little air. */
+    --letter: clamp(2.6rem, 11vw, 3.6rem);
   }
+
+  /* Narrow: the letter sits beside the name rather than above it. A stacked
+     letter of this weight on a 390px screen pushes the line it belongs to
+     most of a screen away from it. */
   .step {
     display: grid;
-    grid-template-columns: calc(var(--letter) * 0.85) minmax(0, 1fr);
+    grid-template-columns: calc(var(--letter) * 0.82) minmax(0, 1fr);
     align-items: baseline;
-    gap: var(--space-s) var(--space-m);
-    padding-block: var(--space-l);
+    column-gap: var(--space-s);
+    padding-block: var(--space-m);
     border-top: 1px solid rgb(250 250 250 / 18%);
   }
   .step:last-child {
     border-bottom: 1px solid rgb(250 250 250 / 18%);
   }
 
-  /* The letter is the section. A fixed column so the four line up in a
-     stack that reads down as B B D O, which is the only reason any of this
-     is lettered rather than numbered. */
   .step__letter {
     font-family: var(--font-display);
     font-weight: 700;
@@ -121,25 +136,73 @@ import { INPUTS, STEPS } from '../process';
     margin: 0;
     font-family: var(--font-display);
     font-weight: var(--weight-display);
-    font-size: clamp(1.3rem, 3vw, 2.1rem);
-    line-height: 1.1;
+    font-size: clamp(1.15rem, 2.4vw, 1.5rem);
+    line-height: 1.15;
     text-transform: uppercase;
     letter-spacing: 0.01em;
   }
   .step__line {
-    margin: var(--space-xs) 0 0;
-    max-width: 44ch;
-    font-size: clamp(1rem, 1.5vw, 1.15rem);
-    line-height: 1.5;
+    margin: var(--space-2xs) 0 0;
+    max-width: 34ch;
+    font-size: clamp(0.95rem, 1.2vw, 1.05rem);
+    line-height: 1.45;
     color: rgb(250 250 250 / 72%);
+    /* Four columns side by side make an uneven wrap obvious: the row is as
+       tall as the worst of them, so a line that breaks 6/6/1 costs the other
+       three a blank line each. */
+    text-wrap: balance;
   }
 
   @media (min-width: 48rem) {
     .inputs {
       grid-template-columns: repeat(3, 1fr);
     }
-    .step {
-      gap: var(--space-l);
+    /* Two by two before four across: at this width four columns leave each
+       line about 20 characters, which breaks every one of them into four
+       ragged rows. */
+    .steps {
+      grid-template-columns: repeat(2, 1fr);
+      column-gap: var(--space-xl);
+    }
+    .step:nth-child(2) {
+      border-top: 1px solid rgb(250 250 250 / 18%);
+    }
+    .step:nth-last-child(2) {
+      border-bottom: 1px solid rgb(250 250 250 / 18%);
+    }
+  }
+
+  /* Four across. The letters are now a word, so they are bigger again and the
+     copy is set under each one rather than beside it. One rule over the whole
+     row instead of one per step: four stacked rules were most of what made
+     this read as a list of four things rather than as one idea spelled out. */
+  @media (min-width: 64rem) {
+    .steps {
+      grid-template-columns: repeat(4, 1fr);
+      column-gap: var(--space-l);
+      border-top: 1px solid rgb(250 250 250 / 18%);
+      --letter: clamp(4rem, 5.6vw, 6.5rem);
+    }
+    .step,
+    .step:last-child,
+    .step:nth-child(2),
+    .step:nth-last-child(2) {
+      grid-template-columns: minmax(0, 1fr);
+      align-content: start;
+      /* baseline is inherited from the narrow layout, where it lines the
+         letter up with the name beside it. Stacked there is nothing to line up
+         against, and it silently adds 8px over every letter. */
+      align-items: start;
+      padding-block: var(--space-l) 0;
+      border-top: 0;
+      border-bottom: 0;
+    }
+    .step__letter {
+      display: block;
+      margin-bottom: var(--space-xs);
+    }
+    .step__line {
+      max-width: none;
     }
   }
 </style>

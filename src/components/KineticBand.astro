@@ -111,24 +111,55 @@ const copies = Array.from(
      wall of type, and the point is that the phrase is one thing said twice.
      It is also the device the global site uses.
 
-     KNOWN FALSE POSITIVE IN axe. It reports these five spans at 1.04:1, reading
-     #ffffff on #fafafa — both wrong. axe has no support for -webkit-text-stroke,
-     so it measures the knocked-out fill instead of the ink, and it misresolves
-     the background through the transformed, clipped row. Sampled off the
-     rendered pixels the stroke is #ff0000 on #161616: 4.53:1, against the 3:1
-     this size asks for. Declaring `color` red instead of transparent was tried
-     and does not move it — axe reads -webkit-text-fill-color too.
+     DRAWN WITH OFFSET COPIES, NOT WITH -webkit-text-stroke, and that is a
+     correction rather than a preference. A stroke traces every contour of a
+     glyph, and Outfit's letters are drawn from overlapping components that
+     were never boolean-merged — a stem, a bar, a bowl, each its own closed
+     path. The fill never shows it, because non-zero winding fills the union;
+     the stroke drew every internal seam. It came out as bars across the B, a
+     triangle inside the G, a doubled diagonal in the N. Verified against three
+     families: Helvetica strokes clean, Inter almost, Outfit worst.
 
-     The declaration stays red anyway, because that is the truer statement about
-     what colour this text is. If a clean audit report ever matters more than
-     matching the global device, making this row solid red instead of outlined
-     is a one-line change and axe measures it correctly.
+     So the outline is the difference between a fattened copy of the glyph and
+     the glyph itself: eight red shadows on a ring of --stroke radius, painted
+     behind an opaque fill in the band's own colour. Every one of those copies
+     is a FILL, so each is already the merged union, and stacking them cannot
+     reintroduce a seam. Corners come out very slightly rounded, which at 160px
+     nobody can see.
 
-     Only the -webkit- form exists; `text-stroke` was never standardised. */
+     TWO THINGS THIS COUPLES, both of which have to move together:
+       · the fill has to be exactly the band's background. If .band's colour
+         changes, this changes with it or the letters turn into solid blocks.
+       · the diagonals are at 0.707 of --stroke, which is the radius on the
+         circle. Setting them equal to --stroke fattens the corners.
+
+     THIS ALSO CLEARS THE axe REPORT, which was not the reason for the change
+     but is the better outcome. The stroke version was a VIOLATION: axe cannot
+     read -webkit-text-stroke, measured the knocked-out fill instead of the
+     ink, and reported 1.04:1. This version is an INCOMPLETE — "element has a
+     1:1 contrast ratio with the background", flagged for a human to look at
+     rather than failed — which is the right verdict for text whose fill is
+     deliberately its own background. The site now has zero axe violations with
+     no documented exception, where before it had one everywhere the band
+     appeared.
+
+     What neither reading describes is the ink. Sampled off the rendered pixels
+     the letters are #ff0000 on #161616: 4.53:1, against the 3:1 this size
+     asks for. And the band is aria-hidden with the phrase set as real text in
+     the headline above, so nothing here is information anybody can miss. */
   .band__row--outline {
-    color: var(--color-red);
-    -webkit-text-fill-color: transparent;
-    -webkit-text-stroke: 2px var(--color-red);
+    --stroke: 2px;
+    --diag: calc(var(--stroke) * 0.707);
+    color: var(--color-dark);
+    text-shadow:
+      var(--stroke) 0 0 var(--color-red),
+      calc(var(--stroke) * -1) 0 0 var(--color-red),
+      0 var(--stroke) 0 var(--color-red),
+      0 calc(var(--stroke) * -1) 0 var(--color-red),
+      var(--diag) var(--diag) 0 var(--color-red),
+      calc(var(--diag) * -1) var(--diag) 0 var(--color-red),
+      var(--diag) calc(var(--diag) * -1) 0 var(--color-red),
+      calc(var(--diag) * -1) calc(var(--diag) * -1) 0 var(--color-red);
   }
 
   /* THE NAME HAS TO BE INSIDE THE SHORTHAND, and that is not a style choice.
