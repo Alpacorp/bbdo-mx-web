@@ -59,15 +59,52 @@ const oneTrustSettings = {
       <p class="intro">{notice.intro}</p>
     </div>
 
-    <div class="section-shell">
+    <div class="section-shell" data-notice data-notice-src={noticeSource(notice.noticeId)}>
       {/* OneTrust requires this exact id and class. Do not rename. */}
       <div id={containerId} class="otnotice"></div>
+
+      {
+        /* The wait is real and it is long: six round trips to OneTrust before
+           a word appears, 2.3s on a wired connection here and several seconds
+           on Mexican 4G. Until now that was a blank page under a heading.
+
+           A skeleton and not a spinner, because the thing being waited for is
+           a long text document: bars in the shape of a heading and paragraphs
+           say what is coming, where a spinner only says wait.
+
+           It is drawn ONLY under html.js, the same rule ScrollFX follows. With
+           JavaScript off nothing here will ever resolve, and a skeleton that
+           never finishes is worse than the <noscript> note below, which is the
+           real answer for that visitor. */
+      }
+      <div class="skeleton" data-notice-skeleton aria-hidden="true">
+        <span class="skeleton__bar skeleton__bar--title"></span>
+        <span class="skeleton__bar"></span>
+        <span class="skeleton__bar"></span>
+        <span class="skeleton__bar skeleton__bar--short"></span>
+        <span class="skeleton__bar skeleton__bar--gap"></span>
+        <span class="skeleton__bar"></span>
+        <span class="skeleton__bar skeleton__bar--short"></span>
+      </div>
+
+      {
+        /* Politely announced rather than silent: a screen reader otherwise sits
+          on a heading with nothing under it and no reason given. */
+      }
+      <p class="sr-only" data-notice-status role="status">Cargando el aviso…</p>
+
+      <p class="nojs" data-notice-fallback hidden>
+        No hemos podido cargar el aviso. Lo publica Omnicom a través de OneTrust y su servicio no ha
+        respondido. Puedes consultarlo directamente en{' '}
+        <a href={noticeSource(notice.noticeId)} rel="noopener">el documento original</a>{' '}
+        o escribirnos y te lo enviamos.
+      </p>
 
       <noscript>
         <p class="nojs">
           Este aviso lo publica Omnicom a través de OneTrust y necesita JavaScript para mostrarse.
-          Puedes consultarlo directamente en
-          <a href={noticeSource(notice.noticeId)} rel="noopener">el documento original</a>
+          Puedes consultarlo directamente en{' '}
+          <a href={noticeSource(notice.noticeId)} rel="noopener">el documento original</a>{' '}
           o escribirnos y te lo enviamos.
         </p>
       </noscript>
@@ -89,12 +126,96 @@ const oneTrustSettings = {
     src="https://omnicom-privacy-cdn.my.onetrust.com/privacy-notice-scripts/otnotice-1.0.min.js"
     charset="UTF-8"
     {...oneTrustSettings}></script>
-  <script is:inline define:vars={{ src: noticeSource(notice.noticeId) }}>
-    OneTrust.NoticeApi.Initialized.then(function () {
-      OneTrust.NoticeApi.LoadNotices([src]);
-    });
-  </script>
 </Base>
+
+<script>
+  import { onPage } from '../../lifecycle';
+
+  /**
+   * WHY THIS IS NOT `OneTrust.NoticeApi.Initialized.then(...)` INLINE ANY MORE
+   *
+   * That is what was here, and it worked on a cold load and only there. The
+   * loader is a blocking classic script, so on a fresh document it has always
+   * run by the time the next inline script does. After a client-side swap
+   * ClientRouter re-inserts both, the external one resolves asynchronously,
+   * and the bootstrap ran first and threw `OneTrust is not defined` — a real
+   * uncaught error, after which LoadNotices was never called.
+   *
+   * The effect: all four legal pages were BLANK for anyone who arrived through
+   * the footer, which is how everybody arrives. Only a direct load or a
+   * refresh ever showed the notice. Verified both ways before and after.
+   *
+   * So nothing here assumes an order. It waits for the API to exist, with a
+   * cap, and gives up honestly instead of hanging.
+   */
+  /** Only the two entry points this page uses; OneTrust ships no types. */
+  interface OneTrustApi {
+    NoticeApi?: {
+      Initialized?: Promise<unknown>;
+      LoadNotices?: (urls: string[]) => void;
+    };
+  }
+
+  const POLL_MS = 100;
+  const GIVE_UP_MS = 15000;
+
+  onPage(() => {
+    const root = document.querySelector<HTMLElement>('[data-notice]');
+    if (!root) return;
+
+    const src = root.dataset.noticeSrc;
+    const box = root.querySelector<HTMLElement>('.otnotice');
+    const skeleton = root.querySelector<HTMLElement>('[data-notice-skeleton]');
+    const status = root.querySelector<HTMLElement>('[data-notice-status]');
+    const fallback = root.querySelector<HTMLElement>('[data-notice-fallback]');
+    if (!src || !box) return;
+
+    let done = false;
+    let timer = 0;
+
+    const settle = (ok: boolean) => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      observer.disconnect();
+      skeleton?.remove();
+      if (status) status.textContent = ok ? 'Aviso cargado.' : 'No se pudo cargar el aviso.';
+      if (!ok) fallback?.removeAttribute('hidden');
+    };
+
+    /* The notice is rendered by a third party, so there is no callback to
+       await: the only honest signal that it arrived is the container getting
+       children. */
+    const observer = new MutationObserver(() => {
+      if (box.children.length > 0) settle(true);
+    });
+    observer.observe(box, { childList: true });
+    if (box.children.length > 0) settle(true);
+
+    timer = window.setTimeout(() => settle(false), GIVE_UP_MS);
+
+    const start = Date.now();
+    const boot = () => {
+      if (done) return;
+      const ot = (window as unknown as { OneTrust?: OneTrustApi }).OneTrust;
+      if (ot?.NoticeApi?.Initialized) {
+        ot.NoticeApi.Initialized.then(() => {
+          if (!done) ot.NoticeApi?.LoadNotices?.([src]);
+        }).catch(() => settle(false));
+        return;
+      }
+      if (Date.now() - start > GIVE_UP_MS) return;
+      window.setTimeout(boot, POLL_MS);
+    };
+    boot();
+
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+      done = true;
+    };
+  });
+</script>
 
 <style>
   .kicker {
@@ -129,6 +250,57 @@ const oneTrustSettings = {
   }
   .otnotice :global(.otnotice-content) {
     font-family: var(--font-ui);
+  }
+
+  /* --- Waiting for OneTrust ---------------------------------------------
+     Drawn only when JavaScript is running. Without it nothing will ever
+     replace these bars, and the <noscript> note is the real answer. */
+  .skeleton {
+    display: none;
+  }
+  :global(html.js) .skeleton {
+    display: grid;
+    gap: var(--space-s);
+    max-width: 78ch;
+    margin-top: var(--space-s);
+  }
+  .skeleton__bar {
+    display: block;
+    height: 1rem;
+    border-radius: 3px;
+    /* Same tint the no-JS note uses, so the page has one grey and not two. */
+    background: color-mix(in srgb, var(--color-fg) 9%, transparent);
+  }
+  .skeleton__bar--title {
+    height: 2rem;
+    width: 55%;
+    margin-bottom: var(--space-xs);
+  }
+  .skeleton__bar--short {
+    width: 68%;
+  }
+  .skeleton__bar--gap {
+    margin-top: var(--space-m);
+  }
+
+  /* The sweep is the only thing that says this is loading rather than broken.
+     It travels across the whole block, so the bars read as one surface. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.js) .skeleton {
+      --sweep: color-mix(in srgb, var(--color-fg) 4%, transparent);
+      background-image: linear-gradient(100deg, transparent 20%, var(--sweep) 50%, transparent 80%);
+      background-size: 220% 100%;
+      background-repeat: no-repeat;
+      animation: noticeSweep 1.6s linear infinite;
+    }
+    @keyframes noticeSweep {
+      from {
+        background-position: 120% 0;
+      }
+      to {
+        background-position: -120% 0;
+      }
+    }
   }
 
   .nojs {

@@ -133,14 +133,9 @@ const { id, poster, posterAlt, title } = Astro.props;
     color: #fafafa;
   }
 
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
+  /* .sr-only is a global utility in styles/sections.css now: it was scoped
+     here, so any other component writing class="sr-only" rendered it plainly
+     visible. The legal pages' loading status did exactly that. */
 
   @media (prefers-reduced-motion: reduce) {
     .player__play {

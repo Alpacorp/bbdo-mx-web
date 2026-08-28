@@ -170,3 +170,19 @@
   border-color: var(--color-red);
   color: var(--color-on-dark);
 }
+
+/* Visible to a screen reader, to nothing else. It lived inside VimeoPlayer,
+   where Astro's scoping meant every other component that wrote class="sr-only"
+   got a plainly visible paragraph — which is what the legal pages' loading
+   status did. A utility that two components need is not a component's. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
