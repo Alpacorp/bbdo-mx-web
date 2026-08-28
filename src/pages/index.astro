@@ -159,11 +159,29 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
             cases.map((c, i) => (
               <li class:list={['card', i === 0 && 'card--wide']}>
                 <a href={`/the-work/${c.id}/`} data-morph>
+                  {/* The lead card is 58vw at three columns and the rest are
+                       28vw. One blanket 33vw could not say that, so all six
+                       were picked from the same declaration.
+
+                       Measured, the difference shows on 1x screens: the lead
+                       takes 1200w and the five others drop to 800w, 183 KB
+                       against 265. On a 2x screen every card needs 1200 — even
+                       a small one wants 832 device pixels and 800 would be
+                       serving under. That is correct, not waste.
+
+                       The lead cannot fill a 2x screen at all: it needs 1712
+                       and the sources are 1280x720 Vimeo thumbnails, so 1200
+                       is the ceiling. That is the audit's A1 — key art, not
+                       code. */}
                   <Image
                     src={c.data.image}
                     alt={c.data.imageAlt}
                     widths={[400, 800, 1200]}
-                    sizes="(max-width: 40rem) 100vw, (max-width: 60rem) 50vw, 33vw"
+                    sizes={
+                      i === 0
+                        ? '(min-width: 64rem) 58vw, (min-width: 40rem) 50vw, 100vw'
+                        : '(min-width: 64rem) 28vw, (min-width: 40rem) 50vw, 100vw'
+                    }
                     loading="lazy"
                     transition:name={`cover-${c.id}`}
                   />
@@ -274,18 +292,36 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
     color: var(--color-red);
   }
 
-  /* --- Work: grid asimetrica ----------------------------------------- */
+  /* --- Work: asymmetric grid -------------------------------------------
+     SIX CARDS, ONE OF THEM DOUBLE, IS SEVEN CELLS. Seven divides by neither
+     three nor two, and that arithmetic was the whole complaint: measured on
+     the build, the grid box came out 27% empty at 1512 and 32% at 768. A
+     column's worth of nothing sat under the third card of row one, and the
+     last row carried one card against two blank cells.
+
+     So the span exists only at the width where six cards fill the shape
+     exactly. Three columns, the lead case two wide AND two tall, two stacked
+     beside it, three underneath:
+
+         0 0 1
+         0 0 2
+         3 4 5
+
+     Below that the lead is an ordinary card and the grid is flat — two columns
+     by three, then one — because at two columns a double-wide card puts the
+     hole straight back.
+
+     AND IT HAD NO BREAKPOINTS AT ALL. Three columns held down to 390px, where
+     each card was 101px wide with its brand name wrapped over three lines
+     beside a thumbnail smaller than the type. This section never got the
+     mobile-first pass section 6 calls obligatory. */
   .grid {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 1fr;
     gap: var(--space-l) var(--space-m);
-  }
-  /* The first case spans two columns: it breaks the flat grid. */
-  .card--wide {
-    grid-column: span 2;
   }
 
   .card a {
@@ -299,9 +335,6 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
     object-fit: cover;
     border-radius: 4px;
     background: var(--color-dark);
-  }
-  .card--wide img {
-    aspect-ratio: 21 / 9;
   }
   .card__brand {
     font-family: var(--font-display);
@@ -317,6 +350,45 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
   }
   .card a:hover .card__brand {
     color: var(--color-red);
+  }
+
+  /* Two columns, flat: six ordinary cards are three clean rows. */
+  @media (min-width: 40rem) {
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* Three columns, and the lead case becomes the protagonist. It spans two
+     rows as well as two columns, so the pair stacked beside it defines the
+     height and nothing is left over. */
+  @media (min-width: 64rem) {
+    .grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .card--wide {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+    /* The card's own box has to become the layout, or the image keeps its
+       intrinsic height and the second row shows up as space under the caption
+       instead of as picture. 1fr takes the picture, auto takes the two lines
+       of type. */
+    .card--wide a {
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto auto;
+      height: 100%;
+    }
+    /* aspect-ratio is dropped rather than retuned: the height comes from the
+       two cards beside it now, and a ratio would fight that. min-height: 0 is
+       what lets the row shrink to its track — without it the image keeps a
+       content-based automatic minimum and overflows the card, which is the
+       same trap the footer wordmark hit. */
+    .card--wide img {
+      aspect-ratio: auto;
+      height: 100%;
+      min-height: 0;
+    }
   }
 
   /* --- Noticias ----------------------------------------------------------
