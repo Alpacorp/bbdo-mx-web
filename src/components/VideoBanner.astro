@@ -47,6 +47,7 @@
  *   the video is only requested after the load event. Section 6 of the brief.
  */
 
+import { existsSync } from 'node:fs';
 import { CURTAIN_WIDE, CURTAIN_TALL } from '../curtain';
 
 interface Props {
@@ -70,6 +71,27 @@ interface Props {
 
 const { left, right, src, poster, transitionName } = Astro.props;
 
+/**
+ * AV1 first, H.264 second, and the AV1 is OPTIONAL BY EXISTENCE.
+ *
+ * Both encodes of the same footage fit the 2.5 MB budget in section 6, so the
+ * page is within budget whichever one a browser picks. AV1 is offered first
+ * because it buys quality rather than bytes at this size: measured against the
+ * master, AV1 scores 0.9959 SSIM at 1.90 MB where H.264 scores 0.9926 at 2.01.
+ *
+ * The sibling is looked up on disk at build time instead of being passed in.
+ * A <source> pointing at a file that is not there does fall through to the
+ * next one, but it spends a request to find that out, and every case page
+ * would spend it. Dropping an `X.av1.mp4` next to `X.mp4` is enough to turn
+ * this on for that video; nothing else has to be edited.
+ *
+ * Both are `type="video/mp4"` and separated by the codecs parameter, which is
+ * what browsers actually select on. Without the parameter Safari would take
+ * the first mp4 it sees and fail to decode it.
+ */
+const av1Src = src.replace(/\.mp4$/, '.av1.mp4');
+const hasAv1 = src.endsWith('.mp4') && existsSync(`public${av1Src}`);
+
 // Unique, deterministic id per banner: if a page has two, their masks do not
 // collide, and it does not change between builds.
 const uid = `mask-${poster.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '')}`;
@@ -79,14 +101,17 @@ const uidTall = `${uid}-tall`;
 <section class="banner" data-video-banner>
   <video
     class="banner__video"
-    src={src}
     poster={poster}
     muted
     loop
     playsinline
     preload="none"
     aria-hidden="true"
-    transition:name={transitionName}></video>
+    transition:name={transitionName}
+  >
+    {hasAv1 && <source src={av1Src} type='video/mp4; codecs="av01.0.05M.08"' />}
+    <source src={src} type='video/mp4; codecs="avc1.640028"' />
+  </video>
 
   <svg
     class="banner__curtain banner__curtain--wide"

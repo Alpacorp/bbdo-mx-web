@@ -149,10 +149,50 @@ Componente: `src/components/VideoHeadline.astro`.
 - Fallback móvil definido (4G MX: 4 videos simultáneos = rebote).
 - `prefers-reduced-motion` respetado.
 - Presupuesto: **hero <= 2,5 MB, LCP < 2,5s**. El diseño se diseña contra ese número.
-  **HOY NO SE CUMPLE:** `banner-home.mp4` pesa 32,3 MB, trece veces el presupuesto,
-  y lo cargan los 19 casos además del home. Es el hallazgo A3 y sigue abierto.
+  **Cumplido para el banner desde el 2026-08-28:** `banner-home.mp4` pasó de
+  32,3 MB a 2,01 MB en H.264 y 1,90 MB en AV1, así que entra en presupuesto
+  gane quien gane la negociación del navegador. **Sigue sin cumplirse para los
+  tres clips del titular**, que la sección 5 especifica en <400 KB y pesan
+  3,6–3,9 MB cada uno: el home descarga 11,3 MB solo en ellos.
 - Migración: **mapa de redirects 301 uno-a-uno ANTES del deploy.** Innegociable.
+
+### Cómo se comprime un video aquí (2026-08-28)
+
+`ffmpeg` **no está instalado en el sistema** y ponerlo por Homebrew pide `sudo`.
+Se usa el binario estático por npm, que no toca el sistema y no se guarda en
+`package.json`:
+
+```
+npm i --no-save ffmpeg-static ffprobe-static
+FF=./node_modules/ffmpeg-static/ffmpeg
+```
+
+Las dos codificaciones del banner, medidas contra el máster con SSIM:
+
+```
+# AV1 — 1,90 MB · SSIM 0,9959
+$FF -i in.mp4 -c:v libsvtav1 -preset 6 -crf 40 -pix_fmt yuv420p \
+    -an -movflags +faststart out.av1.mp4
+
+# H.264 de respaldo — 2,01 MB · SSIM 0,9926
+$FF -i in.mp4 -c:v libx264 -preset veryslow -crf 34 -pix_fmt yuv420p \
+    -profile:v high -level 4.0 -an -movflags +faststart out.mp4
+```
+
+- **`-an` no es opcional.** El máster traía una pista AAC estéreo de 317 kbps
+  —590 KB— que la página no reproduce nunca, porque el banner va `muted`.
+- **`+faststart`** mueve el átomo `moov` al principio: la reproducción puede
+  empezar antes de que llegue el archivo entero, que es lo que quieres en un
+  hero.
+- El original pesaba 32,3 MB a **17 Mbps**: era un export máster, no un asset
+  de web. Ahí estaba el problema, no en la resolución, que se mantiene en
+  1920x1080.
+- Se compara con SSIM y no a ojo: `ssim=stats_file=-` sobre el clip entero.
+  El peor fotograma del AV1 puntúa 0,947 y es un patrón de glitch con líneas
+  de un píxel, el contenido más hostil que hay para un códec.
+
   **Hecho** — sección 8.
+
 - **Mobile-first, OBLIGATORIO.** Toda vista se trabaja desde móvil desde el
   primer momento, no se adapta después. Decidido el 2026-08-18. Una vista no
   se da por hecha hasta estar verificada en móvil: sin scroll horizontal,
@@ -464,18 +504,18 @@ grilla y el caso, y la portada del caso a sangre sin la cortina (`30480ef`).
 
 ### Los hallazgos abiertos, por qué esperan
 
-|     | Hallazgo                                                                                                                                                                                                                                                                                      | Espera            |
-| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
-| A1  | Las 19 portadas son **fotogramas de video** con bandas negras, subtítulos y leyendas legales quemadas («ENJOY RESPONSIBLY», «SUGERENCIA DE CONSUMO», un timecode). Los propios datos lo admiten: `imageAlt: 'Fotograma de la campaña…'`. Es la diferencia visual más grande contra el global. | Key art           |
-| A2  | El **póster del banner del home no tiene imagen**: es un degradado marrón vacío. Y es el LCP del home, y el estado permanente para quien navegue con «reducir movimiento» o con conexión lenta.                                                                                               | Un fotograma real |
-| A3  | El **video del banner pesa 32,3 MB**, trece veces el presupuesto. Y **los 19 casos lo cargan**, además del home.                                                                                                                                                                              | Compresión        |
-| A4  | Las 19 fichas **abrían con la misma cortina roja**. ✅ Resuelto en parte: la portada ya llega a sangre. Sigue abierto que las 19 usan el mismo metraje.                                                                                                                                       | Video por caso    |
-| B1  | **No hay Servicios.** Quien entra preguntando «¿qué hacen?» no encuentra respuesta.                                                                                                                                                                                                           | Copy              |
-| B3  | **Premios tiene un solo premio**, mientras la meta description dice «una de las agencias más premiadas del país». La sección contradice la frase en vez de sostenerla.                                                                                                                        | Palmarés          |
-| B4  | **Ningún caso tiene resultado, categoría ni año.** Los campos existen y están vacíos: `result 0/19`, `category 0/19`, `year 1/19`. Sin resultados, cada caso son treinta palabras y un video.                                                                                                 | Datos             |
-| B5  | **El collage no se ve en ninguna campaña**: el componente está construido y enlazado, pero ninguna tiene fotos. Es trabajo hecho que hoy no existe para el visitante.                                                                                                                         | Fotos             |
-| B6  | **News tiene una sola nota**, de noviembre de 2024. Comunica que la agencia lleva casi dos años sin pasar nada.                                                                                                                                                                               | Notas             |
-| D3  | **The Work no tiene filtros.** Con 19 ya cuesta; con 40 será inservible. Es la misma tarea que B4: primero los campos.                                                                                                                                                                        | B4                |
+|        | Hallazgo                                                                                                                                                                                                                                                                                      | Espera                            |
+| ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| A1     | Las 19 portadas son **fotogramas de video** con bandas negras, subtítulos y leyendas legales quemadas («ENJOY RESPONSIBLY», «SUGERENCIA DE CONSUMO», un timecode). Los propios datos lo admiten: `imageAlt: 'Fotograma de la campaña…'`. Es la diferencia visual más grande contra el global. | Key art                           |
+| A2     | El **póster del banner del home no tiene imagen**: es un degradado marrón vacío. Y es el LCP del home, y el estado permanente para quien navegue con «reducir movimiento» o con conexión lenta.                                                                                               | Un fotograma real                 |
+| ~~A3~~ | ~~El **video del banner pesa 32,3 MB**~~ — **RESUELTO el 2026-08-28**: 2,01 MB en H.264 y 1,90 en AV1, sin pista de audio. Queda abierto que los 19 casos usan el mismo metraje, y que los tres clips del titular pesan 11,3 MB entre ellos.                                                  | ~~Compresión~~ · metraje por caso |
+| A4     | Las 19 fichas **abrían con la misma cortina roja**. ✅ Resuelto en parte: la portada ya llega a sangre. Sigue abierto que las 19 usan el mismo metraje.                                                                                                                                       | Video por caso                    |
+| B1     | **No hay Servicios.** Quien entra preguntando «¿qué hacen?» no encuentra respuesta.                                                                                                                                                                                                           | Copy                              |
+| B3     | **Premios tiene un solo premio**, mientras la meta description dice «una de las agencias más premiadas del país». La sección contradice la frase en vez de sostenerla.                                                                                                                        | Palmarés                          |
+| B4     | **Ningún caso tiene resultado, categoría ni año.** Los campos existen y están vacíos: `result 0/19`, `category 0/19`, `year 1/19`. Sin resultados, cada caso son treinta palabras y un video.                                                                                                 | Datos                             |
+| B5     | **El collage no se ve en ninguna campaña**: el componente está construido y enlazado, pero ninguna tiene fotos. Es trabajo hecho que hoy no existe para el visitante.                                                                                                                         | Fotos                             |
+| B6     | **News tiene una sola nota**, de noviembre de 2024. Comunica que la agencia lleva casi dos años sin pasar nada.                                                                                                                                                                               | Notas                             |
+| D3     | **The Work no tiene filtros.** Con 19 ya cuesta; con 40 será inservible. Es la misma tarea que B4: primero los campos.                                                                                                                                                                        | B4                                |
 
 Todo el frente C (ser más conservadores que el manual global) y el resto del D
 está cerrado por las fases 01 y por la pasada de accesibilidad.
@@ -553,7 +593,7 @@ Esto es la fase 00. Mientras no llegue, el sitio no puede pasar de donde está.
 | Para                         | Qué                                                                                                                                                   |
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **A cada equipo de cuenta**  | Key art de su campaña en 16:9 y 4:5. Sin bandas negras, sin subtítulos, sin leyendas legales. Si no existe, un fotograma limpio sirve mientras tanto. |
-| **A post-producción**        | Los cuatro videos comprimidos por debajo de 2,5 MB. **El del banner es el urgente: hoy pesa 32,3.**                                                   |
+| **A post-producción**        | Ya no hace falta comprimir: se hizo aquí el 2026-08-28. Lo que sí hace falta es **metraje propio por caso**, porque los 19 abren con el mismo clip.   |
 | **A dirección creativa**     | Un resultado por campaña. Una cifra, un premio o una frase de impacto. Diecinueve renglones. Y firmar los nombres del Proceso BBDO (sección 10).      |
 | **A comunicación**           | El palmarés completo con año, festival y nivel. Y tres notas más para que News no parezca detenido en 2024.                                           |
 | **A planning**               | Los tres pilares del Proceso BBDO escritos para publicarse, y la lista de servicios como se venden hoy.                                               |
@@ -580,10 +620,11 @@ Por orden, y con la dependencia dicha:
 
 1. **Mandar la lista de la sección 13.** Es lo único que desbloquea las fases 00
    y 02, y no lo puede hacer el desarrollo.
-2. **Comprimir `banner-home.mp4`.** 32,3 MB contra un presupuesto de 2,5, cargado
-   por 20 páginas. Es la deuda de rendimiento más grande que queda y **no
-   depende de la agencia**: se puede reencodear el archivo que ya hay mientras
-   llega metraje por caso. Requiere `ffmpeg`, que hoy no está instalado.
+2. **Comprimir los tres clips del titular.** `modelo`, `banamex` y `pepsi`
+   pesan 3,9 / 3,75 / 3,63 MB y **el home los descarga los tres**: 11,3 MB. La
+   sección 5 de este brief los especifica en **<400 KB** cada uno, así que
+   están nueve veces por encima de su propia especificación. Mismo trabajo que
+   el banner y tampoco depende de la agencia.
 3. **El cursor VER.** La única apuesta sin dependencias externas.
 4. Cuando llegue el key art: **fase 02 completa** —fondo oscuro, grilla
    asimétrica, filtros.
