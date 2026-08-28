@@ -37,6 +37,22 @@ interface Props {
 }
 
 // Note: the current site has the "Omincon" typo site-wide (section 2). It is Omnicom.
+/**
+ * The share card, and nobody overrides it: every page on this site presents
+ * this one image to a social scraper.
+ *
+ * It used to be `/v/modelo.png` — a 600x400 placeholder gradient with nothing
+ * in it, named after a client whose footage it did not contain. Two problems
+ * at once: an empty image as the agency's entire social presence, and 600x400
+ * against the 1200x630 the platforms crop to.
+ *
+ * JPEG and not WebP on purpose. The posters on this page are WebP because
+ * browsers all read it; scrapers are a wider and older population, and a share
+ * card that one of them cannot decode is a blank preview rather than a
+ * slightly larger file.
+ */
+const DEFAULT_OG_IMAGE = '/v/og-default.jpg';
+
 const DEFAULT_DESCRIPTION =
   'BBDO México es una de las agencias de publicidad más premiadas del país y forma parte de BBDO Worldwide, red creativa de Omnicom Group.';
 
@@ -44,7 +60,7 @@ const {
   title,
   description = DEFAULT_DESCRIPTION,
   path,
-  ogImage = '/v/modelo.png',
+  ogImage = DEFAULT_OG_IMAGE,
   isHome = false,
   overMedia = false,
 } = Astro.props;
