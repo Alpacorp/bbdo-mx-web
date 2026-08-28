@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import ScrollFX from '../../components/ScrollFX.astro';
+import PointerLabel from '../../components/PointerLabel.astro';
 
 /**
  * /the-work/ — case index.
@@ -40,12 +41,13 @@ const cases = (await getCollection('work', ({ data }) => !data.draft)).sort(
       </p>
     </header>
 
-    <ul class="grid" data-fx-stagger>
+    <ul class="grid" data-fx-stagger data-pointer-label="Ver">
       {
         cases.map((caseEntry, i) => (
           <li class="card">
-            {/* data-morph: esta navegación ya tiene animación propia, la
-                portada creciendo hasta la ficha. CurtainTransition lo lee. */}
+            {/* data-morph: this navigation already has an animation of its
+                own, the cover growing into the case. CurtainTransition reads
+                it and stands the curtain down. */}
             <a href={`/the-work/${caseEntry.id}/`} data-morph>
               <Image
                 src={caseEntry.data.image}
@@ -64,6 +66,7 @@ const cases = (await getCollection('work', ({ data }) => !data.draft)).sort(
       }
     </ul>
 
+    <PointerLabel />
     <ScrollFX />
   </main>
 </Base>
