@@ -59,10 +59,22 @@ const latest = (await getCollection('news'))
  * read it from there.
  */
 
+/**
+ * THESE THREE ARE PLACEHOLDERS AND THE NAMES DO NOT DESCRIBE THEM. Opened
+ * frame by frame while compressing them on 2026-08-28: all three are kinetic
+ * title cards from the current site — "THE WORK", "BBDOERS" — and none of them
+ * contains a frame of Modelo, Pepsi or Banamex. Same debt as banner-home.mp4
+ * below. When real campaign clips arrive, the poster has to be regenerated
+ * from each one: the recipe is in section 6 of the brief.
+ *
+ * The posters ARE frames of their own clip now, taken at t=0 so there is no
+ * jump when the video starts. They used to be 600x400 gradients with nothing
+ * in them, at an aspect no slot uses.
+ */
 const clips = [
-  { after: 0, src: '/v/modelo.mp4', poster: '/v/modelo.png', label: '01', size: 'sm' as const },
-  { after: 1, src: '/v/pepsi.mp4', poster: '/v/pepsi.png', label: '02', size: 'lg' as const },
-  { after: 2, src: '/v/banamex.mp4', poster: '/v/banamex.png', label: '03', size: 'md' as const },
+  { after: 0, src: '/v/modelo.mp4', poster: '/v/modelo.webp', label: '01', size: 'sm' as const },
+  { after: 1, src: '/v/pepsi.mp4', poster: '/v/pepsi.webp', label: '02', size: 'lg' as const },
+  { after: 2, src: '/v/banamex.mp4', poster: '/v/banamex.webp', label: '03', size: 'md' as const },
 ];
 
 // Cases come from the collection, not a hand-written array: a single source of
@@ -103,7 +115,7 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
       left={PLATFORM_CORNERS.left}
       right={PLATFORM_CORNERS.right}
       src="/v/banner-home.mp4"
-      poster="/v/banner-home.png"
+      poster="/v/banner-home.webp"
     />
 
     {
