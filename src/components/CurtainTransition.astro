@@ -259,9 +259,9 @@ import { CURTAIN_WIDE, CURTAIN_TALL } from '../curtain';
     ]);
   }
 
-  function phase(el: HTMLElement, valor: string | null) {
-    if (valor === null) el.removeAttribute('data-phase');
-    else el.setAttribute('data-phase', valor);
+  function phase(el: HTMLElement, value: string | null) {
+    if (value === null) el.removeAttribute('data-phase');
+    else el.setAttribute('data-phase', value);
   }
 
   document.addEventListener('astro:before-preparation', (event) => {
