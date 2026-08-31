@@ -4,6 +4,7 @@ import { defineCollection } from 'astro:content';
 import { z } from 'zod';
 import { glob, file } from 'astro/loaders';
 import { THEME_KEYS } from './themes';
+import { NETWORK_KEYS, NETWORKS, belongsTo } from './networks';
 
 /**
  * `work` collection — one file per case, one URL per case.
@@ -189,6 +190,35 @@ const people = defineCollection({
     photo: z.string(),
     /** Lowest first. Leadership on top, then the rest alphabetically. */
     order: z.number().default(99),
+
+    /**
+     * Personal accounts, one key per network, all optional. A card shows an
+     * icon only for the keys that are there, so absence is the default and
+     * nobody appears on the site by omission.
+     *
+     * THIS IS PERSONAL DATA ABOUT AN IDENTIFIED PERSON, so it is opt-in by
+     * construction — but the consent is the agency's to collect, not this
+     * file's to assume. See section 10 bis of the brief.
+     *
+     * The url is checked against the network's own hosts. Pasting a LinkedIn
+     * profile into `instagram` is the mistake this catches, and it is the one
+     * that cannot be seen afterwards: the icon renders, the link is wrong.
+     */
+    social: z
+      .object(
+        Object.fromEntries(
+          NETWORK_KEYS.map((key) => [
+            key,
+            z
+              .string()
+              .refine((url) => belongsTo(key, url), {
+                message: `must be an https url on ${NETWORKS[key].hosts.join(' or ')}`,
+              })
+              .optional(),
+          ])
+        ) as Record<(typeof NETWORK_KEYS)[number], z.ZodOptional<z.ZodString>>
+      )
+      .optional(),
   }),
 });
 
