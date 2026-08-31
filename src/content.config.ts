@@ -55,6 +55,15 @@ const work = defineCollection({
       vimeo: z.string().optional(),
 
       /**
+       * Video for the case's banner, when it is not named after the case.
+       * Usually it should be: the page falls back to /v/case/<slug>.mp4 by
+       * convention, and to the shared clip if neither exists. This field is
+       * the escape hatch for a real campaign cut that arrives under its own
+       * name.
+       */
+      bannerVideo: z.string().optional(),
+
+      /**
        * Campaign description. The place to tell it properly: what the problem
        * was, what idea solved it and what happened next. The long body goes in
        * the markdown, below the frontmatter.

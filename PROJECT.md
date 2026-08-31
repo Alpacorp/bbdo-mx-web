@@ -272,6 +272,15 @@ Estas costaron tiempo. Están aquí para que no se paguen dos veces.
 
 ### Otras
 
+- **`zoompan` de ffmpeg tiembla en zooms lentos, y no hay ajuste que lo cure.**
+  Recalcula el origen del recorte en cada fotograma y lo **trunca a píxeles
+  enteros de la entrada**. Sobre un zoom del 8% en 12 s el paso sale irregular
+  —patrón medido `1222122212221221`— con el **22% de los fotogramas sin
+  moverse**. Se probó, se publicó un día y hubo que retirarlo. Un `transform`
+  en CSS hace el mismo movimiento con precisión de subpíxel, en el compositor,
+  sin un solo byte. **Para animar una imagen fija, CSS; ffmpeg es para
+  metraje.**
+
 - El `<script>` de un componente **no debe llevar `is:inline`** si importa algo.
 - Assets en `public/v/…` se referencian como `/v/…` (sin `public`).
 - `astro.config`'s `redirects` **compila sin la barra final**, y todas las URLs
@@ -314,6 +323,11 @@ Estas costaron tiempo. Están aquí para que no se paguen dos veces.
   `noindex` en el layout bajo la misma condición. Antes los deploys de preview
   eran plenamente rastreables bajo el nombre de la agencia.
 - Sitemap, canonicals, favicon set derivado del logo (`scripts/build-icons.mjs`).
+- **Banner propio por caso.** Se resuelve en dos pasos: `bannerVideo` del
+  frontmatter → `/v/case/<slug>.mp4` por convención. La existencia se comprueba
+  en disco al construir, igual que el hermano AV1 del banner del home. **Si no
+  hay ninguno, el banner no monta un `<video>`**: muestra el key visual del
+  caso con un zoom lento en CSS. Ver la sección 7.
 
 ### Interacción
 
@@ -507,22 +521,42 @@ grilla y el caso, y la portada del caso a sangre sin la cortina (`30480ef`).
 
 ### Los hallazgos abiertos, por qué esperan
 
-|        | Hallazgo                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Espera                  |
-| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
-| A1     | Las 19 portadas son **fotogramas de video** con bandas negras, subtítulos y leyendas legales quemadas («ENJOY RESPONSIBLY», «SUGERENCIA DE CONSUMO», un timecode). Los propios datos lo admiten: `imageAlt: 'Fotograma de la campaña…'`. Es la diferencia visual más grande contra el global.                                                                                                                                                                                   | Key art                 |
-| ~~A2~~ | ~~El **póster del banner no tiene imagen**~~ — **RESUELTO el 2026-08-28.** Eran **cuatro** degradados vacíos, no uno: el del banner y los tres de los huecos del titular. Los cuatro son ahora un fotograma real de su propio vídeo, en WebP y en `t=0` para que no haya salto al arrancar. De paso apareció que `og:image` apuntaba a uno de ellos, así que **las 30 páginas compartían un degradado vacío como vista previa social**; ahora hay una cartela BBDO de 1200x630. | ~~Un fotograma real~~   |
-| ~~A3~~ | ~~El **video del banner pesa 32,3 MB**~~ — **RESUELTO el 2026-08-28**: 2,01 MB en H.264 y 1,90 en AV1, sin pista de audio. Lo que queda abierto ya no es compresión: **los 19 casos abren con el mismo metraje, y ese metraje —igual que los tres clips del titular— es material provisional del sitio actual.** Ver el hallazgo nuevo A5.                                                                                                                                      | Metraje por caso        |
-| A5     | **Los tres clips del titular no contienen a sus marcas.** Se llaman `modelo`, `pepsi` y `banamex` y al abrirlos fotograma a fotograma son cartelas tipográficas del sitio actual — «THE WORK», «BBDOERS» —: ni un frame de Modelo, Pepsi o Banamex. Misma deuda que `banner-home.mp4`, que es `head-team.mp4`. Los nombres de archivo hacen creer que hay metraje de campaña donde no lo hay.                                                                                   | Clips de campaña reales |
-| A4     | Las 19 fichas **abrían con la misma cortina roja**. ✅ Resuelto en parte: la portada ya llega a sangre. Sigue abierto que las 19 usan el mismo metraje.                                                                                                                                                                                                                                                                                                                         | Video por caso          |
-| B1     | **No hay Servicios.** Quien entra preguntando «¿qué hacen?» no encuentra respuesta.                                                                                                                                                                                                                                                                                                                                                                                             | Copy                    |
-| B3     | **Premios tiene un solo premio**, mientras la meta description dice «una de las agencias más premiadas del país». La sección contradice la frase en vez de sostenerla.                                                                                                                                                                                                                                                                                                          | Palmarés                |
-| B4     | **Ningún caso tiene resultado, categoría ni año.** Los campos existen y están vacíos: `result 0/19`, `category 0/19`, `year 1/19`. Sin resultados, cada caso son treinta palabras y un video.                                                                                                                                                                                                                                                                                   | Datos                   |
-| B5     | **El collage no se ve en ninguna campaña**: el componente está construido y enlazado, pero ninguna tiene fotos. Es trabajo hecho que hoy no existe para el visitante.                                                                                                                                                                                                                                                                                                           | Fotos                   |
-| B6     | **News tiene una sola nota**, de noviembre de 2024. Comunica que la agencia lleva casi dos años sin pasar nada.                                                                                                                                                                                                                                                                                                                                                                 | Notas                   |
-| D3     | **The Work no tiene filtros.** Con 19 ya cuesta; con 40 será inservible. Es la misma tarea que B4: primero los campos.                                                                                                                                                                                                                                                                                                                                                          | B4                      |
+|        | Hallazgo                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Espera                             |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| A1     | Las 19 portadas son **fotogramas de video** con bandas negras, subtítulos y leyendas legales quemadas («ENJOY RESPONSIBLY», «SUGERENCIA DE CONSUMO», un timecode). Los propios datos lo admiten: `imageAlt: 'Fotograma de la campaña…'`. Es la diferencia visual más grande contra el global.                                                                                                                                                                                   | Key art                            |
+| ~~A2~~ | ~~El **póster del banner no tiene imagen**~~ — **RESUELTO el 2026-08-28.** Eran **cuatro** degradados vacíos, no uno: el del banner y los tres de los huecos del titular. Los cuatro son ahora un fotograma real de su propio vídeo, en WebP y en `t=0` para que no haya salto al arrancar. De paso apareció que `og:image` apuntaba a uno de ellos, así que **las 30 páginas compartían un degradado vacío como vista previa social**; ahora hay una cartela BBDO de 1200x630. | ~~Un fotograma real~~              |
+| ~~A3~~ | ~~El **video del banner pesa 32,3 MB**~~ — **RESUELTO el 2026-08-28**: 2,01 MB en H.264 y 1,90 en AV1, sin pista de audio. Lo que queda abierto ya no es compresión: **los 19 casos abren con el mismo metraje, y ese metraje —igual que los tres clips del titular— es material provisional del sitio actual.** Ver el hallazgo nuevo A5.                                                                                                                                      | Metraje por caso                   |
+| A5     | **Los tres clips del titular no contienen a sus marcas.** Se llaman `modelo`, `pepsi` y `banamex` y al abrirlos fotograma a fotograma son cartelas tipográficas del sitio actual — «THE WORK», «BBDOERS» —: ni un frame de Modelo, Pepsi o Banamex. Misma deuda que `banner-home.mp4`, que es `head-team.mp4`. Los nombres de archivo hacen creer que hay metraje de campaña donde no lo hay.                                                                                   | Clips de campaña reales            |
+| ~~A4~~ | ~~Las 19 fichas **abrían con la misma cortina roja** y con el mismo metraje~~ — **RESUELTO el 2026-08-31.** Cada ficha abre con **su propio key visual y un zoom lento en CSS**, cero bytes de vídeo. No es el film de la campaña —viven en una cuenta de Vimeo sin acceso— pero es material de esa campaña, que el clip compartido nunca fue. Cuando lleguen los cortes reales: `public/v/case/<slug>.mp4` o `bannerVideo` en el frontmatter, sin tocar código.                | ~~Video por caso~~ · cortes reales |
+| B1     | **No hay Servicios.** Quien entra preguntando «¿qué hacen?» no encuentra respuesta.                                                                                                                                                                                                                                                                                                                                                                                             | Copy                               |
+| B3     | **Premios tiene un solo premio**, mientras la meta description dice «una de las agencias más premiadas del país». La sección contradice la frase en vez de sostenerla.                                                                                                                                                                                                                                                                                                          | Palmarés                           |
+| B4     | **Ningún caso tiene resultado, categoría ni año.** Los campos existen y están vacíos: `result 0/19`, `category 0/19`, `year 1/19`. Sin resultados, cada caso son treinta palabras y un video.                                                                                                                                                                                                                                                                                   | Datos                              |
+| B5     | **El collage no se ve en ninguna campaña**: el componente está construido y enlazado, pero ninguna tiene fotos. Es trabajo hecho que hoy no existe para el visitante.                                                                                                                                                                                                                                                                                                           | Fotos                              |
+| B6     | **News tiene una sola nota**, de noviembre de 2024. Comunica que la agencia lleva casi dos años sin pasar nada.                                                                                                                                                                                                                                                                                                                                                                 | Notas                              |
+| D3     | **The Work no tiene filtros.** Con 19 ya cuesta; con 40 será inservible. Es la misma tarea que B4: primero los campos.                                                                                                                                                                                                                                                                                                                                                          | B4                                 |
 
 Todo el frente C (ser más conservadores que el manual global) y el resto del D
 está cerrado por las fases 01 y por la pasada de accesibilidad.
+
+---
+
+### Por qué NO se embebe Vimeo de fondo (evaluado el 2026-08-31)
+
+Vimeo tiene modo `background=1`, y verificado en un navegador real acepta
+`loop` y `muted`. Se descartó igual, por tres razones y en este orden:
+
+1. **Sería un iframe de terceros reproduciéndose solo en las 19 fichas.** La
+   fachada de `VimeoPlayer` existe precisamente para no pagar ~1 MB de JS de
+   Vimeo, ni una visita registrada, por la mayoría que nunca pulsa play. Esto
+   lo revierte, en páginas a un clic del aviso de privacidad de la agencia.
+2. **Acaba con `preload="none"`**: el iframe carga de inmediato y el póster
+   deja de ser el LCP.
+3. **Vimeo bloquea la automatización** — Chrome headless recibe un desafío de
+   Cloudflare. En un repositorio donde todo se verifica contra el build, eso
+   es una parte del sitio que nunca podría probarse.
+
+Cubrir la pantalla sí es resoluble, pero a mano y por relación de aspecto,
+porque `object-fit` no aplica a un iframe.
 
 ---
 
