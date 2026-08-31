@@ -7,6 +7,7 @@ import PortraitWall from '../components/PortraitWall.astro';
 import { DEPARTMENTS, FALLBACK, classify } from '../departments';
 import { portraitOf } from '../portraits';
 import { themeStyle } from '../themes';
+import { NETWORKS, NETWORK_KEYS } from '../networks';
 
 /**
  * /people/ — the BBDOers roster.
@@ -36,6 +37,9 @@ import { themeStyle } from '../themes';
  *   JS, because a filter that cannot filter is worse than no filter.
  */
 const everyone = await getCollection('people');
+
+/* Only the glyphs somebody on this page uses get defined below. */
+const usedNetworks = NETWORK_KEYS.filter((k) => everyone.some((p) => p.data.social?.[k]));
 
 const bands = [...DEPARTMENTS, FALLBACK]
   .map((dept) => ({
@@ -129,6 +133,39 @@ const bands = [...DEPARTMENTS, FALLBACK]
                       <h3 class="person__name">{person.data.name}</h3>
                       <p class="person__role">{person.data.role}</p>
                       {person.data.quote && <p class="person__quote">{person.data.quote}</p>}
+
+                      {/* Icons and not names here, which is the opposite of
+                           the footer and right for the same reason: the footer
+                           is five links on a page of type, this is up to five
+                           on a card that already carries a name and a role,
+                           117 times over. Words would bury the person.
+
+                           Icon-only means the accessible name is ALL the name
+                           there is, so it says whose profile it is — "LinkedIn
+                           de Ana Ruiz", not "LinkedIn" repeated 117 times down
+                           the page — and mentions the new tab, because there
+                           is no visible text to carry that.
+
+                           Only the keys present are drawn. Nobody appears here
+                           by omission. */}
+                      {person.data.social && (
+                        <ul class="person__social">
+                          {NETWORK_KEYS.filter((k) => person.data.social?.[k]).map((k) => (
+                            <li>
+                              <a
+                                href={person.data.social![k]}
+                                target="_blank"
+                                rel="noopener"
+                                aria-label={`${NETWORKS[k].label} de ${person.data.name} (abre en una pestaña nueva)`}
+                              >
+                                <svg aria-hidden="true" focusable="false">
+                                  <use href={`#net-${k}`} />
+                                </svg>
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                     </div>
                   </li>
                 );
@@ -143,6 +180,28 @@ const bands = [...DEPARTMENTS, FALLBACK]
 
     <ScrollFX />
   </main>
+
+  {
+    /* ONE COPY OF EACH GLYPH FOR THE WHOLE PAGE, and with 117 cards that is not
+     premature. Instagram's path alone is 1,988 characters; inlined per card it
+     would repeat up to 117 times, and the other four with it — roughly 450 KB
+     of identical path data in one document. Gzip would squash the transfer,
+     but the browser still parses and holds every node.
+
+     sr-only and not display:none: a <use> cannot reference a symbol inside a
+     subtree the renderer has thrown away. */
+  }
+  <svg class="sr-only" aria-hidden="true" focusable="false">
+    <defs>
+      {
+        usedNetworks.map((k) => (
+          <symbol id={`net-${k}`} viewBox="0 0 24 24">
+            <path d={NETWORKS[k].path} fill="currentColor" />
+          </symbol>
+        ))
+      }
+    </defs>
+  </svg>
 </Base>
 
 <style>
@@ -319,6 +378,37 @@ const bands = [...DEPARTMENTS, FALLBACK]
     font-size: clamp(0.75rem, 1.4vw, 0.9rem);
     color: var(--color-dim);
   }
+  /* The row sits under the role. --color-dim at rest so five marks do not
+     out-shout the name above them, brand red on hover.
+
+     The link is 24x24 and the glyph 16: WCAG 2.2 asks 24 of any target that is
+     not inline in a sentence, and a row of icons is not a sentence. Shrinking
+     the target to the glyph would have missed it by eight pixels. */
+  .person__social {
+    list-style: none;
+    margin: var(--space-2xs) 0 0;
+    padding: 0;
+    display: flex;
+    gap: var(--space-2xs);
+  }
+  .person__social a {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    color: var(--color-dim);
+    transition: color var(--dur-fast) var(--ease);
+  }
+  .person__social svg {
+    width: 16px;
+    height: 16px;
+    display: block;
+  }
+  .person__social a:hover,
+  .person__social a:focus-visible {
+    color: var(--color-red-deep);
+  }
+
   .person__quote {
     margin: var(--space-xs) 0 0;
     font-size: 0.8rem;

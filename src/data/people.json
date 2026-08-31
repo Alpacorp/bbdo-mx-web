@@ -196,7 +196,13 @@
     "id": "alejandro-palacios",
     "name": "Alejandro Palacios",
     "role": "Web Master",
-    "photo": "alejandro-palacios.webp"
+    "photo": "alejandro-palacios.webp",
+    "social": {
+      "linkedin": "https://www.linkedin.com/in/alejandro-palacios88/",
+      "instagram": "https://www.instagram.com/pacho.ale/",
+      "youtube": "https://www.youtube.com/@alpacorp",
+      "facebook": "https://www.facebook.com/alejandro.palacios.1988"
+    }
   },
   {
     "id": "leslie-navarro",

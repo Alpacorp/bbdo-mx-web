@@ -457,6 +457,22 @@ es el peor resultado posible de este sitio.
 **Acción:** crear `nuevonegocio@` y `prensa@` (o las que la agencia decida) y
 ponerlas en ese fichero. El aviso se apaga solo.
 
+### 2 bis. Las redes personales de los BBDOers son datos personales
+
+Desde el 2026-08-31 cada persona de `/people/` puede llevar sus redes
+(LinkedIn, Instagram, TikTok, YouTube, Facebook) y **solo aparece el icono de
+la red que tenga dato**, así que nadie sale por omisión: el mecanismo es
+opt-in por construcción.
+
+Pero el consentimiento **no lo da el fichero, lo da la persona**. Publicar la
+cuenta personal de un empleado en el sitio de la empresa es tratamiento de
+datos personales de una persona identificada, y la LFPDPPP pide finalidad y
+consentimiento — el mismo marco que ya bloquea el formulario más arriba.
+
+**Acción:** que la agencia recoja el consentimiento de cada quien antes de
+rellenar `social` en `src/data/people.json`, y que quede claro que se puede
+retirar (borrar la clave y desaparece). Hoy solo hay una entrada, de prueba.
+
 ### 3. Resend necesita dominio verificado
 
 Sin dominio verificado solo se puede enviar desde `onboarding@resend.dev`, que
