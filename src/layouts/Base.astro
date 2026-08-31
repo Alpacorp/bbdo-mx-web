@@ -1,5 +1,5 @@
 ---
-import { SITE_NAME, SITE_URL, HR_EMAIL, organizationGraph } from '../organization';
+import { HR_EMAIL, SITE_NAME, SITE_URL, SOCIAL, organizationGraph } from '../organization';
 import '../styles/tokens.css';
 import '../styles/sections.css';
 import { ClientRouter } from 'astro:transitions';
@@ -233,6 +233,44 @@ const jsonLd = {
           <a href={`mailto:${HR_EMAIL}`}>{HR_EMAIL}</a>
         </p>
 
+        {
+          /* Names and not brand glyphs. Five logos in a row is the one place a
+             typographic site usually stops being typographic, and this footer
+             is nothing but type — the wordmark under it is the only mark on
+             the page. Names also cannot be drawn wrong, and they read the same
+             to a screen reader as they do on screen, which a decorative glyph
+             plus a visually-hidden label does not.
+
+             NEW TAB, AND THAT IS THE POINT OF THEM. These are the one set of
+             links here whose job is to send someone somewhere else; losing the
+             site to do it defeats the purpose. It is also what a reader expects
+             of a social row, and an expectation met is not a surprise.
+
+             `rel="noopener"` is not decoration next to target=_blank: without
+             it the opened page gets a handle on this one through window.opener
+             and can navigate it wherever it likes.
+
+             The tab is ANNOUNCED. A new window that arrives unmentioned is a
+             screen-reader user suddenly somewhere else with no idea why, and
+             the visible label is a single word with no room to say so. The
+             suffix is in .sr-only — a real global utility since the legal
+             pages, not a per-component one. */
+        }
+        <nav aria-label="Redes sociales">
+          <ul class="footer__social">
+            {
+              SOCIAL.map((s) => (
+                <li>
+                  <a href={s.href} target="_blank" rel="noopener">
+                    {s.label}
+                    <span class="sr-only"> (abre en una pestaña nueva)</span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+
         <p class="footer__network">Parte de BBDO Worldwide, red creativa de Omnicom Group.</p>
       </div>
 
@@ -376,6 +414,34 @@ const jsonLd = {
   }
   .footer__contact {
     margin: 0;
+  }
+  /* The same row as the legal links, set in the display face because these are
+     names rather than sentences. */
+  .footer__social {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-s) var(--space-m);
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.82rem;
+  }
+  /* Same 24px target floor as the two rows above, padding on the top only so
+     the rule stays tight under the word. */
+  .footer__social a {
+    display: inline-block;
+    padding-top: 7px;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(250, 250, 250, 0.35);
+  }
+  .footer__social a:hover,
+  .footer__social a:focus-visible {
+    border-bottom-color: currentColor;
+    color: var(--color-red);
   }
   /* Same 24px floor as the legal row above. */
   .footer__contact a {

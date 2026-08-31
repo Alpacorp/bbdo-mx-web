@@ -143,6 +143,10 @@ procesos de reclutamiento: conviene preguntar antes de moverla o quitarla.
 - El `sameAs` de Yoast incluye **TikTok** (`@bbdomx`) y usa `x.com` en vez de
   `twitter.com`. El JSON-LD de `jsonld-bbdo-mexico.html` no tiene TikTok y sí
   LinkedIn: hay que reconciliar las dos listas y verificar cuáles siguen vivas.
+  **RECONCILIADO el 2026-08-31**: las cinco (Instagram, LinkedIn, TikTok,
+  Facebook, X) abiertas y comprobadas una a una, y publicadas en el pie. Ver
+  `src/organization.ts`. La de LinkedIn del sitio actual es la url de
+  administración (`/mycompany/`), que solo abre un administrador.
 
 ## Confirmado del brief
 
