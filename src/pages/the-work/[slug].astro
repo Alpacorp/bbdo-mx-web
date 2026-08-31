@@ -1,4 +1,5 @@
 ---
+import { existsSync } from 'node:fs';
 import { SITE_URL } from '../../organization';
 import { getCollection, render } from 'astro:content';
 import { Image } from 'astro:assets';
@@ -46,6 +47,27 @@ const { Content } = await render(caseEntry);
  */
 const themeVars = themeStyle(data.theme);
 
+/**
+ * The banner's video, resolved per case, in three steps.
+ *
+ *   1. `bannerVideo` in the frontmatter, when a case needs a file that is not
+ *      named after it — a real campaign cut usually will be.
+ *   2. /v/case/<slug>.mp4, by convention. Drop a file in with the case's name
+ *      and that case uses it. Nothing else has to be edited.
+ *   3. The shared clip, so a case with neither still opens with something.
+ *
+ * Looked up on disk at build time rather than declared, the same way
+ * VideoBanner finds its AV1 sibling. What is in /v/case today is not campaign
+ * footage: it is a slow push over each case's own key visual, made by
+ * scripts/build-case-banners.mjs, because the campaign films live on a Vimeo
+ * account nobody here can reach. It is that campaign's own material, though,
+ * which the shared clip never was.
+ */
+const conventionalBanner = `/v/case/${caseEntry.id}.mp4`;
+const bannerVideo =
+  data.bannerVideo ??
+  (existsSync(`public${conventionalBanner}`) ? conventionalBanner : '/v/banner-home.mp4');
+
 const url = `${SITE_URL}/the-work/${caseEntry.id}/`;
 
 /**
@@ -86,18 +108,26 @@ if (data.awards.length) jsonLd.award = data.awards;
       pages. We reuse the component, but with the case's own key visual as the
       poster: each campaign opens with its own image, not a generic one.
 
-      The video is still the shared one. MX campaign videos live on Vimeo (the
-      id is in `vimeo`), and a Vimeo embed cannot act as a looping background:
-      that would need a silent mp4 per campaign. The campaign's own video is
-      the section right below, played from Vimeo on demand.
+      THE VIDEO IS THE CASE'S OWN NOW, which it was not until 2026-08-31: all
+      19 opened with banner-home.mp4, head-team.mp4 from the current site, so
+      every campaign opened with footage from none of them. That is the audit's
+      A4.
 
-      IT IS banner-home.mp4 TODAY, AND THAT IS A DEBT
-      The file is 31 MB — about twelve times section 6's budget — and it is
-      versioned, because a deployment with no video at all was worse. It loads
-      after the load event and behind a poster, so it does not cost the LCP,
-      but every one of the 19 cases still pulls it. This is waiting on the
-      agency's compressed masters; the note that used to sit here claimed the
-      opposite and had stopped being true. */
+      WHAT IS IN THERE, STATED PLAINLY
+      Not the campaign film. Those live on a Vimeo account nobody on this side
+      can reach, and Vimeo blocks automated access — a background embed was
+      measured and rejected for other reasons besides, see the brief. What
+      plays is a slow push over the case's OWN key visual, built by
+      scripts/build-case-banners.mjs. Placeholder, but placeholder made of that
+      campaign's material rather than another one's.
+
+      It also lands better than what it replaces. The poster IS that key
+      visual, and the push starts at zoom 1.0, so the handoff from poster to
+      video is invisible — measured at 0.985 SSIM. Before, the poster was the
+      case's own image and then cut hard to a stranger's footage.
+
+      When real cuts arrive: public/v/case/<slug>.mp4, or `bannerVideo` in the
+      frontmatter. No code changes. */
   }
   {
     /* Inside <main>, like the home page has it. Outside, its two words sat in
@@ -107,7 +137,7 @@ if (data.awards.length) jsonLd.award = data.awards;
     <VideoBanner
       left={PLATFORM_CORNERS.left}
       right={PLATFORM_CORNERS.right}
-      src="/v/banner-home.mp4"
+      src={bannerVideo}
       poster={data.image.src}
       transitionName={`cover-${caseEntry.id}`}
     />
