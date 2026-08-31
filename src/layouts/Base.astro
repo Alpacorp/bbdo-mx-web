@@ -241,16 +241,29 @@ const jsonLd = {
              to a screen reader as they do on screen, which a decorative glyph
              plus a visually-hidden label does not.
 
-             Same tab, like every other external link here. Forcing a new
-             window is a decision taken away from the reader. */
+             NEW TAB, AND THAT IS THE POINT OF THEM. These are the one set of
+             links here whose job is to send someone somewhere else; losing the
+             site to do it defeats the purpose. It is also what a reader expects
+             of a social row, and an expectation met is not a surprise.
+
+             `rel="noopener"` is not decoration next to target=_blank: without
+             it the opened page gets a handle on this one through window.opener
+             and can navigate it wherever it likes.
+
+             The tab is ANNOUNCED. A new window that arrives unmentioned is a
+             screen-reader user suddenly somewhere else with no idea why, and
+             the visible label is a single word with no room to say so. The
+             suffix is in .sr-only — a real global utility since the legal
+             pages, not a per-component one. */
         }
         <nav aria-label="Redes sociales">
           <ul class="footer__social">
             {
               SOCIAL.map((s) => (
                 <li>
-                  <a href={s.href} rel="noopener">
+                  <a href={s.href} target="_blank" rel="noopener">
                     {s.label}
+                    <span class="sr-only"> (abre en una pestaña nueva)</span>
                   </a>
                 </li>
               ))
