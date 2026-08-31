@@ -65,8 +65,7 @@ const themeVars = themeStyle(data.theme);
  */
 const conventionalBanner = `/v/case/${caseEntry.id}.mp4`;
 const bannerVideo =
-  data.bannerVideo ??
-  (existsSync(`public${conventionalBanner}`) ? conventionalBanner : '/v/banner-home.mp4');
+  data.bannerVideo ?? (existsSync(`public${conventionalBanner}`) ? conventionalBanner : undefined);
 
 const url = `${SITE_URL}/the-work/${caseEntry.id}/`;
 
@@ -113,21 +112,21 @@ if (data.awards.length) jsonLd.award = data.awards;
       every campaign opened with footage from none of them. That is the audit's
       A4.
 
-      WHAT IS IN THERE, STATED PLAINLY
-      Not the campaign film. Those live on a Vimeo account nobody on this side
-      can reach, and Vimeo blocks automated access — a background embed was
-      measured and rejected for other reasons besides, see the brief. What
-      plays is a slow push over the case's OWN key visual, built by
-      scripts/build-case-banners.mjs. Placeholder, but placeholder made of that
-      campaign's material rather than another one's.
+      AND WHEN THERE IS NO FILM, THERE IS NO VIDEO ELEMENT. The campaign films
+      live on a Vimeo account nobody on this side can reach, and Vimeo blocks
+      automated access; a background embed was measured and rejected on other
+      grounds too, written up in the brief. So the banner falls back to the
+      case's own key visual with a slow push in CSS — that campaign's material,
+      moving, where it used to be another campaign's.
 
-      It also lands better than what it replaces. The poster IS that key
-      visual, and the push starts at zoom 1.0, so the handoff from poster to
-      video is invisible — measured at 0.985 SSIM. Before, the poster was the
-      case's own image and then cut hard to a stranger's footage.
+      It reads better than what it replaces for a reason that costs nothing:
+      the poster IS that key visual, so there is no handoff at all any more.
+      Before, the case's own image was put up and then cut to a stranger's
+      footage a second later.
 
       When real cuts arrive: public/v/case/<slug>.mp4, or `bannerVideo` in the
-      frontmatter. No code changes. */
+      frontmatter. No code changes — `src` becomes set and the video branch
+      takes over. */
   }
   {
     /* Inside <main>, like the home page has it. Outside, its two words sat in

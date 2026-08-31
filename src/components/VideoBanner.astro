@@ -55,7 +55,11 @@ interface Props {
   left: string;
   /** Word anchored bottom-right. On the global site: "THINGS". */
   right: string;
-  src: string;
+  /**
+   * The film. Optional: without one the banner shows the poster and gives it a
+   * slow push in CSS instead. See the note over the markup.
+   */
+  src?: string;
   poster: string;
   /**
    * View-transition name for the poster, so a card on the index morphs into
@@ -89,8 +93,8 @@ const { left, right, src, poster, transitionName } = Astro.props;
  * what browsers actually select on. Without the parameter Safari would take
  * the first mp4 it sees and fail to decode it.
  */
-const av1Src = src.replace(/\.mp4$/, '.av1.mp4');
-const hasAv1 = src.endsWith('.mp4') && existsSync(`public${av1Src}`);
+const av1Src = src?.replace(/\.mp4$/, '.av1.mp4');
+const hasAv1 = !!src && !!av1Src && src.endsWith('.mp4') && existsSync(`public${av1Src}`);
 
 // Unique, deterministic id per banner: if a page has two, their masks do not
 // collide, and it does not change between builds.
@@ -99,19 +103,49 @@ const uidTall = `${uid}-tall`;
 ---
 
 <section class="banner" data-video-banner>
-  <video
-    class="banner__video"
-    poster={poster}
-    muted
-    loop
-    playsinline
-    preload="none"
-    aria-hidden="true"
-    transition:name={transitionName}
-  >
-    {hasAv1 && <source src={av1Src} type='video/mp4; codecs="av01.0.05M.08"' />}
-    <source src={src} type='video/mp4; codecs="avc1.640028"' />
-  </video>
+  {
+    /* NO FILM, NO <video>. The alternative was a generated one — a slow push
+       over the poster, rendered to mp4 — and it shipped for a day before the
+       shake in it was traced to its cause: ffmpeg's zoompan recomputes the
+       crop origin per frame and TRUNCATES it to whole input pixels. Over a
+       12s, 8% zoom that came out as an irregular 1-to-2 pixel step with 22% of
+       frames not moving at all. Measured, the pattern reads 1222122212221221.
+       At 15fps that is not a slow push, it is a stutter.
+
+       No encoder setting fixes it, because the arithmetic is integer. CSS does
+       the same move with subpixel accuracy on the compositor, at the display's
+       own refresh rate, for no bytes at all — and it animates the poster the
+       page already has, so nineteen generated videos and the script that made
+       them are gone with it.
+
+       When a real campaign cut exists it wins: `src` is set and this branch
+       never runs. */
+  }
+  {
+    src ? (
+      <video
+        class="banner__video"
+        poster={poster}
+        muted
+        loop
+        playsinline
+        preload="none"
+        aria-hidden="true"
+        transition:name={transitionName}
+      >
+        {hasAv1 && <source src={av1Src} type='video/mp4; codecs="av01.0.05M.08"' />}
+        <source src={src} type='video/mp4; codecs="avc1.640028"' />
+      </video>
+    ) : (
+      <img
+        class="banner__video banner__video--push"
+        src={poster}
+        alt=""
+        aria-hidden="true"
+        transition:name={transitionName}
+      />
+    )
+  }
 
   <svg
     class="banner__curtain banner__curtain--wide"
@@ -194,6 +228,41 @@ const uidTall = `${uid}-tall`;
   .banner__video {
     object-fit: cover;
     display: block;
+  }
+
+  /* The push, done here rather than baked into a file. transform is composited
+     and interpolated in subpixels, so it moves at the display's refresh rate
+     instead of stepping between whole pixels the way a rendered zoom did.
+
+     It goes out and back — 1 to 1.06 to 1 — so the loop has no seam and the
+     ends have no velocity. `alternate` on a half-length run would do the same,
+     but written as one cycle the keyframes say what the motion is.
+
+     transform-origin is the centre, matching object-fit: cover's own framing,
+     so nothing shifts sideways as it grows. */
+  .banner__video--push {
+    animation: bannerPush 24s ease-in-out infinite;
+    transform-origin: 50% 50%;
+    will-change: transform;
+  }
+  @keyframes bannerPush {
+    from {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.06);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  /* Reduced motion turns it off entirely, like every other effect here: the
+     key visual is simply there, which is what the poster always was. */
+  @media (prefers-reduced-motion: reduce) {
+    .banner__video--push {
+      animation: none;
+    }
   }
 
   /* Mobile-first, like the global site: the tall mask is the default and the
