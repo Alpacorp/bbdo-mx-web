@@ -173,7 +173,9 @@ const work = defineCollection({
  * Name, role and portrait are REAL, read off bbdomexico.com/bbdoers/. Two
  * things to raise with the agency before publishing: the roster has
  * "Copywritter" with a double t on three entries against "Copywriter" on four,
- * and a 117-person list will go stale fast, so it needs an owner.
+ * and a list this size will go stale fast, so it needs an owner. It already
+ * has: on 2026-08-31 six people left and one joined, 117 down to 112, and
+ * nobody upstream told the site.
  */
 const people = defineCollection({
   loader: file('./src/data/people.json'),

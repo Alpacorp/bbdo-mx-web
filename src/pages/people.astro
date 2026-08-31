@@ -57,7 +57,10 @@ const bands = [...DEPARTMENTS, FALLBACK]
 <Base
   title="BBDOers"
   path="/people/"
-  description="Las personas de BBDO México: 117 BBDOers, de dirección creativa a producción, data y cuentas."
+  {/* Derived, not typed. This read 117 while the page rendered 112: the roster
+      lost six people and gained one on 2026-08-31 and the meta description was
+      the one number on the site that a headcount change could not reach. */}
+  description={`Las personas de BBDO México: ${everyone.length} BBDOers, de dirección creativa a producción, data y cuentas.`}
 >
   <main id="content" class="people">
     {
