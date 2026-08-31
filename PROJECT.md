@@ -439,6 +439,14 @@ aquí es cambiar un identificador en `src/legal.ts`.
 
 ### 2. Faltan dos buzones
 
+**Pista nueva (2026-08-31):** al verificar las redes sociales apareció que
+**el Facebook de la agencia publica `contacto@bbdomexico.com`**, junto al
+mismo teléfono que ya tenemos. El sitio no la menciona en ninguna parte. No
+resuelve el problema —sigue sin haber buzón de nuevo negocio ni de prensa—
+pero una dirección general es mejor que mandar una consulta comercial al
+buzón de currículums. **Confirmar con la agencia si está viva y quién la
+lee**; si lo está, `src/contact-routing.ts` cambia en una línea.
+
 La única dirección que publica el sitio es `quierotrabajaren@bbdomexico.com`,
 de reclutamiento. Nuevo negocio y prensa no tienen la suya, así que hoy caen
 ahí y el correo lo avisa con una franja roja y una etiqueta en el asunto. Se

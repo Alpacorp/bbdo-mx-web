@@ -70,12 +70,42 @@ const ADDRESS = {
 export const TELEPHONE = '+52-55-5267-1500';
 export const HR_EMAIL = 'quierotrabajaren@bbdomexico.com';
 
+/**
+ * The agency's own accounts, each one opened and checked on 2026-08-31 rather
+ * than copied across.
+ *
+ * WHY THAT MATTERED HERE
+ *   bbdomexico.com's markup carries the theme vendor's accounts alongside the
+ *   agency's — facebook.com/QodeInteractive and twitter.com/QodeInteractive,
+ *   part of the Qode demo that section 2 of the brief lists as never removed.
+ *   Copying "the social links off the current site" would have published them.
+ *
+ * WHAT EACH CHECK FOUND
+ *   facebook  live, "BBDO México", advertising agency, 2k followers, and the
+ *             same telephone as TELEPHONE above.
+ *   tiktok    live: uniqueId bbdomx, 335 followers, bio "THE WORK. THE WORK.
+ *             THE WORK". Absent from our list until now; it is in the current
+ *             site's own JSON-LD and the audit had flagged the gap.
+ *   linkedin  live. The current site links the ADMIN url, /company/bbdomx/
+ *             mycompany/, which is a page only a page admin can open. The
+ *             public one is this.
+ *   x         x.com and not twitter.com: the site's own JSON-LD moved, its
+ *             markup did not.
+ *   instagram live.
+ *
+ * Order is by what an agency's audience goes looking for: the work first, then
+ * the people, then the rest.
+ */
 export const SOCIAL = [
-  'https://www.linkedin.com/company/bbdomx/',
-  'https://www.instagram.com/bbdomx/',
-  'https://www.facebook.com/bbdomx',
-  'https://twitter.com/BBDOmx',
-];
+  { label: 'Instagram', href: 'https://www.instagram.com/bbdomx/' },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/company/bbdomx/' },
+  { label: 'TikTok', href: 'https://www.tiktok.com/@bbdomx' },
+  { label: 'Facebook', href: 'https://www.facebook.com/bbdomx' },
+  { label: 'X', href: 'https://x.com/BBDOmx' },
+] as const;
+
+/** Just the urls, which is the shape schema.org's sameAs takes. */
+export const SOCIAL_URLS = SOCIAL.map((s) => s.href);
 
 /**
  * The @graph every page carries: the agency, its ownership chain up to
@@ -128,7 +158,7 @@ export function organizationGraph(): Record<string, unknown>[] {
           availableLanguage: ['Spanish', 'English'],
         },
       ],
-      sameAs: SOCIAL,
+      sameAs: SOCIAL_URLS,
       employee: { '@id': CEO['@id'] },
     },
     CEO,
