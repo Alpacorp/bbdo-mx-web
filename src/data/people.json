@@ -31,12 +31,6 @@
     "photo": "alfonsina-hernandez.webp"
   },
   {
-    "id": "sebastian-urrutia",
-    "name": "Sebastián Urrutia",
-    "role": "Director General Creativo",
-    "photo": "sebastian-urrutia.webp"
-  },
-  {
     "id": "carmen-cabrera",
     "name": "Carmen Cabrera",
     "role": "Asistente Dirección General",
@@ -157,12 +151,6 @@
     "photo": "salvador-galicia.webp"
   },
   {
-    "id": "andrea-rosas",
-    "name": "Andrea Rosas",
-    "role": "Maker Digital Sr",
-    "photo": "andrea-rosas.webp"
-  },
-  {
     "id": "barush-munoz",
     "name": "Barush Muñoz",
     "role": "Diseñador Sr",
@@ -271,12 +259,6 @@
     "photo": "alejandra-lira-martinez.webp"
   },
   {
-    "id": "angel-alberto-arteaga-ontiveros",
-    "name": "Ángel Alberto Arteaga Ontiveros",
-    "role": "Content Manager",
-    "photo": "angel-alberto-arteaga-ontiveros.webp"
-  },
-  {
     "id": "arantxa-lopez-ortega",
     "name": "Arantxa Lopez Ortega",
     "role": "Designer",
@@ -325,12 +307,6 @@
     "photo": "valeria-torres.webp"
   },
   {
-    "id": "mariana-mendoza-lopez",
-    "name": "Mariana Mendoza Lopez",
-    "role": "Content Manager",
-    "photo": "mariana-mendoza-lopez.webp"
-  },
-  {
     "id": "montserrat-oseguera-bedolla",
     "name": "Montserrat Oseguera Bedolla",
     "role": "Proofreader",
@@ -359,12 +335,6 @@
     "name": "Yessica Lizbeth Quezada Hernandez",
     "role": "Directora de arte",
     "photo": "yessica-lizbeth-quezada-hernandez.webp"
-  },
-  {
-    "id": "luz-elisa-hernandez",
-    "name": "Luz Elisa Hernandez",
-    "role": "Directora de arte Jr.",
-    "photo": "luz-elisa-hernandez.webp"
   },
   {
     "id": "maximiliano-garcia",
@@ -541,12 +511,6 @@
     "photo": "mariela-alejandra-luna-gonzalez.jpg"
   },
   {
-    "id": "luis-angel-cervantes-bohorquez",
-    "name": "Luis Ángel Cervantes Bohórquez",
-    "role": "Content Manager Sr",
-    "photo": "luis-angel-cervantes-bohorquez.jpg"
-  },
-  {
     "id": "karen-elissa-luna-miranda",
     "name": "Karen Elissa Luna Miranda",
     "role": "Digital Strategist",
@@ -708,5 +672,11 @@
     "role": "CEO",
     "photo": "jorge-obregon.webp",
     "order": 1
+  },
+  {
+    "id": "rena-sieveking-escobar",
+    "name": "Rena Sieveking Escobar",
+    "role": "Creative Director",
+    "photo": "rena-sieveking-escobar.webp"
   }
 ]

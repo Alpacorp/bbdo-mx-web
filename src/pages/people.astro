@@ -12,12 +12,13 @@ import { NETWORKS, NETWORK_KEYS } from '../networks';
 /**
  * /people/ — the BBDOers roster.
  *
- * 117 real people with name, role and portrait, migrated from
+ * The real roster with name, role and portrait, migrated from
  * bbdomexico.com/bbdoers/. It is by far the richest content on the current
  * site, and the only page with structured data worth keeping as is.
  *
  * WHY IT IS BANDED AND NOT ONE GRID
- *   117 grayscale portraits on a light background read as one long white wall.
+ *   A hundred-odd grayscale portraits on a light background read as one long
+ *   white wall.
  *   Grouping by department gives the page structure, and giving each band its
  *   own palette is what actually cuts the white: only one of the seven bands
  *   stays light. The grouping is derived from the job title in
@@ -32,7 +33,7 @@ import { NETWORKS, NETWORK_KEYS } from '../networks';
  *   always visible under the portrait. Same information, two devices.
  *
  * THE SEARCH
- *   117 people is past the point where scanning works. The field filters by
+ *   A roster this size is past the point where scanning works. It filters by
  *   name and role as you type, hides empty bands, and is itself hidden without
  *   JS, because a filter that cannot filter is worse than no filter.
  */
@@ -54,10 +55,16 @@ const bands = [...DEPARTMENTS, FALLBACK]
   .filter((b) => b.people.length > 0);
 ---
 
+{
+  /* The description is DERIVED. It read "117 BBDOers" as a literal while the
+     page rendered 112 — the one headcount on this site a roster change could
+     not reach, so the heading and the search result disagreed. Every other
+     count comes from the collection; now this one does too. */
+}
 <Base
   title="BBDOers"
   path="/people/"
-  description="Las personas de BBDO México: 117 BBDOers, de dirección creativa a producción, data y cuentas."
+  description={`Las personas de BBDO México: ${everyone.length} BBDOers, de dirección creativa a producción, data y cuentas.`}
 >
   <main id="content" class="people">
     {
