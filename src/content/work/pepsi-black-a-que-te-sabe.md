@@ -12,7 +12,7 @@ summary: ''
 # PLACEHOLDER. Written by me from the video title and what is visible in it.
 # It describes the idea, NOT the results. Signed off by the creative director
 # before publishing.
-description: 'Pepsi Black lanzó una pregunta en vez de un argumento. ¿A qué te sabe? dejó que fuera cada quien quien pusiera la respuesta, y la marca solo el sabor.'
+description: 'Pepsi Black lanzó una pregunta en vez de un argumento. ¿A qué te sabe? dejó que la respuesta la pusiera cada quien, y la marca solo el sabor.'
 
 image: '../../assets/work/pepsi-black-a-que-te-sabe.jpg'
 imageAlt: 'Fotograma de la campaña PEPSI BLACK - A QUE TE SABES'
