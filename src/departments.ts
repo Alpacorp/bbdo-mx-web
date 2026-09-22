@@ -30,45 +30,45 @@ export const DEPARTMENTS: Department[] = [
   {
     id: 'liderazgo',
     label: 'Liderazgo',
-    theme: 'dark',
+    theme: 'obsidiana',
     match:
       /\b(ceo|chief|vp |cfo|head of|general creativo|group business|contralor|ejecutivo planning|coms planning director)\b/,
   },
   {
     id: 'creatividad',
     label: 'Creatividad',
-    theme: 'light',
+    theme: 'cal',
     match: /\b(creativ|copy|proofreader|content creator)\w*/,
   },
   {
     id: 'arte',
     label: 'Arte y diseño',
-    theme: 'sand',
+    theme: 'cantera',
     match: /\b(arte|art director|design|desing|diseñador)\w*/,
   },
   {
     id: 'cuentas',
     label: 'Cuentas',
-    theme: 'night',
+    theme: 'tezontle',
     match: /\b(business|bussiness|account)\w*/,
   },
   {
     id: 'estrategia',
     label: 'Estrategia y data',
-    theme: 'red',
+    theme: 'grana',
     match: /\b(planner|strategist|data|analytics)\w*/,
   },
   {
     id: 'digital',
     label: 'Digital y producción',
-    theme: 'sand',
+    theme: 'cantera',
     match:
       /\b(community|content manager|social media|maker|video|productor|web master|project manager|it coordinator)\w*/,
   },
   {
     id: 'operaciones',
     label: 'Operaciones',
-    theme: 'dark',
+    theme: 'obsidiana',
     match:
       /\b(factura|billing|contable|accounting|tesorer|cuentas x pagar|administrativ|nómina|nomina|rr ?hh|rrhh|mensajero|asistente)\w*/,
   },
@@ -78,7 +78,7 @@ export const DEPARTMENTS: Department[] = [
 export const FALLBACK: Department = {
   id: 'equipo',
   label: 'Equipo',
-  theme: 'light',
+  theme: 'cal',
   match: /.^/,
 };
 

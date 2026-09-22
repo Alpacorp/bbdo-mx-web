@@ -6,12 +6,55 @@
  * different reds. These are five agreed themes; adding one means editing this
  * file, which is exactly the friction we want.
  *
+ * WHERE THE COLOURS COME FROM — 2026-09-22
+ *   They used to be called Light, Dark, Red, Night and Sand: a neutral white,
+ *   a neutral black, an orange red, a brown-purple and a beige. Correct, and
+ *   from nowhere. Every one now has a source somebody can name, because the
+ *   Mexican layer of this site should be provenance rather than ornament —
+ *   papel picado and calaveras are the Mexico of the tourist, and an agency
+ *   from here doing that reads as less sophisticated, not more.
+ *
+ *     cal        The lime wash on walls from pre-Hispanic stucco to the
+ *                vernacular house. Not white: warm, and what a whitewashed
+ *                wall looks like in sun.
+ *     obsidiana  Volcanic glass, black with a cool cast. Blades, and
+ *                Tezcatlipoca's smoking mirror.
+ *     grana      Cochineal, from Oaxaca. The dye that coloured European
+ *                royalty for three centuries and was this country's most
+ *                valuable export after silver — a Mexican red that coloured
+ *                the world. Carmine, with a blue undertone, which is what
+ *                separates it from the orange-red of the brand.
+ *     tezontle   The porous volcanic rock of the Valley of Mexico. The Templo
+ *                Mayor is built of it and so is half the Centro Histórico: it
+ *                is, literally, the colour of this city's old walls.
+ *     cantera    The pink volcanic stone of Michoacán. Morelia's entire
+ *                historic centre is cut from it.
+ *
+ *   The accents carry the same rule. `tezontle` takes ROSA MEXICANO, which is
+ *   Barragán's move exactly — that pink against volcanic earth is Cuadra San
+ *   Cristóbal — and `grana` takes maize yellow, because cochineal and maize is
+ *   a pairing older than the country.
+ *
+ * A PALETTE NOBODY CAN SEE IS A RELABEL
+ *   The first pass at this kept every colour close to the one it replaced, so
+ *   three of the five moved by a ΔE of about 3 — under the threshold where a
+ *   person notices — and that covered 13 of the 19 cases. The provenance was
+ *   real and it was invisible: it lived in this comment and in the key, not on
+ *   screen. The contrast validator below was never the constraint; text was
+ *   landing at 7:1 against a 4.5 floor, with room to spare that went unused.
+ *
+ *   Every background now sits at ΔE 8 or more from the one it replaced —
+ *   cal 10.2, obsidiana 8.1, cantera 9.6 and 16.5, tezontle 20.7 and 28.2,
+ *   grana 24.1 and 20.2 — which is the point where a change stops being a
+ *   rename.
+ *
  * CONTRAST
  *   Every palette is validated on import: text >= 4.5:1 against the background
  *   (or against BOTH ends of the gradient), and accent >= 3:1, the WCAG
  *   threshold for large text, which is where it is used: the headline result
  *   and the stat figures. If someone adds a palette that fails, `astro build`
- *   fails with it.
+ *   fails with it. Provenance does not buy an exemption — two candidate
+ *   pinks were rejected by this check before the one below passed.
  *
  * Something this surfaced: the pure brand red (#FF0000) against white text is
  * 4.00:1 and does NOT meet AA. That is why the red themes use darker shades
@@ -27,35 +70,35 @@ export interface Theme {
 }
 
 export const THEMES = {
-  light: {
-    name: 'Light',
-    background: '#FAFAFA',
-    text: '#404040',
-    accent: '#FF0000',
+  cal: {
+    name: 'Cal',
+    background: '#F5EDDC',
+    text: '#363027',
+    accent: '#D40000',
   },
-  dark: {
-    name: 'Dark',
-    background: '#161616',
-    text: '#FAFAFA',
-    accent: '#FF3B22',
+  obsidiana: {
+    name: 'Obsidiana',
+    background: '#0B141E',
+    text: '#E6EDF2',
+    accent: '#FF4A2E',
   },
-  red: {
-    name: 'Red',
-    gradient: { from: '#C1001F', to: '#8A0016', angle: 155 },
+  grana: {
+    name: 'Grana cochinilla',
+    gradient: { from: '#A8143A', to: '#6E0C24', angle: 155 },
     text: '#FFFFFF',
     accent: '#FFD166',
   },
-  night: {
-    name: 'Night',
-    gradient: { from: '#1A1206', to: '#3B1B2E', angle: 160 },
-    text: '#F5EFE6',
-    accent: '#FFB020',
+  tezontle: {
+    name: 'Tezontle',
+    gradient: { from: '#3A0F0C', to: '#5E2118', angle: 160 },
+    text: '#F7EBE4',
+    accent: '#FF2D8E',
   },
-  sand: {
-    name: 'Sand',
-    gradient: { from: '#F2E9DC', to: '#E7DAC7', angle: 150 },
-    text: '#3A2E22',
-    accent: '#B3421C',
+  cantera: {
+    name: 'Cantera rosa',
+    gradient: { from: '#F6D7C9', to: '#DDB3A4', angle: 150 },
+    text: '#3E2A23',
+    accent: '#9E0E33',
   },
 } as const satisfies Record<string, Theme>;
 
