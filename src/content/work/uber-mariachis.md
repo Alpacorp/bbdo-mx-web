@@ -18,8 +18,7 @@ imageAlt: 'Fotograma de la campaña UBER Fleet - Mariachis'
 year: 2019
 
 # Case palette. Closed list in src/themes.ts.
-theme: night
-
+theme: tezontle
 description: 'Uber convirtió el trayecto en el escenario. Mariachis subió músicos reales a viajes reales, sin guion y sin avisar, y dejó que la sorpresa hiciera la campaña.'
 
 credits:

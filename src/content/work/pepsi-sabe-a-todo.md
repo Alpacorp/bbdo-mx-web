@@ -23,8 +23,7 @@ capabilities: []
 awards: []
 
 # Case palette. Closed list in src/themes.ts.
-theme: red
-
+theme: grana
 # Vimeo id, read off the current site. That is where the campaign video lives.
 vimeo: '908809260'
 

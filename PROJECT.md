@@ -584,6 +584,35 @@ porque `object-fit` no aplica a un iframe.
 
 ---
 
+### La capa mexicana (2026-09-22)
+
+Decisión de fondo: **la capa mexicana es procedencia, no ornamento.** Papel
+picado, calaveras y lucha libre son el México del turista, y que una agencia de
+aquí los use la hace parecer menos sofisticada, no más. Las referencias que
+valen son las de diseño e ingeniería, y encajan dentro del paraguas global en
+vez de pelearse con él.
+
+**Hecho:** las cinco paletas de caso (`src/themes.ts`). Se llamaban Light,
+Dark, Red, Night y Sand — correctas y de ninguna parte. Ahora son **cal,
+obsidiana, grana cochinilla, tezontle y cantera rosa**, con acentos de rosa
+mexicano y amarillo maíz. Misma estructura, misma validación de contraste.
+
+**Descartado tras prototipar:** la banda cinética en el sistema de líneas
+concéntricas de Lance Wyman (MEXICO68). Se construyó y se tiró. En el 68 la
+letra _está hecha_ de líneas, que atraviesan el glifo y funden las letras
+contiguas en un campo continuo; `text-shadow` solo puede poner ecos por fuera,
+o sea letra hueca con contornos anidados — que es un dispositivo genérico de
+portada de disco de los ochenta, no una referencia mexicana. Hacerlo bien
+exige desplazamiento real de trazado desde los contornos de la fuente, en
+tiempo de compilación, y la frase dejaría de ser un prop.
+
+**Siguientes, por orden:** pictogramas tipo Metro de CDMX para las capacidades
+—que además tapan el hueco de que ningún caso tiene categoría— y una
+tipografía mexicana en lugar de Outfit, que es la jugada más profunda y la
+única que necesita decisión de compra.
+
+---
+
 ## 12. Las apuestas — quedar por encima del global
 
 Lo de arriba nos pone a la par. Esto es lo que haría que la oficina de México

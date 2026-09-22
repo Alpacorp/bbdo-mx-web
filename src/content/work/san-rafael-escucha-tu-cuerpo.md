@@ -23,8 +23,7 @@ capabilities: []
 awards: []
 
 # Case palette. Closed list in src/themes.ts.
-theme: sand
-
+theme: cantera
 # Vimeo id, read off the current site. That is where the campaign video lives.
 vimeo: '899310893'
 
