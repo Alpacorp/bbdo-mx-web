@@ -3,10 +3,11 @@
 > Este archivo es la memoria del proyecto. Es el primer prompt para Claude Code.
 > Léelo completo antes de tocar nada.
 >
-> **Última revisión: 2026-08-28**, sobre `main` en `a3c4e64`. La revisión
-> anterior era del 2026-08-24 y quedó 36 commits atrás: describía una estructura
-> de repo que ya no existía y daba por pendiente lo que ya estaba construido.
-> Si vuelve a pasar, se nota en la sección 8.
+> **Última revisión: 2026-09-23**, sobre `main` en `a937862`. La anterior era del
+> 2026-09-22 y quedó 9 commits atrás: no conocía la lista cerrada de
+> capacidades, ni la greca, ni el ajolote, y seguía diciendo 117 personas cuando
+> ya eran 112. La de antes quedó 36 commits atrás. Pasa siempre, así que las
+> cifras de la sección 8 llevan al lado el comando que las comprueba.
 
 ---
 
@@ -96,7 +97,7 @@ propuesta: son las rutas que responden.
 /the-work/           Índice de los 19 casos
 /the-work/[slug]     Case study individual  <- EL activo SEO real
 /about/              Quiénes somos + liderazgo + pertenencia a Omnicom
-/people/             (ex BBDOERS) muro de 117 + nómina buscable
+/people/             (ex BBDOERS) muro de 112 + nómina buscable
 /news/               Índice real de noticias  (1 nota, ver hallazgo B5)
 /news/[slug]
 /contact/            Formulario con routing: Nuevo negocio / Talento / Prensa
@@ -298,15 +299,32 @@ Estas costaron tiempo. Están aquí para que no se paguen dos veces.
 ## 8. Estado real — qué está construido
 
 **30 páginas prerenderizadas** + `/contact/` y `/api/contact` en función.
-19 casos, 117 personas, 26 clientes, 1 nota, 1 premio.
+19 casos, 112 personas, 26 clientes, 1 nota, 1 premio.
+
+> Las cifras de arriba se pudren. Eran 117 personas hasta el cambio de roster
+> del 2026-08 —seis bajas y un alta— y el brief siguió diciendo 117 durante
+> nueve commits. Se comprueban contra el repo, no de memoria:
+> `ls src/content/work/*.md | wc -l`, `node -e "console.log(require('./src/data/people.json').length)"`.
 
 ### Contenido y datos
 
 - Content Collections de `work` (19) y `news` (1), con esquema Zod.
-- `src/data/people.json` con las 117 personas y sus retratos; el headcount, la
+- `src/data/people.json` con las 112 personas y sus retratos; el headcount, la
   agrupación por área y el buscador se recalculan solos.
 - Módulos tipados: `awards`, `clients`, `departments`, `platform`, `portraits`,
-  `process`, `themes`, `organization`, `legal`, `contact-routing`, `redirects`.
+  `process`, `themes`, `organization`, `legal`, `contact-routing`, `redirects`,
+  `networks`, `capabilities`, `pattern`, `figures`.
+- **Listas cerradas donde antes había texto libre.** `theme` y `capabilities`
+  son enums validados al importar: una clave que no existe rompe el build en
+  vez de renderizar un hueco. No es teórico —`uber-mariachis` llevaba
+  `['Idea', 'Producción', 'Social']`, dos oficios y una capacidad en el mismo
+  campo, y nadie lo había visto— y ya pagó dos veces: al renombrar las paletas,
+  TypeScript encontró `departments.ts`, un consumidor que no estaba contado.
+- **Los tres validadores que corren al importar** y tiran el build si fallan:
+  contraste de paleta (`themes.ts`), geometría de pictograma dentro de la
+  retícula (`capabilities.ts`, con un trazador real de la ruta, porque leer los
+  números confunde deltas relativos con coordenadas) y contraste de las marcas
+  de fondo (`pattern.ts`, que mide greca, figura y ambas combinadas).
 
 ### SEO e infraestructura
 
@@ -323,6 +341,12 @@ Estas costaron tiempo. Están aquí para que no se paguen dos veces.
   `noindex` en el layout bajo la misma condición. Antes los deploys de preview
   eran plenamente rastreables bajo el nombre de la agencia.
 - Sitemap, canonicals, favicon set derivado del logo (`scripts/build-icons.mjs`).
+- **Dos activos generados y commiteados**, no editados a mano: `src/wordmark.ts`
+  (el logotipo trazado) y `src/figures.ts` (el ajolote trazado). Ambos salen del
+  mismo trazador en `scripts/lib/trace.mjs`; se regeneran con `npm run icons` y
+  `npm run figures`. Al extraer ese trazador de `build-icons.mjs` la prueba de
+  que nada cambió fue regenerar `wordmark.ts` y obtener un archivo byte a byte
+  idéntico.
 - **Banner propio por caso.** Se resuelve en dos pasos: `bannerVideo` del
   frontmatter → `/v/case/<slug>.mp4` por convención. La existencia se comprueba
   en disco al construir, igual que el hermano AV1 del banner del home. **Si no
@@ -336,7 +360,7 @@ Estas costaron tiempo. Están aquí para que no se paguen dos veces.
   grilla, y **la cortina** de cuatro ventanas en la navegación que no tiene
   historia propia (menú, pie, píldoras, tarjeta de noticia). La regla lee un
   atributo `data-morph` en el enlace.
-- **Muro de 117 retratos** a sangre en `/people/`, decorativo y `aria-hidden`
+- **Muro de 112 retratos** a sangre en `/people/`, decorativo y `aria-hidden`
   porque las mismas caras vuelven con nombre en la nómina de abajo.
 - **Banda cinética** "DO BIG THINGS", movida por el scroll y no por un reloj.
 - `ScrollFX`, fachada de Vimeo (el iframe se construye al hacer clic, no antes),
@@ -359,12 +383,17 @@ bbdo-mx/
 ├── public/
 │   ├── v/                       clips + posters
 │   └── favicon.*, icon-*.png, site.webmanifest
+├── sources/                     originales que los scripts trazan · NO se publica
+│   ├── ajolote-appleton-1884.png  grabado de dominio público
+│   └── README.md                procedencia y licencia de cada original
 ├── scripts/
+│   ├── lib/trace.mjs            trazador de mapas de bits, compartido
 │   ├── build-icons.mjs          deriva el set de iconos del logo
+│   ├── build-figures.mjs        traza las figuras de esquina → src/figures.ts
 │   └── check-tokens.mjs         guardián del contrato de tokens
 ├── src/
 │   ├── assets/                  clients/ · people/ · work/   (optimizados por Astro)
-│   ├── components/              16 componentes .astro
+│   ├── components/              19 componentes .astro
 │   ├── content/                 work/ (19) · news/ (1)
 │   ├── data/people.json
 │   ├── layouts/Base.astro       head, meta, canonical, JSON-LD, cortina
@@ -584,7 +613,7 @@ porque `object-fit` no aplica a un iframe.
 
 ---
 
-### La capa mexicana (2026-09-22)
+### La capa mexicana (2026-09-22 → 2026-09-23)
 
 Decisión de fondo: **la capa mexicana es procedencia, no ornamento.** Papel
 picado, calaveras y lucha libre son el México del turista, y que una agencia de
@@ -592,10 +621,64 @@ aquí los use la hace parecer menos sofisticada, no más. Las referencias que
 valen son las de diseño e ingeniería, y encajan dentro del paraguas global en
 vez de pelearse con él.
 
-**Hecho:** las cinco paletas de caso (`src/themes.ts`). Se llamaban Light,
-Dark, Red, Night y Sand — correctas y de ninguna parte. Ahora son **cal,
+Son **tres capas**, y las ordena una regla: **un fondo, una marca.** Una
+sección lleva greca o figura, nunca las dos; dos texturas en un fondo son
+ruido. La regla es de diseño, pero el chequeo no se fía de que alguien la
+recuerde: `src/pattern.ts` valida greca, figura **y las dos combinadas** contra
+todos los fondos permitidos, así que romperla cuesta una revisión de diseño y
+no una página ilegible.
+
+**1 · El color — las cinco paletas de caso (`src/themes.ts`).** Se llamaban
+Light, Dark, Red, Night y Sand: correctas y de ninguna parte. Ahora son **cal,
 obsidiana, grana cochinilla, tezontle y cantera rosa**, con acentos de rosa
-mexicano y amarillo maíz. Misma estructura, misma validación de contraste.
+mexicano y amarillo maíz.
+
+> **Una paleta que nadie ve es un cambio de etiqueta.** La primera versión dejó
+> cada color cerca del que sustituía, así que tres de las cinco se movieron un
+> ΔE de ~3 —por debajo del umbral en que una persona lo nota— y esas tres
+> cubrían 13 de los 19 casos. La procedencia era real y era invisible: vivía en
+> un comentario y en una clave, no en pantalla. Hoy ningún fondo está a menos de
+> ΔE 8 del que sustituyó.
+
+**2 · El suelo — la greca de Mitla (`src/pattern.ts`).** El fretado que cubre
+los muros del palacio en Oaxaca, al 7 % de la tinta del propio fondo. Se probaron
+cinco candidatas, todas material o lo que se talla en uno: greca escalonada,
+petatillo, tezontle, celosía y esta.
+
+> Lo que decidió fue la **escala**. Los motivos con estructura solo se
+> identifican en grande; las texturas solo funcionan en pequeño, y en pequeño no
+> se identifican como nada —el tezontle al 7 % es grano de papel—. «Sutil pero
+> que se identifique» solo lo alcanza un motivo con estructura. Y entre las dos
+> grecas: el zigzag escalonado podría ser navajo, griego o andino. **El gancho
+> es la parte que no es de nadie más.**
+
+**3 · La figura — el ajolote (`src/figures.ts`).** Uno grande por sección clara,
+anclado abajo a la izquierda y recortado por el borde, al 14 %. Está en el strip
+de casos del home, en `/the-work/`, en «Cómo trabajamos» de `/about/` y en
+`/news/`.
+
+> **No la dibujé: está trazada.** Cinco intentos a mano fracasaron —el ajolote
+> salió oruga, cocodrilo y pez con cresta; la serpiente emplumada salió flor, dos
+> veces—. La lección es estrecha y vale guardarla: la geometría se construye con
+> coordenadas y se corrige iterando, y una figura orgánica no; hay que dibujarla
+> y luego trazarla. Viene de un grabado de **Appleton's Guide to Mexico, 1884**,
+> dominio público. La primera lámina que probé se tiró porque en ella las
+> branquias van pegadas al cuerpo y la silueta salía salamandra: las branquias
+> son toda la razón por la que alguien reconoce un ajolote.
+
+**4 · Los pictogramas de capacidades (`src/capabilities.ts`).** Ocho signos en
+el sistema de Wyman, uno por capacidad, en las tarjetas de `/the-work/`.
+
+> Están **en las tarjetas y no en la ficha del caso** por una razón que es la
+> regla de toda esta capa: en la ficha cada signo iba al lado de su propia
+> palabra, y un signo junto a su palabra es adorno. En las tarjetas no hay sitio
+> para más texto y el signo carga el significado solo.
+>
+> Y un método que se generaliza: **un signo se juzga donde se usa, no donde se
+> diseña.** Tres de los ocho pasaban a 120 px y fallaban a 20, que es el tamaño
+> real —`plataforma` fue joystick, peón de ajedrez y banco antes de ser
+> mampostería; `activación` fue brillo de pantalla, asterisco y estrella de seis
+> puntas—. La prueba estándar ahora es a 20 px sobre los cinco fondos.
 
 **Descartado tras prototipar:** la banda cinética en el sistema de líneas
 concéntricas de Lance Wyman (MEXICO68). Se construyó y se tiró. En el 68 la
@@ -606,17 +689,20 @@ portada de disco de los ochenta, no una referencia mexicana. Hacerlo bien
 exige desplazamiento real de trazado desde los contornos de la fuente, en
 tiempo de compilación, y la frase dejaría de ser un prop.
 
-**Siguientes, por orden:** pictogramas tipo Metro de CDMX para las capacidades
-—que además tapan el hueco de que ningún caso tiene categoría— y una
-tipografía mexicana en lugar de Outfit, que es la jugada más profunda y la
-única que necesita decisión de compra.
+**Lo que esta capa NO resolvió, y se dijo que sí:** los pictogramas **no tapan
+el hueco de `category`**, que sigue vacío en 19 de 19. Son campos distintos. El
+argumento se dio al proponer el trabajo y era falso.
+
+**Siguiente, y es la jugada más profunda:** una tipografía mexicana en lugar de
+Outfit. Es la única pieza que necesita decisión de compra y visto bueno de
+dirección creativa.
 
 ---
 
 ## 12. Las apuestas — quedar por encima del global
 
 Lo de arriba nos pone a la par. Esto es lo que haría que la oficina de México
-fuera la referencia dentro de la red. **Seis apuestas; tres están construidas.**
+fuera la referencia dentro de la red. **Seis apuestas; cuatro están construidas.**
 
 ### ✅ La cortina como transición — HECHO (`5a14c41`)
 
@@ -630,12 +716,12 @@ la misma navegación —si la cortina tapa la pantalla, nadie ve crecer la
 portada—. Se repartieron: cortina en el menú y el pie, morfismo al entrar a un
 caso desde la grilla.
 
-### ✅ El muro de los 117 — HECHO (`0df6766`)
+### ✅ El muro de los retratos — HECHO (`0df6766`)
 
-_Bajo · el activo ya existía._ Era el activo más infrautilizado del sitio: 117
+_Bajo · el activo ya existía._ Era el activo más infrautilizado del sitio: 112
 retratos en blanco y negro con el mismo tratamiento, usados como lista. Ahora
 son una sola imagen a sangre, ~105 en pantalla a la vez. La página dice que la
-agencia son 117 personas antes de que nadie lea la línea que lo dice.
+agencia son 112 personas antes de que nadie lea la línea que lo dice.
 
 ### ✅ La banda cinética — HECHO (`53cbb83`)
 
@@ -644,12 +730,17 @@ global que esta migración no había tomado. "DO BIG THINGS" sólido y en contor
 movido por el scroll y no por un reloj: atado a `view()`, las filas viajan
 exactamente lo que el lector hace scroll y se paran cuando él se para.
 
-### ⏳ El cursor que dice VER — PENDIENTE, y no depende de nadie
+### ✅ El cursor que dice VER — HECHO (`3aefeb2`)
 
-_Coste bajo._ **Es la única apuesta que no espera a la agencia.** Un disco rojo
-que sigue al cursor sobre la grilla de The Work y sobre el muro de clientes. Es
-una microinteracción de firma y resuelve además un problema real: hoy las
-tarjetas no comunican que son clicables.
+Un disco rojo que sigue al puntero sobre la grilla de The Work y nombra lo que
+hará un clic. Microinteracción de firma, y resolvía un problema real: las
+tarjetas no comunicaban que eran clicables.
+
+**Va en la grilla de casos y NO en el muro de clientes**, aunque la auditoría
+pedía las dos. Los chips del muro no son enlaces —no hay página de cliente y
+nadie la ha pedido—, así que un disco prometiendo VER sobre ellos apuntaría a
+una navegación que no existe. El muro ya tiene su propio hover, y ese sí es
+honesto: dice «esto reacciona», no «esto abre».
 
 Advertencia de alcance, aprendida con la etiqueta del muro: **`hover` es un
 gesto de puntero y no traduce a un toque.** En móvil esto no existe, y eso es
@@ -681,16 +772,18 @@ de la agencia sería, literalmente, practicar lo que se predica.
 
 Esto es la fase 00. Mientras no llegue, el sitio no puede pasar de donde está.
 
-| Para                         | Qué                                                                                                                                                   |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **A cada equipo de cuenta**  | Key art de su campaña en 16:9 y 4:5. Sin bandas negras, sin subtítulos, sin leyendas legales. Si no existe, un fotograma limpio sirve mientras tanto. |
-| **A post-producción**        | Ya no hace falta comprimir: se hizo aquí el 2026-08-28. Lo que sí hace falta es **metraje propio por caso**, porque los 19 abren con el mismo clip.   |
-| **A dirección creativa**     | Un resultado por campaña. Una cifra, un premio o una frase de impacto. Diecinueve renglones. Y firmar los nombres del Proceso BBDO (sección 10).      |
-| **A comunicación**           | El palmarés completo con año, festival y nivel. Y tres notas más para que News no parezca detenido en 2024.                                           |
-| **A planning**               | Los tres pilares del Proceso BBDO escritos para publicarse, y la lista de servicios como se venden hoy.                                               |
-| **A quien tenga el archivo** | Fotos de proceso de las tres o cuatro campañas más fuertes: bocetos, rodaje, la pieza en la calle.                                                    |
-| **A Omnicom legal**          | El aviso de privacidad de México en OneTrust (sección 10 bis).                                                                                        |
-| **A sistemas**               | Los buzones `nuevonegocio@` y `prensa@`, y `bbdomexico.com` verificado en Resend.                                                                     |
+| Para                         | Qué                                                                                                                                                                                                                                                  |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **A cada equipo de cuenta**  | Key art de su campaña en 16:9 y 4:5. Sin bandas negras, sin subtítulos, sin leyendas legales. Si no existe, un fotograma limpio sirve mientras tanto.                                                                                                |
+| **A post-producción**        | Ya no hace falta comprimir: se hizo aquí el 2026-08-28. Lo que sí hace falta es **metraje propio por caso**, porque los 19 abren con el mismo clip.                                                                                                  |
+| **A dirección creativa**     | Un resultado por campaña. Una cifra, un premio o una frase de impacto. Diecinueve renglones. Y firmar los nombres del Proceso BBDO (sección 10).                                                                                                     |
+| **A comunicación**           | El palmarés completo con año, festival y nivel. Y tres notas más para que News no parezca detenido en 2024.                                                                                                                                          |
+| **A planning**               | Los tres pilares del Proceso BBDO escritos para publicarse, y la lista de servicios como se venden hoy.                                                                                                                                              |
+| **A quien tenga el archivo** | Fotos de proceso de las tres o cuatro campañas más fuertes: bocetos, rodaje, la pieza en la calle.                                                                                                                                                   |
+| **A Omnicom legal**          | El aviso de privacidad de México en OneTrust (sección 10 bis).                                                                                                                                                                                       |
+| **A sistemas**               | Los buzones `nuevonegocio@` y `prensa@`, y `bbdomexico.com` verificado en Resend.                                                                                                                                                                    |
+| **A dirección creativa (2)** | Qué son Flare, War Design, Joystick, Pulse e Influence. `/services/` son once logos y ni una línea de copy, `/about-us/` tampoco las menciona, así que el repo no lo sabe y no lo inventa. ¿Unidad interna o empresa aparte? ¿Entran al sitio nuevo? |
+| **A legal (2)**              | Treinta segundos: el grabado del ajolote es de 1884 y anónimo, etiquetado `PD-US` en Commons. Casi seguro libre también en México, pero conviene que lo confirme alguien que sí sea abogado. Detalle en `sources/README.md`.                         |
 
 ---
 
@@ -713,8 +806,16 @@ Por orden, y con la dependencia dicha:
    y 02, y no lo puede hacer el desarrollo.
 2. **Nada de vídeo.** El presupuesto de la sección 6 se cumple: 2,46 MB en el
    home. Lo que queda es contenido, no compresión — ver el hallazgo A5.
-3. **El cursor VER.** La única apuesta sin dependencias externas.
-4. Cuando llegue el key art: **fase 02 completa** —fondo oscuro, grilla
+3. **Una tipografía mexicana en lugar de Outfit.** Lo que queda de la capa
+   mexicana, y la jugada más profunda: necesita licencia y visto bueno de
+   dirección creativa, no código. Investigar una lista corta es lo primero.
+4. **Rellenar `category` en los 19 casos.** Sigue vacío y los pictogramas de
+   capacidades no lo tapan, aunque al proponerlos se dijo que sí. Es curaduría,
+   no desarrollo.
+5. **Reescribir los 19 `imageAlt`.** Hoy salen del nombre del archivo de vídeo
+   original, así que un lector de pantalla dice «Fotograma de la campaña
+   BBDO_ASPIRINA_WSFAK_FINAL». No comunica nada.
+6. Cuando llegue el key art: **fase 02 completa** —fondo oscuro, grilla
    asimétrica, filtros.
 
 Nada de lo anterior toca el camino crítico real, que sigue siendo **CONTENIDO**,
