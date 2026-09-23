@@ -66,6 +66,37 @@ export const GRECA = {
  */
 export const GRECA_OPACITY = 0.07;
 
+/**
+ * The corner figure's strength. See src/figures.ts for the figure itself.
+ *
+ * STRONGER THAN THE GRECA, ON PURPOSE, AND NOT AS STRONG AS IT IS ALLOWED TO
+ * BE. The greca is a 2.6-unit line on a 48-unit tile, so most of any square
+ * inch of it is bare ground; the figure is a solid mass, and at the same
+ * number it would read as heavier because it is.
+ *
+ * The AA ceiling here is 21%: that is where the check below starts failing, on
+ * cantera's far end, which is the tightest ground the site has at 7.09:1
+ * clean. This sits at 14% instead, and the reason is a judgement rather than a
+ * measurement — rendered at 5.5, 9, 12, 16 and 21 and looked at, the figure
+ * stops being a ground somewhere around 16 and is plainly a grey animal in the
+ * corner at 21. 14 is loud enough to be the point of the section and quiet
+ * enough to still be behind it.
+ *
+ * So the number is not at the limit, and the limit is not the target. If a
+ * future design wants it louder there are seven points of headroom and the
+ * check will say exactly where they run out.
+ */
+export const FIGURE_OPACITY = 0.14;
+
+/**
+ * ONE GROUND, ONE MARK. A section gets the greca or a figure, never both: two
+ * textures on one ground is noise, and where they overlapped the ink would
+ * stack. The rule is a design decision, but the check below does not rely on
+ * anyone remembering it — it validates the two of them TOGETHER, so even a
+ * section that wrongly carries both still has readable text.
+ */
+export const COMBINED_OPACITY = GRECA_OPACITY + FIGURE_OPACITY * (1 - GRECA_OPACITY);
+
 /** The tile as a data URI, ready for `mask-image`. */
 export function grecaMask(): string {
   const svg =
@@ -165,13 +196,24 @@ const grounds: [string, string, string][] = [
   ),
 ];
 
+const marks: [string, number][] = [
+  ['greca', GRECA_OPACITY],
+  ['figure', FIGURE_OPACITY],
+  // Not a combination that is meant to happen — see COMBINED_OPACITY. It is
+  // checked anyway, so the rule being broken costs a design review rather than
+  // a page somebody cannot read.
+  ['greca + figure', COMBINED_OPACITY],
+];
+
 for (const [name, background, text] of grounds) {
-  const ratio = contrast(text, blend(background, text, GRECA_OPACITY));
-  if (ratio < AA_BODY) {
-    throw new Error(
-      `The greca at ${Math.round(GRECA_OPACITY * 100)}% puts text on "${name}" at ` +
-        `${ratio.toFixed(2)}:1, under the ${AA_BODY}:1 WCAG AA needs for body text. ` +
-        'Lower GRECA_OPACITY, or leave the greca off that ground.'
-    );
+  for (const [mark, opacity] of marks) {
+    const ratio = contrast(text, blend(background, text, opacity));
+    if (ratio < AA_BODY) {
+      throw new Error(
+        `The ${mark} at ${(opacity * 100).toFixed(1)}% puts text on "${name}" at ` +
+          `${ratio.toFixed(2)}:1, under the ${AA_BODY}:1 WCAG AA needs for body text. ` +
+          'Lower the opacity, or leave that mark off that ground.'
+      );
+    }
   }
 }

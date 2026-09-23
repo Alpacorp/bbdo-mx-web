@@ -5,6 +5,7 @@ import Base from '../../layouts/Base.astro';
 import ScrollFX from '../../components/ScrollFX.astro';
 import PointerLabel from '../../components/PointerLabel.astro';
 import Pictogram from '../../components/Pictogram.astro';
+import CornerFigure from '../../components/CornerFigure.astro';
 import { CAPABILITIES } from '../../capabilities';
 
 /**
@@ -36,6 +37,7 @@ const cases = (await getCollection('work', ({ data }) => !data.draft)).sort(
   description="El trabajo de BBDO México: campañas para Pepsi, Uber, Bayer, Pedigree, EA Sports, Tostitos y más."
 >
   <main id="content" class="page">
+    <CornerFigure />
     <header class="page-header">
       <h1 class="page-title" data-fx="lines"><span>The Work</span></h1>
       <p class="header__note" data-fx="up" data-fx-delay="0.2">
@@ -91,6 +93,8 @@ const cases = (await getCollection('work', ({ data }) => !data.draft)).sort(
 
 <style>
   .page {
+    position: relative;
+    z-index: 0;
     padding-inline: var(--gutter);
     padding-block: var(--space-2xl);
     max-width: var(--max-width);

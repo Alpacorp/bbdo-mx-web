@@ -11,6 +11,7 @@ import Awards from '../components/Awards.astro';
 import KineticBand from '../components/KineticBand.astro';
 import { PLATFORM_WORDS, PLATFORM_CORNERS, PLATFORM_ECHO } from '../platform';
 import NewsCard from '../components/NewsCard.astro';
+import CornerFigure from '../components/CornerFigure.astro';
 
 /**
  * The three most recent articles. Real ones: the home used to carry two
@@ -148,6 +149,11 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
       <Process />
 
       <section class="work section-shell" aria-labelledby="work-title">
+        {
+          /* The white section carries the figure; the dark ones carry the
+            greca. One mark per ground. */
+        }
+        <CornerFigure />
         <span class="section-rail" aria-hidden="true">Work</span>
         <header class="section-head">
           <h2 id="work-title" data-fx="up">The Work</h2>
@@ -232,6 +238,11 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
 </Base>
 
 <style>
+  .work {
+    position: relative;
+    z-index: 0;
+  }
+
   /* --- Claim: titular + posicionamiento, sobre rojo pleno --------------- */
   /* Everything after the banner, on a single layer above it. The solid
      background is mandatory: without it the sticky banner shows through the
