@@ -1,0 +1,78 @@
+---
+/**
+ * Pictogram.astro — one capability's sign, from src/capabilities.ts.
+ *
+ * DECORATIVE BY DEFAULT, AND THAT IS ON PURPOSE
+ *   Everywhere this is used so far, the pictogram sits beside its own label in
+ *   plain text. Giving it a title as well would make a screen reader say
+ *   "Film, Film" — the classic redundant-icon bug — so it defaults to
+ *   aria-hidden. Pass `label` only where the sign appears WITHOUT its word,
+ *   and it becomes an img-role graphic with an accessible name instead.
+ *
+ * currentColor, not a fixed ink. A case page sets --color-fg from its theme,
+ * so a pictogram dropped into cantera comes out in cantera's brown and one in
+ * obsidiana comes out pale, with no per-theme variant to maintain.
+ *
+ * shape-rendering is left alone deliberately. `crispEdges` would snap the
+ * rectangles to the pixel grid and look sharper at 16px, but it also kills
+ * antialiasing on the one circle and the diagonals, and a set where half the
+ * marks are crisp and half are ragged reads as a mistake.
+ */
+import {
+  CAPABILITIES,
+  PICTOGRAM_SIZE,
+  PICTOGRAM_STROKE,
+  type Capability,
+  type CapabilityKey,
+} from '../capabilities';
+
+interface Props {
+  name: CapabilityKey;
+  /** Rendered size in px. The grid is 24; anything else scales cleanly. */
+  size?: number;
+  /** Accessible name. Only pass this where the sign stands alone. */
+  label?: string;
+  class?: string;
+}
+
+const { name, size = 24, label, class: className, ...rest } = Astro.props;
+const capability: Capability = CAPABILITIES[name];
+const box = `0 0 ${PICTOGRAM_SIZE} ${PICTOGRAM_SIZE}`;
+---
+
+<svg
+  viewBox={box}
+  width={size}
+  height={size}
+  fill="none"
+  class:list={['picto', className]}
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+  {...rest}
+>
+  {label && <title>{label}</title>}
+  {
+    capability.d && (
+      <path d={capability.d} fill="currentColor" fill-rule={capability.rule ?? 'nonzero'} />
+    )
+  }
+  {
+    capability.lines && (
+      <path
+        d={capability.lines}
+        stroke="currentColor"
+        stroke-width={PICTOGRAM_STROKE}
+        stroke-linecap="butt"
+        stroke-linejoin="miter"
+      />
+    )
+  }
+</svg>
+
+<style>
+  .picto {
+    display: block;
+    flex: none;
+  }
+</style>

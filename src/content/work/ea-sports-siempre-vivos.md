@@ -19,7 +19,11 @@ imageAlt: 'Fotograma de la campaña EA SPORTS - SIEMPRE VIVOS'
 
 # year and category are left empty on purpose: on the current site all 19 cases
 # share a date (10 Feb 2024, the bulk upload) and a category (Branding).
-capabilities: []
+# PLACEHOLDER, like brand/campaign/result/description above. Read off this
+# case's own copy, NOT supplied by the agency — except `film`, which is not a
+# reading: all 19 cases carry a vimeo id. Closed list in src/capabilities.ts.
+# Needs the creative director before it ships.
+capabilities: ['film', 'plataforma']
 awards: []
 
 # Case palette. Closed list in src/themes.ts.

@@ -186,3 +186,49 @@
   white-space: nowrap;
   border: 0;
 }
+
+/* --- La greca ------------------------------------------------------------- */
+
+/*
+ * The ground a section sits on. See src/pattern.ts for where the fret comes
+ * from, why it is a mask rather than an image, and the contrast check that
+ * governs how strong it is allowed to be.
+ *
+ * USE IT ON THE ELEMENT THAT PAINTS THE BACKGROUND, never on a wrapper that
+ * also holds media: on a container with the banner inside, it painted a fret
+ * across a playing video.
+ *
+ * The host needs a stacking context of its own and the greca goes behind its
+ * content. Where a section already paints a full-bleed ground from ::before,
+ * this rides on ::after so both survive.
+ */
+.greca::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* Full-bleed like the grounds it sits on, which are capped by --max-width
+     and the gutter: left at the content edge, the greca stopped short of the
+     colour it is meant to be part of. */
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+  z-index: -1;
+  pointer-events: none;
+
+  background: var(--color-fg);
+  opacity: var(--greca-opacity);
+  -webkit-mask-image: var(--greca-mask);
+  mask-image: var(--greca-mask);
+  -webkit-mask-size: 48px 24px;
+  mask-size: 48px 24px;
+  -webkit-mask-repeat: repeat;
+  mask-repeat: repeat;
+}
+
+/* It is a surface, not information: at high contrast the ground should be a
+   flat colour and every bit of the ratio should go to the text. */
+@media (prefers-contrast: more) {
+  .greca::after {
+    display: none;
+  }
+}
