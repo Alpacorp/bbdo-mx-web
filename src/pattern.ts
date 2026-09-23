@@ -117,13 +117,42 @@ function blend(background: string, ink: string, alpha: number): string {
 }
 
 /**
- * The site's own ground, which is not a case palette and so is not in THEMES.
- * Kept in step with --color-paper and --color-ink in src/styles/tokens.css.
+ * THE GROUNDS THE GRECA IS ALLOWED ON, and the reason this is a list rather
+ * than "wherever someone puts the class".
+ *
+ * The first version of this check only knew THEMES and the site's paper,
+ * because those were the only grounds it had been used on. Then the greca was
+ * considered for the home page, where the sections that own a ground are the
+ * red claim and three dark ones — and NONE of those are case palettes. The
+ * check would have passed while the greca went somewhere it must not go. A
+ * validator that only covers where a thing has already been used is not a
+ * validator; it is a record.
+ *
+ * Values kept in step with src/styles/tokens.css.
  */
-const SITE = { background: '#FAFAFA', text: '#111111' };
+const SITE_GROUNDS: [string, string, string][] = [
+  ['paper', '#FAFAFA', '#111111'], // --color-paper / the ink over it
+  ['dark', '#161616', '#FAFAFA'], // --color-dark: Process, ClientWall, KineticBand
+  ['dark-alt', '#212121', '#FAFAFA'], // --color-dark-alt: the news strip
+];
+
+/**
+ * NOT A GROUND FOR THE GRECA: --color-red.
+ *
+ * White on #FF0000 is 4.00:1, which does not meet AA on its own, before any
+ * pattern is laid on it — a pre-existing problem noted when the palettes were
+ * validated, and the reason the case themes use darker reds than the brand's.
+ * The greca would take it to 3.93:1. So the red claim section on the home does
+ * not get one, and this constant exists so that decision is written down
+ * rather than being a gap somebody later fills in by accident.
+ *
+ * If the red ever gets darkened enough to pass on its own, move it into
+ * SITE_GROUNDS and the check will say whether it can carry the greca too.
+ */
+export const GRECA_FORBIDDEN = { red: '#FF0000' } as const;
 
 const grounds: [string, string, string][] = [
-  ['site', SITE.background, SITE.text],
+  ...SITE_GROUNDS,
   ...Object.entries(THEMES).flatMap(([key, theme]) =>
     backgroundsOf(theme as Theme).map(
       (background, i, all) =>

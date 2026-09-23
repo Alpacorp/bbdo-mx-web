@@ -206,7 +206,7 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
       }
       <KineticBand />
 
-      <section class="news" aria-labelledby="news-title">
+      <section class="news greca" aria-labelledby="news-title">
         <div class="news__inner section-shell">
           <span class="section-rail" aria-hidden="true">News</span>
           <header class="section-head section-head--dark">
@@ -405,6 +405,8 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
      without the component needing to know which page it is on. Custom
      properties inherit across component scoping; class names do not. */
   .news {
+    position: relative;
+    z-index: 0;
     background: var(--color-dark-alt);
     color: var(--color-on-dark);
     --card-muted: rgba(250, 250, 250, 0.62);

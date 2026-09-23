@@ -65,7 +65,7 @@ const copies = Array.from(
 );
 ---
 
-<section class="band" aria-hidden="true">
+<section class="band greca" aria-hidden="true">
   <div class="band__row band__row--solid">
     {copies.map(() => <span>{text}</span>)}
   </div>
@@ -76,6 +76,8 @@ const copies = Array.from(
 
 <style>
   .band {
+    position: relative;
+    z-index: 0;
     width: 100vw;
     margin-inline: calc(50% - 50vw);
     padding-block: var(--space-xl);
