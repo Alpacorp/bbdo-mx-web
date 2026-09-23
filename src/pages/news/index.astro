@@ -14,6 +14,7 @@ import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import ScrollFX from '../../components/ScrollFX.astro';
 import NewsCard from '../../components/NewsCard.astro';
+import CornerFigure from '../../components/CornerFigure.astro';
 
 const articles = (await getCollection('news'))
   .filter((entry) => !entry.data.draft)
@@ -24,6 +25,7 @@ const articles = (await getCollection('news'))
   <ScrollFX />
 
   <main id="content" class="news-page">
+    <CornerFigure />
     <div class="section-shell">
       <header class="news-page__head">
         <h1 class="news-page__title page-title" data-fx="lines"><span>News</span></h1>
@@ -50,6 +52,11 @@ const articles = (await getCollection('news'))
 </Base>
 
 <style>
+  .news-page {
+    position: relative;
+    z-index: 0;
+  }
+
   .news-page__title {
     font-family: var(--font-display);
     font-weight: var(--weight-display);

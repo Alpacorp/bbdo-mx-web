@@ -69,13 +69,24 @@ export const GRECA_OPACITY = 0.07;
 /**
  * The corner figure's strength. See src/figures.ts for the figure itself.
  *
- * A LITTLE STRONGER THAN THE GRECA, ON PURPOSE. The greca is a line at 2.6
- * units on a 48-unit tile, so most of any given square inch of it is bare
- * ground; the figure is a solid mass. At the same number the figure reads as
- * heavier, because it is. This is the number that makes them look like they
- * belong to the same system, not the number that makes them equal.
+ * STRONGER THAN THE GRECA, ON PURPOSE, AND NOT AS STRONG AS IT IS ALLOWED TO
+ * BE. The greca is a 2.6-unit line on a 48-unit tile, so most of any square
+ * inch of it is bare ground; the figure is a solid mass, and at the same
+ * number it would read as heavier because it is.
+ *
+ * The AA ceiling here is 21%: that is where the check below starts failing, on
+ * cantera's far end, which is the tightest ground the site has at 7.09:1
+ * clean. This sits at 14% instead, and the reason is a judgement rather than a
+ * measurement — rendered at 5.5, 9, 12, 16 and 21 and looked at, the figure
+ * stops being a ground somewhere around 16 and is plainly a grey animal in the
+ * corner at 21. 14 is loud enough to be the point of the section and quiet
+ * enough to still be behind it.
+ *
+ * So the number is not at the limit, and the limit is not the target. If a
+ * future design wants it louder there are seven points of headroom and the
+ * check will say exactly where they run out.
  */
-export const FIGURE_OPACITY = 0.055;
+export const FIGURE_OPACITY = 0.14;
 
 /**
  * ONE GROUND, ONE MARK. A section gets the greca or a figure, never both: two
