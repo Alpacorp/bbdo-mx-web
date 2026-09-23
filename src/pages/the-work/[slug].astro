@@ -11,6 +11,7 @@ import CaseBlock from '../../components/CaseBlock.astro';
 import VimeoPlayer from '../../components/VimeoPlayer.astro';
 import Collage from '../../components/Collage.astro';
 import { themeStyle } from '../../themes';
+import { CAPABILITIES } from '../../capabilities';
 
 /**
  * /the-work/[slug] — the individual case study. THE SEO asset of the project.
@@ -301,7 +302,14 @@ if (data.awards.length) jsonLd.award = data.awards;
             <div>
               <>
                 <dt>Capacidades</dt>
-                <dd>{data.capabilities.join(', ')}</dd>
+                {/* WORDS HERE, SIGNS ON THE CARDS. The pictograms were in this
+                    list for one afternoon, at 20px, each one beside its own
+                    label — which makes the sign decoration, and this project's
+                    rule for the Mexican layer is provenance and not ornament.
+                    A pictogram earns its place where the word is ABSENT and
+                    something has to be scanned: that is /the-work/, nineteen
+                    cards with no room for more text. It is used there. */}
+                <dd>{data.capabilities.map((key) => CAPABILITIES[key].label).join(', ')}</dd>
               </>
             </div>
           )

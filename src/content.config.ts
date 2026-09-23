@@ -4,6 +4,7 @@ import { defineCollection } from 'astro:content';
 import { z } from 'zod';
 import { glob, file } from 'astro/loaders';
 import { THEME_KEYS } from './themes';
+import { CAPABILITY_KEYS } from './capabilities';
 import { NETWORK_KEYS, NETWORKS, belongsTo } from './networks';
 
 /**
@@ -49,7 +50,14 @@ const work = defineCollection({
       year: z.number().int().min(1990).max(2100).optional(),
       category: z.string().optional(),
       industry: z.string().optional(),
-      capabilities: z.array(z.string()).default([]),
+      /**
+       * Closed list, from src/capabilities.ts, for the same reason `theme` is
+       * closed: a free string across 19 cases becomes "Social", "social media"
+       * and "Redes", which is three labels for one thing and no pictogram for
+       * any of them. A capability that is not on the list fails the build here
+       * rather than rendering as a gap.
+       */
+      capabilities: z.array(z.enum(CAPABILITY_KEYS)).default([]),
       awards: z.array(z.string()).default([]),
 
       /** Vimeo id. All 19 current cases carry a Vimeo embed. */

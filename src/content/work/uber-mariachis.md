@@ -29,7 +29,14 @@ credits:
   - role: 'Producción'
     name: 'Pendiente'
 industry: 'Movilidad'
-capabilities: ['Idea', 'Producción', 'Social']
+# PLACEHOLDER, like brand/campaign/result/description above, and the one case
+# that had this field filled in before the list was closed. It said
+# ['Idea', 'Producción', 'Social'] — which is what a free string does: `Idea`
+# and `Producción` are crafts, not capabilities, and they are the reason this
+# is now an enum. `Producción` maps to film, `Social` survives as itself, and
+# `Idea` has no equivalent because every case here is an idea.
+# Closed list in src/capabilities.ts. Needs the creative director.
+capabilities: ['film', 'activacion', 'social']
 
 collage:
   title: 'En imágenes'

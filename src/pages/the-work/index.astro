@@ -4,6 +4,8 @@ import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import ScrollFX from '../../components/ScrollFX.astro';
 import PointerLabel from '../../components/PointerLabel.astro';
+import Pictogram from '../../components/Pictogram.astro';
+import { CAPABILITIES } from '../../capabilities';
 
 /**
  * /the-work/ — case index.
@@ -60,6 +62,22 @@ const cases = (await getCollection('work', ({ data }) => !data.draft)).sort(
               />
               <h2 class="card__brand">{caseEntry.data.brand}</h2>
               <p class="card__campaign">{caseEntry.data.campaign}</p>
+              {/* THE ONE PLACE ON THIS SITE WHERE A PICTOGRAM DOES WORK.
+                  Nineteen cards, no room for another line of text, and a
+                  reader scanning for "the film ones" or "the activations".
+                  The sign carries the meaning alone here, so unlike in the
+                  case fact sheet it is NOT decorative: each one gets its
+                  label as an accessible name, and the row gets a list role
+                  so the count is announced. */}
+              {caseEntry.data.capabilities.length > 0 && (
+                <ul class="card__caps" aria-label="Capacidades">
+                  {caseEntry.data.capabilities.map((key) => (
+                    <li>
+                      <Pictogram name={key} size={18} label={CAPABILITIES[key].label} />
+                    </li>
+                  ))}
+                </ul>
+              )}
             </a>
           </li>
         ))
@@ -136,8 +154,22 @@ const cases = (await getCollection('work', ({ data }) => !data.draft)).sort(
     color: var(--color-dim);
     font-size: 0.95rem;
   }
+  .card__caps {
+    list-style: none;
+    margin: var(--space-2xs) 0 0;
+    padding: 0;
+    display: flex;
+    gap: 10px;
+    /* Dimmer than the campaign line on purpose: these are a secondary read,
+       and at full strength eight dark marks compete with the key visual
+       above them. They come up to full on hover with the rest of the card. */
+    color: var(--color-dim);
+  }
   .card a:hover .card__brand {
     color: var(--color-accent);
+  }
+  .card a:hover .card__caps {
+    color: var(--color-fg);
   }
 
   @media (min-width: 40rem) {
