@@ -7,6 +7,7 @@ import Header from '../components/Header.astro';
 import CurtainTransition from '../components/CurtainTransition.astro';
 import Wordmark from '../components/Wordmark.astro';
 import { LEGAL_LINKS } from '../navigation';
+import { grecaMask, GRECA_OPACITY } from '../pattern';
 
 /**
  * Base.astro — root layout: head, meta, canonical, JSON-LD.
@@ -96,7 +97,14 @@ const jsonLd = {
 ---
 
 <!doctype html>
-<html lang="es-MX">
+{
+  /* The greca's tile and how much of it shows, published once as custom
+     properties so the data URI lives in exactly one place. NOT `define:vars`
+     on the style block: that scopes the variables to that element's own rule,
+     and the greca is used from sections.css. src/pattern.ts says where the
+     fret comes from and validates the opacity against every ground. */
+}
+<html lang="es-MX" style={`--greca-mask:${grecaMask()};--greca-opacity:${GRECA_OPACITY}`}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
