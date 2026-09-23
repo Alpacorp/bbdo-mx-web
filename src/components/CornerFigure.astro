@@ -1,0 +1,89 @@
+---
+/**
+ * CornerFigure.astro — one large figure in a section's bottom-left corner.
+ *
+ * The greca is the ground; this is the thing standing on it. Where the tile
+ * repeats quietly everywhere, a figure appears once, big, and is the reason
+ * somebody looks twice.
+ *
+ * CROPPED ON PURPOSE. It hangs off the left edge and below the section's
+ * bottom, so it reads as something the page is a window onto rather than as a
+ * sticker placed in a corner. That is also what lets it be large without
+ * taking the space large things take.
+ *
+ * ONE MARK PER GROUND. A section carries the greca or a figure, never both —
+ * see COMBINED_OPACITY in src/pattern.ts, which checks the two together anyway
+ * so breaking the rule costs a design review and not a readable page.
+ *
+ * NEVER OVER MEDIA, same as the greca: the host is the element that paints the
+ * background, and the figure sits behind everything in it.
+ *
+ * It is decoration. It carries no label and no title, because nothing about
+ * the page's meaning is in it, and a screen reader announcing "Ajolote" in the
+ * middle of a client list would be describing the wallpaper.
+ */
+import { FIGURES, type FigureKey } from '../figures';
+import { FIGURE_OPACITY } from '../pattern';
+
+interface Props {
+  name?: FigureKey;
+  /**
+   * Fraction of the section's width the figure spans, before the clamp below.
+   * Bigger than it sounds: it is cropped, so a good part of this is off-page.
+   */
+  width?: string;
+}
+
+const { name = 'ajolote', width = 'clamp(300px, 46%, 620px)' } = Astro.props;
+const figure = FIGURES[name];
+---
+
+<svg
+  class="figura"
+  viewBox={`0 0 1 ${figure.aspect}`}
+  preserveAspectRatio="xMinYMax meet"
+  aria-hidden="true"
+  focusable="false"
+  style={`--figura-w:${width};--figura-o:${FIGURE_OPACITY}`}
+>
+  <path d={figure.d} fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+
+<style>
+  .figura {
+    position: absolute;
+    /* Hung off both edges so the section crops it.
+       THE VERTICAL OFFSET IS A LENGTH AND NOT A PERCENTAGE. A percentage
+       resolves against the SECTION's height, and these sections range from a
+       short strip to a column of nineteen stacked cards — at -6% of a tall one
+       the figure sank until only the gill tips showed above the next section.
+       Caught on a phone, where the sections are tallest. */
+    left: -4%;
+    bottom: -1.5rem;
+    width: var(--figura-w);
+    height: auto;
+    z-index: -1;
+    pointer-events: none;
+
+    color: var(--color-fg);
+    opacity: var(--figura-o);
+  }
+
+  /* It is a surface, not information: at high contrast the ground goes flat
+     and the whole ratio goes back to the text. Same rule as the greca. */
+  @media (prefers-contrast: more) {
+    .figura {
+      display: none;
+    }
+  }
+
+  /* Under 40rem the figure would sit under the body copy rather than beside
+     it, so it drops to the corner it can actually hold. */
+  @media (max-width: 40rem) {
+    .figura {
+      width: clamp(220px, 74%, 340px);
+      left: -14%;
+      bottom: -1rem;
+    }
+  }
+</style>

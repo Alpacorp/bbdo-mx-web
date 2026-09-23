@@ -66,6 +66,26 @@ export const GRECA = {
  */
 export const GRECA_OPACITY = 0.07;
 
+/**
+ * The corner figure's strength. See src/figures.ts for the figure itself.
+ *
+ * A LITTLE STRONGER THAN THE GRECA, ON PURPOSE. The greca is a line at 2.6
+ * units on a 48-unit tile, so most of any given square inch of it is bare
+ * ground; the figure is a solid mass. At the same number the figure reads as
+ * heavier, because it is. This is the number that makes them look like they
+ * belong to the same system, not the number that makes them equal.
+ */
+export const FIGURE_OPACITY = 0.055;
+
+/**
+ * ONE GROUND, ONE MARK. A section gets the greca or a figure, never both: two
+ * textures on one ground is noise, and where they overlapped the ink would
+ * stack. The rule is a design decision, but the check below does not rely on
+ * anyone remembering it — it validates the two of them TOGETHER, so even a
+ * section that wrongly carries both still has readable text.
+ */
+export const COMBINED_OPACITY = GRECA_OPACITY + FIGURE_OPACITY * (1 - GRECA_OPACITY);
+
 /** The tile as a data URI, ready for `mask-image`. */
 export function grecaMask(): string {
   const svg =
@@ -165,13 +185,24 @@ const grounds: [string, string, string][] = [
   ),
 ];
 
+const marks: [string, number][] = [
+  ['greca', GRECA_OPACITY],
+  ['figure', FIGURE_OPACITY],
+  // Not a combination that is meant to happen — see COMBINED_OPACITY. It is
+  // checked anyway, so the rule being broken costs a design review rather than
+  // a page somebody cannot read.
+  ['greca + figure', COMBINED_OPACITY],
+];
+
 for (const [name, background, text] of grounds) {
-  const ratio = contrast(text, blend(background, text, GRECA_OPACITY));
-  if (ratio < AA_BODY) {
-    throw new Error(
-      `The greca at ${Math.round(GRECA_OPACITY * 100)}% puts text on "${name}" at ` +
-        `${ratio.toFixed(2)}:1, under the ${AA_BODY}:1 WCAG AA needs for body text. ` +
-        'Lower GRECA_OPACITY, or leave the greca off that ground.'
-    );
+  for (const [mark, opacity] of marks) {
+    const ratio = contrast(text, blend(background, text, opacity));
+    if (ratio < AA_BODY) {
+      throw new Error(
+        `The ${mark} at ${(opacity * 100).toFixed(1)}% puts text on "${name}" at ` +
+          `${ratio.toFixed(2)}:1, under the ${AA_BODY}:1 WCAG AA needs for body text. ` +
+          'Lower the opacity, or leave that mark off that ground.'
+      );
+    }
   }
 }
