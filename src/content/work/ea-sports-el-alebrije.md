@@ -15,7 +15,7 @@ summary: ''
 description: 'EA Sports metió el imaginario mexicano dentro del juego. El Alebrije trajo la figura del arte popular al terreno donde se juega, se comparte y se presume.'
 
 image: '../../assets/work/ea-sports-el-alebrije.jpg'
-imageAlt: 'Fotograma de la campaña EA Sports - El Alebrije'
+imageAlt: 'Futbolista de videojuego celebra frente a la portería con un uniforme de colores inspirado en un alebrije; detrás, el portero se lleva las manos a la cabeza.'
 
 # year and category are left empty on purpose: on the current site all 19 cases
 # share a date (10 Feb 2024, the bulk upload) and a category (Branding).

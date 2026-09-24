@@ -15,7 +15,7 @@ summary: ''
 description: 'Saba nombró lo que la categoría lleva décadas esquivando. #Vulvacare usó la palabra correcta para hablar de higiene íntima y convirtió el tabú en el punto de partida.'
 
 image: '../../assets/work/saba-vulvacare.jpg'
-imageAlt: 'Fotograma de la campaña SABA-#Vulvacare'
+imageAlt: 'Botella de jabón íntimo Saba junto a una canasta con un cepillo, sobre azulejos rosas con espuma.'
 
 # year and category are left empty on purpose: on the current site all 19 cases
 # share a date (10 Feb 2024, the bulk upload) and a category (Branding).

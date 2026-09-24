@@ -15,7 +15,7 @@ summary: ''
 description: 'Stella Artois partió de una verdad incómoda: el plan que más se cancela es el de ver a los amigos. Friends Delivery invirtió la logística de la cerveza a domicilio para entregar lo que de verdad faltaba en la mesa.'
 
 image: '../../assets/work/abi-friends-delivery.jpg'
-imageAlt: 'Fotograma de la campaña Stella Artois - Friends Delivery'
+imageAlt: 'Calle nocturna bajo un paso elevado, llena de coches y una casa rodante, con el texto «The most canceled plan».'
 
 # year and category are left empty on purpose: on the current site all 19 cases
 # share a date (10 Feb 2024, the bulk upload) and a category (Branding).

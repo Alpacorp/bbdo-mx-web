@@ -15,7 +15,7 @@ summary: ''
 description: 'Pepsi Black se fue al extremo visual de su propio nombre. Into the Void construyó un territorio oscuro donde el producto es lo único que da luz.'
 
 image: '../../assets/work/pepsi-black-into-the-void.jpg'
-imageAlt: 'Fotograma de la campaña "Into the Void" by Pepsi Black'
+imageAlt: 'Mujer de cabello castaño con fleco y chamarra de mezclilla mira fijamente a cámara en una calle.'
 
 # year and category are left empty on purpose: on the current site all 19 cases
 # share a date (10 Feb 2024, the bulk upload) and a category (Branding).

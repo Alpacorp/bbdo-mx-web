@@ -55,7 +55,7 @@ const cases = (await getCollection('work', ({ data }) => !data.draft)).sort(
             <a href={`/the-work/${caseEntry.id}/`} data-morph>
               <Image
                 src={caseEntry.data.image}
-                alt={caseEntry.data.imageAlt}
+                alt=""
                 widths={[400, 800, 1200]}
                 sizes="(max-width: 40rem) 100vw, (max-width: 60rem) 50vw, 33vw"
                 loading={i < 3 ? 'eager' : 'lazy'}
@@ -69,16 +69,18 @@ const cases = (await getCollection('work', ({ data }) => !data.draft)).sort(
                   reader scanning for "the film ones" or "the activations".
                   The sign carries the meaning alone here, so unlike in the
                   case fact sheet it is NOT decorative: each one gets its
-                  label as an accessible name, and the row gets a list role
-                  so the count is announced. */}
+                  label as an accessible name. */}
               {caseEntry.data.capabilities.length > 0 && (
-                <ul class="card__caps" aria-label="Capacidades">
-                  {caseEntry.data.capabilities.map((key) => (
-                    <li>
-                      <Pictogram name={key} size={18} label={CAPABILITIES[key].label} />
-                    </li>
-                  ))}
-                </ul>
+                <>
+                  <span class="sr-only">Capacidades:</span>
+                  <ul class="card__caps">
+                    {caseEntry.data.capabilities.map((key) => (
+                      <li>
+                        <Pictogram name={key} size={18} label={CAPABILITIES[key].label} />
+                      </li>
+                    ))}
+                  </ul>
+                </>
               )}
             </a>
           </li>

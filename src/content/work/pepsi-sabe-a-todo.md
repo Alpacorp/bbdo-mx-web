@@ -15,7 +15,7 @@ summary: ''
 description: 'Pepsi reivindicó su papel de acompañante universal. Sabe a todo defendió que no hay comida, hora ni ocasión donde no encaje.'
 
 image: '../../assets/work/pepsi-sabe-a-todo.jpg'
-imageAlt: 'Fotograma de la campaña Pepsi Black - Sabe a Todo'
+imageAlt: 'Latas de Pepsi Black en un refrigerador, con el texto «¿A qué te sabe Pepsi Black?».'
 
 # year and category are left empty on purpose: on the current site all 19 cases
 # share a date (10 Feb 2024, the bulk upload) and a category (Branding).

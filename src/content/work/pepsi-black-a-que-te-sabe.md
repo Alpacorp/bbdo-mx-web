@@ -15,7 +15,7 @@ summary: ''
 description: 'Pepsi Black lanzó una pregunta en vez de un argumento. ¿A qué te sabe? dejó que la respuesta la pusiera cada quien, y la marca solo el sabor.'
 
 image: '../../assets/work/pepsi-black-a-que-te-sabe.jpg'
-imageAlt: 'Fotograma de la campaña PEPSI BLACK - A QUE TE SABES'
+imageAlt: 'Piernas de una persona con pants naranja y patines, pasando junto a un puesto de flores en la calle.'
 
 # year and category are left empty on purpose: on the current site all 19 cases
 # share a date (10 Feb 2024, the bulk upload) and a category (Branding).

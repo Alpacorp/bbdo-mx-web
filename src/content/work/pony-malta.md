@@ -15,7 +15,7 @@ summary: ''
 description: 'Pony Malta llevó su causa al lugar donde los adolescentes pasan las horas: los videojuegos. Skins x Skins convirtió los aspectos que se compran por vanidad dentro del juego en una vía para hablar de los niños que sobreviven fuera de él.'
 
 image: '../../assets/work/pony-malta.jpg'
-imageAlt: 'Fotograma de la campaña Pony Malta - Skins x Skins Case Study'
+imageAlt: 'Niños con un balón vistos desde dentro de una casa, a través de la puerta, con el subtítulo «En Colombia, más de 4 millones de niños sobreviven».'
 
 # year and category are left empty on purpose: on the current site all 19 cases
 # share a date (10 Feb 2024, the bulk upload) and a category (Branding).

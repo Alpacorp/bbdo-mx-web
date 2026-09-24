@@ -15,7 +15,7 @@ summary: ''
 description: 'Aspirina reivindicó lo que ya carga todo el mundo en la bolsa. The World’s Smallest First Aid Kit presentó la tableta como el botiquín más pequeño que existe.'
 
 image: '../../assets/work/aspirina-worlds-smallest-first-aid-kit.jpg'
-imageAlt: 'Fotograma de la campaña BBDO_ASPIRINA_WSFAK_FINAL'
+imageAlt: 'Texto blanco sobre fondo verde turquesa: «The World’s Smallest First-Aid Kit».'
 
 # year and category are left empty on purpose: on the current site all 19 cases
 # share a date (10 Feb 2024, the bulk upload) and a category (Branding).

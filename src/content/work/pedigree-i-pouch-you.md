@@ -15,7 +15,7 @@ summary: ''
 description: 'Pedigree tradujo el afecto entre un perro y su familia a un gesto cotidiano. I Pouch You convirtió el momento de la comida en una declaración.'
 
 image: '../../assets/work/pedigree-i-pouch-you.jpg'
-imageAlt: 'Fotograma de la campaña ipouch_60'
+imageAlt: 'Sobre de alimento Pedigree para perro adulto sobre un tapete, entre las palabras «I» y «You» y un corazón dibujado a mano.'
 
 # year and category are left empty on purpose: on the current site all 19 cases
 # share a date (10 Feb 2024, the bulk upload) and a category (Branding).

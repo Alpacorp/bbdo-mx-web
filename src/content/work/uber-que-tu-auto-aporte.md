@@ -15,7 +15,7 @@ summary: ''
 description: 'Uber habló con quienes tienen un coche parado en la cochera. Que tu auto aporte planteó la flota como una forma de que el vehículo deje de ser un gasto.'
 
 image: '../../assets/work/uber-que-tu-auto-aporte.jpg'
-imageAlt: 'Fotograma de la campaña UBER Fleet - Papás'
+imageAlt: 'Hombre de lentes y barba canosa habla con gesto preocupado, sentado en un sillón.'
 
 # year and category are left empty on purpose: on the current site all 19 cases
 # share a date (10 Feb 2024, the bulk upload) and a category (Branding).

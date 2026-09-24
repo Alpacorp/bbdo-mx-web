@@ -15,7 +15,7 @@ summary: ''
 description: 'Flanax se sumó al Orgullo desde su propio territorio, el dolor. Dolores que valen la pena reconoció lo que cuesta marchar, sostenerse y seguir de pie.'
 
 image: '../../assets/work/flanax-pride.jpg'
-imageAlt: 'Fotograma de la campaña Flanax-Dolores que valen la pena'
+imageAlt: 'Dos personas con maquillaje y vestuario rosa bailan de pie en un descapotable, entre la multitud de una marcha del Orgullo.'
 
 # year and category are left empty on purpose: on the current site all 19 cases
 # share a date (10 Feb 2024, the bulk upload) and a category (Branding).

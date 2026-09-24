@@ -15,7 +15,7 @@ summary: ''
 description: 'EA Sports celebró que en la cancha digital nadie se retira del todo. Siempre vivos jugó con la idea de que los ídolos siguen compitiendo mientras alguien tome el control.'
 
 image: '../../assets/work/ea-sports-siempre-vivos.jpg'
-imageAlt: 'Fotograma de la campaña EA SPORTS - SIEMPRE VIVOS'
+imageAlt: 'Balón de futbol sobre el pasto, de noche, junto a los logos de EA Sports FC y de la Selección Mexicana y la palabra «Presentan».'
 
 # year and category are left empty on purpose: on the current site all 19 cases
 # share a date (10 Feb 2024, the bulk upload) and a category (Branding).

@@ -13,7 +13,7 @@ result: ''
 summary: 'En una ciudad que no deja de sonar, convertimos el trayecto en el escenario. Mariachis reales, viajes reales, y una conversación que se salió del coche.'
 
 image: '../../assets/work/uber-mariachis.jpg'
-imageAlt: 'Fotograma de la campaña UBER Fleet - Mariachis'
+imageAlt: 'Hombre de camisa a rayas toma café en una cocina casera, frente a una laptop.'
 
 year: 2019
 
