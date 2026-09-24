@@ -15,7 +15,7 @@ summary: ''
 description: 'Uber Eats se metió en la música que suena en toda fiesta mexicana. El Pereatsfoneo cruzó el perreo con el pedido a domicilio y dejó que el nombre hiciera el resto.'
 
 image: '../../assets/work/uber-pereatsfoneo.jpg'
-imageAlt: 'Fotograma de la campaña Uber Eats - El Pereatsfoneo'
+imageAlt: 'Repartidor en un triciclo verde con altavoz recorre una calle, con el texto «PerEatsfoneo».'
 
 # year and category are left empty on purpose: on the current site all 19 cases
 # share a date (10 Feb 2024, the bulk upload) and a category (Branding).

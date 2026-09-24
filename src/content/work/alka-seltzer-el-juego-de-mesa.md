@@ -15,7 +15,7 @@ summary: ''
 description: 'Alka-Seltzer entró por donde ocurre el problema: la sobremesa. El juego de mesa hizo del exceso una mecánica jugable, con la marca esperando al final de la partida.'
 
 image: '../../assets/work/alka-seltzer-el-juego-de-mesa.jpg'
-imageAlt: 'Fotograma de la campaña BAYER_ALKAJUEGO_CASEFINAL'
+imageAlt: 'Escudo luminoso con el logo de Alka-Seltzer y las palabras «Juego de mesa» sobre un estadio de futbol americano iluminado.'
 
 # year and category are left empty on purpose: on the current site all 19 cases
 # share a date (10 Feb 2024, the bulk upload) and a category (Branding).

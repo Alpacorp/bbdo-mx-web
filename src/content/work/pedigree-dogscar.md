@@ -15,7 +15,7 @@ summary: ''
 description: 'Pedigree montó su propia gala para los que nunca reciben un premio. Dogscar puso a los perros en la alfombra roja, con estatuilla incluida.'
 
 image: '../../assets/work/pedigree-dogscar.jpg'
-imageAlt: 'Fotograma de la campaña Pedigree-Dogscar'
+imageAlt: 'Rótulo «ROMA» en letras doradas sobre fondo negro, a la manera del título de una película.'
 
 # year and category are left empty on purpose: on the current site all 19 cases
 # share a date (10 Feb 2024, the bulk upload) and a category (Branding).

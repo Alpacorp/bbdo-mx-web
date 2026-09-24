@@ -15,7 +15,7 @@ summary: ''
 description: 'Flanax jugó con una coincidencia de nombre difícil de ignorar. Bayer vs Bayer aprovechó el equipo de futbol homónimo para colar la marca en la conversación deportiva.'
 
 image: '../../assets/work/flanax-bayer-vs-bayer.jpg'
-imageAlt: 'Fotograma de la campaña FLANAX-Bayer Leverkusen Vs Bayer Leverkusen'
+imageAlt: 'Televisor de tubo encendido en un cuarto oscuro; la imagen en pantalla se deshace en interferencia.'
 
 # year and category are left empty on purpose: on the current site all 19 cases
 # share a date (10 Feb 2024, the bulk upload) and a category (Branding).

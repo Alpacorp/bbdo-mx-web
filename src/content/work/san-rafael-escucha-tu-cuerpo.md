@@ -15,7 +15,7 @@ summary: ''
 description: 'San Rafael Balance habló de digestión sin eufemismos ni tabús. Escucha tu cuerpo tomó las señales que solemos ignorar y las puso en el centro de la conversación.'
 
 image: '../../assets/work/san-rafael-escucha-tu-cuerpo.jpg'
-imageAlt: 'Fotograma de la campaña SRF BALANCE - ESCUCHA TU CUERPO'
+imageAlt: 'Manos abiertas multiplicadas en un caleidoscopio de espejos.'
 
 # year and category are left empty on purpose: on the current site all 19 cases
 # share a date (10 Feb 2024, the bulk upload) and a category (Branding).

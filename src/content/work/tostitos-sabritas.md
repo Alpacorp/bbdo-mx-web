@@ -15,7 +15,7 @@ summary: ''
 description: 'Tostitos defendió un territorio simple y muy mexicano: la botana nunca está sola. Siempre hay con qué convirtió cualquier cosa que haya en el refrigerador en el acompañamiento perfecto.'
 
 image: '../../assets/work/tostitos-sabritas.jpg'
-imageAlt: 'Fotograma de la campaña TOSTITOS - Siempre hay con qué'
+imageAlt: 'Tres jóvenes en una sala luminosa y colorida; una de ellas alcanza una bolsa de botana en la mesa de centro.'
 
 # year and category are left empty on purpose: on the current site all 19 cases
 # share a date (10 Feb 2024, the bulk upload) and a category (Branding).
