@@ -223,12 +223,6 @@
     "photo": "alejandro-mora-salive.jpg"
   },
   {
-    "id": "gabriela-marisol-resendiz-montalvo",
-    "name": "Gabriela Marisol Reséndiz Montalvo",
-    "role": "Senior Art Director",
-    "photo": "gabriela-marisol-resendiz-montalvo.jpg"
-  },
-  {
     "id": "eduardo-arenas",
     "name": "Eduardo Arenas",
     "role": "Maker Digital",
@@ -277,12 +271,6 @@
     "photo": "cinthia-altamirano-chavarria.webp"
   },
   {
-    "id": "daniela-estrada-alvarez",
-    "name": "Daniela Estrada Alvarez",
-    "role": "Copywritter",
-    "photo": "daniela-estrada-alvarez.webp"
-  },
-  {
     "id": "donaji-sanchez-ruiseco",
     "name": "Donají Sánchez Ruiseco",
     "role": "Community Manager",
@@ -299,12 +287,6 @@
     "name": "Laura Cecilia Trejo Hernandez",
     "role": "Digital Strategist",
     "photo": "laura-cecilia-trejo-hernandez.webp"
-  },
-  {
-    "id": "valeria-torres",
-    "name": "Valeria Torres",
-    "role": "Copywritter",
-    "photo": "valeria-torres.webp"
   },
   {
     "id": "montserrat-oseguera-bedolla",
@@ -341,18 +323,6 @@
     "name": "Maximiliano García",
     "role": "Project Manager",
     "photo": "maximiliano-garcia.webp"
-  },
-  {
-    "id": "ricardo-hernandez",
-    "name": "Ricardo Hernández",
-    "role": "Associate Creative Director",
-    "photo": "ricardo-hernandez.webp"
-  },
-  {
-    "id": "itzel-rodriguez",
-    "name": "Itzel Rodriguez",
-    "role": "Account Supervisor",
-    "photo": "itzel-rodriguez.webp"
   },
   {
     "id": "marisol-martinez",
@@ -449,12 +419,6 @@
     "name": "José Miguel Estela Chuquilin",
     "role": "Creative Director",
     "photo": "jose-miguel-estela-chuquilin.png"
-  },
-  {
-    "id": "jose-manuel-solano-palomino",
-    "name": "José Manuel Solano Palomino",
-    "role": "Associate Creative Director",
-    "photo": "jose-manuel-solano-palomino.jpg"
   },
   {
     "id": "jonathan-mendoza-ramirez",
@@ -678,5 +642,11 @@
     "name": "Rena Sieveking Escobar",
     "role": "Creative Director",
     "photo": "rena-sieveking-escobar.webp"
+  },
+  {
+    "id": "madar-alfonso-rahamut-mejias",
+    "name": "Madar Alfonso Rahamut Mejias",
+    "role": "Head of BMW Dynamic Haus",
+    "photo": "madar-alfonso-rahamut-mejias.webp"
   }
 ]
