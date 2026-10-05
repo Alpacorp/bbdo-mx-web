@@ -8,6 +8,7 @@ import CurtainTransition from '../components/CurtainTransition.astro';
 import Wordmark from '../components/Wordmark.astro';
 import { LEGAL_LINKS } from '../navigation';
 import { grecaMask, GRECA_OPACITY } from '../pattern';
+import { ANNIVERSARY } from '../anniversary';
 
 /**
  * Base.astro — root layout: head, meta, canonical, JSON-LD.
@@ -162,6 +163,65 @@ const jsonLd = {
             region.textContent = document.title;
           }, 120);
         });
+      })();
+    </script>
+
+    <!-- The 50th. Same shape as the 'js' flag above and for the same reasons:
+         before first paint, so the intro never flashes in or out, and again
+         after every swap, because ClientRouter wipes <html>'s classes.
+
+         `anniversary` is the celebration, 9-12 October. `anniv-intro` is the intro about to play:
+         home only, once per tab session, never with reduced motion. It is set
+         here rather than by the intro's own script because the banner's
+         windows read it too, and their entrance starts with the first paint.
+         src/anniversary.ts has the rest. -->
+    <script
+      is:inline
+      define:vars={{ start: ANNIVERSARY.start, end: ANNIVERSARY.end, introPath: '/' }}
+    >
+      (function () {
+        function read(key) {
+          try {
+            return sessionStorage.getItem(key);
+          } catch {
+            return null;
+          }
+        }
+        function write(key, value) {
+          try {
+            if (value === null) sessionStorage.removeItem(key);
+            else sessionStorage.setItem(key, value);
+          } catch {
+            /* Private mode or blocked storage: the preview lasts one page. */
+          }
+        }
+
+        const preview = new URLSearchParams(location.search).get('aniversario');
+        /* Asking for the preview by URL also replays the intro: whoever types
+           the parameter is reviewing it and wants to see it again. */
+        if (preview === '50') {
+          write('bbdo-50-preview', '1');
+          write('bbdo-50-intro', null);
+        }
+        if (preview === '0') write('bbdo-50-preview', null);
+        const forced = preview === '50' || read('bbdo-50-preview') === '1';
+
+        function flag() {
+          const now = Date.now();
+          const on = forced || (now >= Date.parse(start) && now < Date.parse(end));
+          if (!on) return;
+          const root = document.documentElement;
+          root.classList.add('anniversary');
+          if (
+            location.pathname === introPath &&
+            read('bbdo-50-intro') !== 'seen' &&
+            !matchMedia('(prefers-reduced-motion: reduce)').matches
+          ) {
+            root.classList.add('anniv-intro');
+          }
+        }
+        flag();
+        document.addEventListener('astro:after-swap', flag);
       })();
     </script>
 

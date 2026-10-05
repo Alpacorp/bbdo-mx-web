@@ -12,6 +12,8 @@ import KineticBand from '../components/KineticBand.astro';
 import { PLATFORM_WORDS, PLATFORM_CORNERS, PLATFORM_ECHO } from '../platform';
 import NewsCard from '../components/NewsCard.astro';
 import CornerFigure from '../components/CornerFigure.astro';
+import AnniversaryIntro from '../components/AnniversaryIntro.astro';
+import { ANNIVERSARY_BAND } from '../anniversary';
 
 /**
  * The three most recent articles. Real ones: the home used to carry two
@@ -112,6 +114,12 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
           own language. The video in between is the missing word, "BIG". The
           Spanish localisation lives in the headline below, not here. */
     }
+    {
+      /* The 50th: hidden outside the celebration (9-12 Oct). It opens the banner
+         below, so it gets the banner's own poster. src/anniversary.ts. */
+    }
+    <AnniversaryIntro poster="/v/banner-home.webp" />
+
     <VideoBanner
       left={PLATFORM_CORNERS.left}
       right={PLATFORM_CORNERS.right}
@@ -210,7 +218,16 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
            news on --color-dark-alt — and it is the only thing on the page that
            moves because the reader moves. */
       }
-      <KineticBand />
+      {
+        /* Both lines are built; CSS shows one. Which one depends on the
+           visitor's date, and the page is static, so the choice cannot be made
+           here. The band is aria-hidden, so the hidden copy costs no one
+           anything but a few spans. */
+      }
+      <div class="band-swap band-swap--regular"><KineticBand /></div>
+      <div class="band-swap band-swap--anniversary">
+        <KineticBand text={ANNIVERSARY_BAND} />
+      </div>
 
       <section class="news greca" aria-labelledby="news-title">
         <div class="news__inner section-shell">
@@ -238,6 +255,22 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
 </Base>
 
 <style>
+  /* The kinetic band's two lines: the platform all year, the 50th during its
+     days. `contents` so the wrapper adds no box and the band lays out exactly
+     as it did unwrapped. */
+  .band-swap--regular {
+    display: contents;
+  }
+  .band-swap--anniversary {
+    display: none;
+  }
+  :global(html.anniversary) .band-swap--regular {
+    display: none;
+  }
+  :global(html.anniversary) .band-swap--anniversary {
+    display: contents;
+  }
+
   .work {
     position: relative;
     z-index: 0;
