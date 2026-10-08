@@ -648,5 +648,17 @@
     "name": "Madar Alfonso Rahamut Mejias",
     "role": "Head of BMW Dynamic Haus",
     "photo": "madar-alfonso-rahamut-mejias.webp"
+  },
+  {
+    "id": "marco-vinicio-montero-espino",
+    "name": "Marco Vinicio Montero Espino",
+    "role": "Productor",
+    "photo": "marco-vinicio-montero-espino.webp"
+  },
+  {
+    "id": "ana-karen-osornio-medina",
+    "name": "Ana Karen Osornio Medina",
+    "role": "Bussiness Executive",
+    "photo": "ana-karen-osornio-medina.webp"
   }
 ]
