@@ -97,7 +97,7 @@ propuesta: son las rutas que responden.
 /the-work/           Índice de los 19 casos
 /the-work/[slug]     Case study individual  <- EL activo SEO real
 /about/              Quiénes somos + liderazgo + pertenencia a Omnicom
-/people/             (ex BBDOERS) muro de 107 + nómina buscable
+/people/             (ex BBDOERS) muro de 109 + nómina buscable
 /news/               Índice real de noticias  (1 nota, ver hallazgo B5)
 /news/[slug]
 /contact/            Formulario con routing: Nuevo negocio / Talento / Prensa
@@ -299,7 +299,7 @@ Estas costaron tiempo. Están aquí para que no se paguen dos veces.
 ## 8. Estado real — qué está construido
 
 **30 páginas prerenderizadas** + `/contact/` y `/api/contact` en función.
-19 casos, 107 personas, 26 clientes, 1 nota, 1 premio.
+19 casos, 109 personas, 26 clientes, 1 nota, 1 premio.
 
 > Las cifras de arriba se pudren. Eran 117 personas hasta el cambio de roster
 > del 2026-08 —seis bajas y un alta— y el brief siguió diciendo 117 durante
@@ -309,7 +309,7 @@ Estas costaron tiempo. Están aquí para que no se paguen dos veces.
 ### Contenido y datos
 
 - Content Collections de `work` (19) y `news` (1), con esquema Zod.
-- `src/data/people.json` con las 107 personas y sus retratos; el headcount, la
+- `src/data/people.json` con las 109 personas y sus retratos; el headcount, la
   agrupación por área y el buscador se recalculan solos.
 - Módulos tipados: `awards`, `clients`, `departments`, `platform`, `portraits`,
   `process`, `themes`, `organization`, `legal`, `contact-routing`, `redirects`,
@@ -360,7 +360,7 @@ Estas costaron tiempo. Están aquí para que no se paguen dos veces.
   grilla, y **la cortina** de cuatro ventanas en la navegación que no tiene
   historia propia (menú, pie, píldoras, tarjeta de noticia). La regla lee un
   atributo `data-morph` en el enlace.
-- **Muro de 107 retratos** a sangre en `/people/`, decorativo y `aria-hidden`
+- **Muro de 109 retratos** a sangre en `/people/`, decorativo y `aria-hidden`
   porque las mismas caras vuelven con nombre en la nómina de abajo.
 - **Banda cinética** "DO BIG THINGS", movida por el scroll y no por un reloj.
 - `ScrollFX`, fachada de Vimeo (el iframe se construye al hacer clic, no antes),
@@ -718,10 +718,10 @@ caso desde la grilla.
 
 ### ✅ El muro de los retratos — HECHO (`0df6766`)
 
-_Bajo · el activo ya existía._ Era el activo más infrautilizado del sitio: 107
+_Bajo · el activo ya existía._ Era el activo más infrautilizado del sitio: 109
 retratos en blanco y negro con el mismo tratamiento, usados como lista. Ahora
 son una sola imagen a sangre, ~105 en pantalla a la vez. La página dice que la
-agencia son 107 personas antes de que nadie lea la línea que lo dice.
+agencia son 109 personas antes de que nadie lea la línea que lo dice.
 
 ### ✅ La banda cinética — HECHO (`53cbb83`)
 
