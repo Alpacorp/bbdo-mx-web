@@ -48,11 +48,25 @@ const PAPER = '#fafafa';
 /* ---------------------------------------------------------------- tracing */
 
 /**
+ * How many times larger than the source the alpha is read before tracing.
+ *
+ * The logo is 600px wide, and traced pixel by pixel the outline is only good
+ * to about a pixel: fine for a favicon, visible as facets on the D's bowl once
+ * the letter dive (LetterDive.astro) zooms 40x into the mark. The source's
+ * edges are antialiased, though, so the sub-pixel position of every edge is
+ * there in the alpha. Upsampling with a smooth kernel before thresholding
+ * turns that partial coverage into geometry.
+ */
+const SUPERSAMPLE = 4;
+
+/**
  * Reads the logo and returns its alpha as a binary mask cropped to the ink.
  */
 async function readMask(file) {
+  const { width: srcWidth } = await sharp(file).metadata();
   const { data, info } = await sharp(file)
     .ensureAlpha()
+    .resize({ width: srcWidth * SUPERSAMPLE, kernel: 'lanczos3' })
     .raw()
     .toBuffer({ resolveWithObject: true });
   const { width, height, channels } = info;
@@ -93,6 +107,9 @@ async function readMask(file) {
  */
 async function markPath({ tolerance = 1.6, cornerAngle = 50 } = {}) {
   const mask = await readMask(SOURCE);
+  // The tolerance is meant in SOURCE pixels; the mask is SUPERSAMPLE times
+  // larger, so the same deviation is that many mask pixels.
+  tolerance *= SUPERSAMPLE;
   const round = (n) => Number((n / mask.width).toFixed(4));
   const rings = traceRings(mask);
   const d = rings

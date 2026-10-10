@@ -1,0 +1,689 @@
+---
+/**
+ * LetterDive.astro — scroll into the letters of the wordmark.
+ *
+ * The home page's opening (2026-10-10): B, B, D and O, one stop each, then
+ * BBDO MÉXICO, then the page carries on into the banner. Prototyped on its own
+ * route first, one letter at a time. The timeline is per stop, so the stops
+ * are data: index.astro decides the letters, palettes, copy and figures.
+ *
+ * THE DEVICE
+ *   The wordmark is a WINDOW, not ink: a dark curtain with the four letters cut
+ *   out of it, and behind it a scene in the brand's red. Scrolling scales the
+ *   curtain around a point inside one letter, so the letter's opening grows
+ *   until it is the whole screen and the reader is inside it — the same move
+ *   as the GTA VI site, and the same knockout the anniversary intro and the
+ *   banner's four windows already use. Then the step's copy comes up, and
+ *   scrolling on pulls back out while the camera drifts to the next letter.
+ *
+ *   It works at any zoom because the mark is the traced vector in
+ *   src/wordmark.ts. At 50x a raster logo would be mush.
+ *
+ * THE ZOOM IS A FIXED POINT
+ *   The curtain scales around where the target point already sits on screen,
+ *   so the letter grows in place instead of first sliding to the centre. The
+ *   target is chosen inside the letter's ink, which in this mark is solid —
+ *   the letters have no counters — so whatever surrounds that point at full
+ *   zoom is opening, never curtain.
+ *
+ *   Scale is interpolated on a log scale. Linear scale from 1 to 50 spends the
+ *   first half of the scroll barely moving and the second half lurching; in
+ *   log space every stretch of scroll multiplies the size by the same factor,
+ *   which reads as flying at a constant speed.
+ *
+ * WITHOUT JS, AND WITH REDUCED MOTION
+ *   The section is a plain stack: the mark, then each step as text. Nothing is
+ *   pinned or hidden, so the copy is always readable and indexable. The pinned
+ *   stage only exists under `html.js` with motion allowed.
+ */
+import Wordmark from './Wordmark.astro';
+import { WORDMARK_PATH, WORDMARK_ASPECT } from '../wordmark';
+import { sunstone } from '../sunstone';
+import { THEMES, type ThemeKey, type Theme } from '../themes';
+
+/**
+ * Points inside each letter's ink, in the mark's own units (width 1, height
+ * WORDMARK_ASPECT). Checked against the path with isPointInFill, not guessed.
+ */
+const LETTER_POINTS = {
+  b1: [0.07, 0.143],
+  b2: [0.3, 0.143],
+  d: [0.53, 0.143],
+  o: [0.855, 0.143],
+} as const;
+type LetterKey = keyof typeof LETTER_POINTS;
+
+export interface Stop {
+  /** Which letter to enter. */
+  at: LetterKey;
+  /** The letter as printed in the kicker. */
+  letter: string;
+  name: string;
+  line: string;
+  /**
+   * The palette the reader lands in. One of the site's five, so the copy
+   * inherits contrast that themes.ts has already checked: text at 4.5:1 and
+   * the accent, used on the large step name, at 3:1.
+   */
+  theme: ThemeKey;
+  /** Two sentences that expand `line`. */
+  detail: string;
+  /**
+   * One number that backs the step up, set large. Real figures only, read
+   * from the site's own data by the caller, so they move when the data does.
+   */
+  fact: { figure: string; label: string };
+}
+
+interface Props {
+  stops: Stop[];
+  /** Where the camera heads after the last stop. */
+  exitTo: LetterKey;
+  /** Where "Saltar intro" goes: the first thing after the dive. */
+  skipTo: string;
+}
+
+const { stops, exitTo, skipTo } = Astro.props;
+
+/** A palette as the three custom properties the scene reads. */
+function stopStyle(key: ThemeKey): string {
+  const t: Theme = THEMES[key];
+  const bg = t.gradient
+    ? `linear-gradient(${t.gradient.angle}deg, ${t.gradient.from}, ${t.gradient.to})`
+    : t.background;
+  return `--stop-bg:${bg};--stop-text:${t.text};--stop-accent:${t.accent}`;
+}
+
+/**
+ * The scroll, in screens: a short lead-in, three per stop (enter, hold,
+ * leave), then the finale where MÉXICO rises under the mark. The section is
+ * one screen taller than its scroll, because the stage is pinned for it.
+ */
+const LEAD = 0.4;
+const FINALE = 1.6;
+const height = `${(1 + LEAD + 3 * stops.length + FINALE) * 100}svh`;
+
+/**
+ * MÉXICO. Outfit 700 at 254 units is 1000 wide — measured in the browser,
+ * 393.4 per 100 — and textLength takes up the last fraction, so the word's
+ * width is exactly what the script gives the SVG. The baseline sits at 250 so
+ * the acute on the É (0.98em up) clears the top.
+ *
+ * It is set at HALF the mark's width, centred under it. The first version ran
+ * the full width and was asked to be subtler and smaller (2026-10-10): at
+ * full width it competed with BBDO instead of signing it.
+ */
+const MX_SCALE = 0.5;
+const MX = { width: 1000, height: 262, fontSize: 254, baseline: 250 };
+/* Centred on the capitals, not the box: half the cap height (0.7em) above
+   the baseline. Big enough that the word only ever sees the middle bands. */
+const SUN = { cx: 500, cy: MX.baseline - 0.35 * MX.fontSize, r: 620 };
+const sun = sunstone(SUN.r);
+
+/* What the script needs, as data on the element rather than as a second copy
+   of the table. */
+const plan = {
+  aspect: WORDMARK_ASPECT,
+  lead: LEAD,
+  finale: FINALE,
+  mxAspect: MX.height / MX.width,
+  mxScale: MX_SCALE,
+  points: stops.map((s) => LETTER_POINTS[s.at]),
+  exit: LETTER_POINTS[exitTo],
+};
+---
+
+<section
+  class="dive"
+  data-letter-dive
+  data-plan={JSON.stringify(plan)}
+  style={`--dive-height:${height}`}
+>
+  {/* The no-JS / reduced-motion version of the stage: just the mark. */}
+  <Wordmark class="dive__static-mark" label="BBDO" />
+
+  <div class="dive__stage">
+    <div class="dive__scene">
+      {
+        /* One ground per stop, stacked; the script fades in the one the
+           reader is entering. Gradients cannot be interpolated by colour-mix,
+           opacity can. */
+        stops.map((s) => <div class="dive__bg" data-dive-bg style={stopStyle(s.theme)} />)
+      }
+      {
+        stops.map((s, i) => (
+          <div class="dive__copy" data-dive-copy={i} style={stopStyle(s.theme)}>
+            {/* The letter alone. It carried "· 01" to "· 04" until 2026-10-10;
+                the letters already say where you are, and the count read as
+                a slide deck. */}
+            <p class="dive__kicker">{s.letter}</p>
+            <h2 class="dive__name">{s.name}</h2>
+            <p class="dive__line">{s.line}</p>
+            <p class="dive__detail">{s.detail}</p>
+            <p class="dive__fact">
+              <span class="dive__figure">{s.fact.figure}</span>
+              <span class="dive__fact-label">{s.fact.label}</span>
+            </p>
+          </div>
+        ))
+      }
+    </div>
+
+    <svg class="dive__curtain" aria-hidden="true" focusable="false">
+      <defs>
+        <mask
+          id="dive-mask"
+          maskUnits="userSpaceOnUse"
+          x="-20000"
+          y="-20000"
+          width="40000"
+          height="40000"
+        >
+          <rect x="-20000" y="-20000" width="40000" height="40000" fill="white"></rect>
+          <g data-dive-mark><path d={WORDMARK_PATH} fill="black"></path></g>
+        </mask>
+      </defs>
+      <rect
+        x="-20000"
+        y="-20000"
+        width="40000"
+        height="40000"
+        fill="var(--color-dark)"
+        mask="url(#dive-mask)"></rect>
+    </svg>
+
+    {/* The word is in the page's h1 as text; this is its picture. */}
+    <svg
+      class="dive__mx"
+      viewBox={`0 0 ${MX.width} ${MX.height}`}
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        {
+          /* A pattern fill, not a clipPath over a group: clipped, Chrome left a
+            hairline of the grey ground along the top and bottom of the box. */
+        }
+        <pattern
+          id="dive-mx-fill"
+          patternUnits="userSpaceOnUse"
+          width={MX.width}
+          height={MX.height}
+        >
+          <rect width={MX.width} height={MX.height} class="dive__mx-ground"></rect>
+          <g class="dive__sun" transform={`translate(${SUN.cx} ${SUN.cy})`}>
+            <g data-dive-sun set:html={sun} />
+          </g>
+        </pattern>
+      </defs>
+      <text
+        class="dive__mx-text"
+        x="0"
+        y={MX.baseline}
+        textLength={MX.width}
+        lengthAdjust="spacingAndGlyphs"
+        font-size={MX.fontSize}
+        fill="url(#dive-mx-fill)">MÉXICO</text
+      >
+    </svg>
+
+    <p class="dive__hint" aria-hidden="true">Desliza para entrar</p>
+
+    {
+      /* Inside the stage, not fixed to the window: it leaves with the dive
+        instead of floating over the rest of the home. */
+    }
+    <a class="dive__skip" href={skipTo}>Saltar intro</a>
+  </div>
+</section>
+
+<style>
+  /* Seen once, skipped or watched to the end, and gone for good: the flag is
+     set in Base.astro before first paint, so the home simply starts at the
+     banner. */
+  :global(html.dive-seen) .dive {
+    display: none;
+  }
+
+  /* --- The plain version: no JS, or reduced motion ----------------------- */
+  .dive {
+    position: relative;
+    background: var(--color-dark);
+    color: var(--color-on-dark);
+    padding: var(--space-2xl) var(--gutter);
+  }
+  .dive__stage {
+    display: contents;
+  }
+  .dive__curtain,
+  .dive__hint {
+    display: none;
+  }
+  .dive__mx {
+    display: block;
+    width: min(42vw, 28rem);
+    margin: 0 auto var(--space-xl);
+  }
+  .dive__mx-text {
+    font-family: var(--font-display);
+    font-weight: 700;
+  }
+  /* The reference is a print: dark rules on grey. The grey is the site's
+     one mid grey pulled halfway into the page's dark, so the word reads as a
+     quiet second line under the red, not as a second logo. */
+  .dive__mx-ground {
+    fill: color-mix(in srgb, var(--color-chip-mid) 55%, var(--color-dark));
+  }
+  .dive__sun {
+    color: var(--color-dark);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 4;
+  }
+  .dive__static-mark {
+    display: block;
+    width: min(84vw, 56rem);
+    margin: 0 auto var(--space-xl);
+    color: var(--color-red);
+  }
+  .dive__scene {
+    display: grid;
+    gap: var(--space-xl);
+  }
+  .dive__bg {
+    display: none;
+  }
+  /* Without the pinned stage each step is a panel in its own palette. */
+  .dive__copy {
+    max-width: 42rem;
+    margin-inline: auto;
+    padding: var(--space-xl) var(--space-l);
+    background: var(--stop-bg);
+    color: var(--stop-text);
+  }
+
+  /* --- The pinned version ------------------------------------------------ */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.js) .dive {
+      height: var(--dive-height);
+      padding: 0;
+    }
+    :global(html.js) .dive__static-mark {
+      display: none;
+    }
+    :global(html.js) .dive__stage {
+      display: block;
+      position: sticky;
+      top: 0;
+      height: 100svh;
+      overflow: hidden;
+    }
+    :global(html.js) .dive__scene {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: var(--gutter);
+      /* Brand red while it is a logo. Each stop's own ground fades in over it
+         as the reader goes in: #FF0000 under white body copy is 3.83:1 and
+         fails AA, every palette's text passes on its own ground. */
+      background: var(--color-red);
+    }
+    :global(html.js) .dive__bg {
+      display: block;
+      position: absolute;
+      inset: 0;
+      background: var(--stop-bg);
+      opacity: 0;
+    }
+    :global(html.js) .dive__copy {
+      grid-area: 1 / 1;
+      position: relative;
+      padding: 0;
+      background: none;
+      text-align: center;
+      opacity: 0;
+    }
+    /* The lines move, staggered by the script; the block only switches on
+       and off so the stops never overlap. */
+    :global(html.js) .dive__copy > * {
+      will-change: opacity, transform;
+    }
+    :global(html.js) .dive__curtain {
+      display: block;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    /* Placed and revealed by the script: it knows where the mark sits. */
+    :global(html.js) .dive__mx {
+      position: absolute;
+      top: 0;
+      left: 0;
+      margin: 0;
+      clip-path: inset(100% 0 0 0);
+      will-change: transform, clip-path;
+    }
+    :global(html.js) .dive__hint {
+      display: block;
+      position: absolute;
+      left: 0;
+      right: 0;
+      /* Just under the mark, not at the foot: down there it ran into the skip
+         button on a phone. Half the mark's height below the centre, which is
+         the script's resting width times half WORDMARK_ASPECT (0.286). */
+      top: calc(50% + min(84vw, 900px) * 0.143 + var(--space-m));
+      margin: 0;
+      text-align: center;
+      font-family: var(--font-ui);
+      font-size: 0.875rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-on-dark);
+    }
+  }
+
+  /* EVERY SIZE BELOW IS CAPPED BY THE SCREEN'S HEIGHT as well as its width.
+     The block is pinned in one screen and has nowhere to scroll to, so on a
+     wide but short window — a laptop with the browser's bars, 1440x760 — the
+     width-only sizes set the step name on two 130px lines and pushed the
+     figure off the bottom. svh is the small viewport, so a phone's collapsing
+     toolbar cannot do the same. */
+  .dive__kicker {
+    margin: 0 0 min(var(--space-s), 1.5svh);
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    font-size: clamp(0.875rem, min(1.6vw, 2.2svh), 1.25rem);
+    letter-spacing: 0.14em;
+    opacity: 0.8;
+  }
+  .dive__name {
+    margin: 0;
+    color: var(--stop-accent);
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    font-size: min(var(--size-display), 11svh);
+    line-height: var(--lh-display);
+    text-wrap: balance;
+  }
+  .dive__line {
+    margin: min(var(--space-m), 2.5svh) auto 0;
+    max-width: 32ch;
+    font-family: var(--font-ui);
+    font-size: clamp(1rem, min(2vw, 2.8svh), 1.5rem);
+    line-height: 1.4;
+    text-wrap: pretty;
+  }
+  .dive__detail {
+    margin: min(var(--space-s), 1.5svh) auto 0;
+    max-width: 44ch;
+    font-family: var(--font-ui);
+    font-size: clamp(0.875rem, min(1.3vw, 2svh), 1.0625rem);
+    line-height: 1.55;
+    text-wrap: pretty;
+    opacity: 0.85;
+  }
+  /* The proof: the figure, and under it what it counts, both centred on the
+     same axis as everything above. The first version set them side by side
+     on a shared baseline, and a large number beside a two-line label never
+     centres — the pair read as pushed off to one side. A rule above separates
+     the argument from the proof. */
+  .dive__fact {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: min(var(--space-xs), 1svh);
+    margin: min(var(--space-l), 3.5svh) auto 0;
+    padding-top: min(var(--space-m), 2.5svh);
+    width: min(100%, 16rem);
+    border-top: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  }
+  .dive__figure {
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    font-size: clamp(2.25rem, min(6vw, 8svh), 4.5rem);
+    line-height: 1;
+    color: var(--stop-accent);
+  }
+  .dive__fact-label {
+    font-family: var(--font-ui);
+    font-size: clamp(0.8125rem, 1.8svh, 0.9375rem);
+    line-height: 1.3;
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  /* There for the whole dive: fourteen screens of scroll is a lot to ask of
+     someone who came for the work. Bottom-right, out of the way of the
+     header. */
+  .dive__skip {
+    position: absolute;
+    right: var(--gutter);
+    bottom: var(--space-l);
+    z-index: 5;
+    padding: var(--space-xs) var(--space-s);
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    font-family: var(--font-ui);
+    font-size: 0.875rem;
+    color: var(--color-on-dark);
+    text-decoration: none;
+    /* Solid enough to carry white text on every ground it floats over, the
+       light cantera included: at 40% it washed out to grey on pink. */
+    background: color-mix(in srgb, var(--color-dark) 80%, transparent);
+  }
+  .dive__skip:hover {
+    background: var(--color-on-dark);
+    color: var(--color-dark);
+  }
+  .dive__skip:focus-visible {
+    outline: 2px solid var(--color-on-dark);
+    outline-offset: 3px;
+  }
+</style>
+
+<script>
+  import { onPage } from '../lifecycle';
+
+  interface Plan {
+    aspect: number;
+    lead: number;
+    finale: number;
+    mxAspect: number;
+    mxScale: number;
+    points: [number, number][];
+    exit: [number, number];
+  }
+
+  const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+  const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+  /** 0→1 across [a, b], clamped. */
+  const span = (v: number, a: number, b: number) => clamp((v - a) / (b - a));
+  const smooth = (t: number) => t * t * (3 - 2 * t);
+
+  /* Shares of one stop's three screens. Enter, hold (copy in, copy out),
+     leave. */
+  const ENTER_END = 0.38;
+  const COPY_IN = [0.38, 0.46] as const;
+  const COPY_OUT = [0.7, 0.76] as const;
+  const LEAVE_START = 0.76;
+  /* Each line of the copy starts this much later than the one above it, so
+     the block reads as being set rather than appearing. */
+  const STAGGER = 0.025;
+
+  onPage(() => {
+    const root = document.querySelector<HTMLElement>('[data-letter-dive]');
+    if (!root) return;
+
+    /* "Saltar intro" is remembered: see the flag in Base.astro. Hiding the
+       dive at once collapses it, so the link's own jump to the banner lands
+       on a page that already starts there. */
+    root.querySelector('.dive__skip')?.addEventListener('click', () => {
+      try {
+        localStorage.setItem('bbdo-dive', 'skipped');
+      } catch {
+        /* Blocked storage: it skips now and shows again next visit. */
+      }
+      document.documentElement.classList.add('dive-seen');
+    });
+
+    if (document.documentElement.classList.contains('dive-seen')) return;
+
+    /* Watched to the end counts as seen. Only the key is written, not the
+       class: hiding the dive now would yank the page out from under someone
+       who is still looking at it. Next visit, it is gone. */
+    let remembered = false;
+    function rememberSeen() {
+      if (remembered) return;
+      remembered = true;
+      try {
+        localStorage.setItem('bbdo-dive', 'seen');
+      } catch {
+        /* Blocked storage: it shows again next visit. */
+      }
+    }
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const plan = JSON.parse(root.dataset.plan!) as Plan;
+    const svg = root.querySelector<SVGSVGElement>('.dive__curtain')!;
+    const mark = root.querySelector<SVGGElement>('[data-dive-mark]')!;
+    const grounds = [...root.querySelectorAll<HTMLElement>('[data-dive-bg]')];
+    const hint = root.querySelector<HTMLElement>('.dive__hint')!;
+    const copies = [...root.querySelectorAll<HTMLElement>('[data-dive-copy]')];
+    const mx = root.querySelector<SVGSVGElement>('.dive__mx')!;
+    const sun = root.querySelector<SVGGElement>('[data-dive-sun]')!;
+    const n = plan.points.length;
+
+    let W = 0,
+      H = 0,
+      base = 0,
+      ox = 0,
+      oy = 0,
+      oyRest = 0,
+      oyFinal = 0,
+      mxGap = 0,
+      mxW = 0,
+      sMax = 1;
+
+    function measure() {
+      W = svg.clientWidth;
+      H = svg.clientHeight;
+      svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+      /* The mark at rest: centred, 84% of the width up to 900px. */
+      base = Math.min(W * 0.84, 900);
+      ox = (W - base) / 2;
+      oyRest = (H - base * plan.aspect) / 2;
+      /* The finale stacks MÉXICO under the mark and centres the pair. The gap
+         is small because the word's own box already carries the accent's
+         headroom above its capitals. */
+      mxW = base * plan.mxScale;
+      mxGap = base * 0.02;
+      oyFinal = (H - base * plan.aspect - mxW * plan.mxAspect - mxGap) / 2;
+      mx.style.width = `${mxW}px`;
+      oy = oyRest;
+      /* Enough zoom that the ink around the target point — about 0.05 of the
+         mark's width in every direction — covers the longest side. */
+      sMax = Math.max(W, H) / (base * 0.05);
+    }
+
+    /** Places the curtain: zoom `s` around target point `t`, in place. */
+    function place(t: [number, number], s: number) {
+      const px = ox + t[0] * base;
+      const py = oy + t[1] * base;
+      const k = base * s;
+      mark.setAttribute(
+        'transform',
+        `translate(${px} ${py}) scale(${k}) translate(${-t[0]} ${-t[1]})`
+      );
+    }
+
+    function render() {
+      const r = root!.getBoundingClientRect();
+      const travel = r.height - H;
+      const p = travel > 0 ? clamp(-r.top / travel) : 0;
+
+      /* Where we are, in screens of scroll. A short lead-in, under half a
+         screen: the mark sits still long enough to be read and to say what to
+         do. A whole screen of nothing was too long — it felt like the page had
+         not loaded. */
+      const total = plan.lead + 3 * n + plan.finale;
+      const x = p * total;
+      hint.style.opacity = String(1 - span(x, 0, plan.lead * 0.5));
+
+      /* The finale: the first screen raises the word, the rest holds it. */
+      const fin = smooth(span(x, plan.lead + 3 * n, plan.lead + 3 * n + 1));
+      if (fin >= 1) rememberSeen();
+      oy = lerp(oyRest, oyFinal, fin);
+      mx.style.transform = `translate(${ox + (base - mxW) / 2}px, ${oy + base * plan.aspect + mxGap}px) translateY(${((1 - fin) * 25).toFixed(2)}%)`;
+      mx.style.clipPath = `inset(${((1 - fin) * 100).toFixed(2)}% 0 0 0)`;
+      /* The stone turns with the scroll, slowly: 40 degrees across the page. */
+      sun.setAttribute('transform', `rotate(${(p * 40).toFixed(2)})`);
+
+      const q = clamp(x - plan.lead, 0, 3 * n) / 3; // 0..n across the stops
+      const i = Math.min(Math.floor(q), n - 1);
+      const u = q - i; // 0..1 within stop i
+      const here = plan.points[i];
+      const next = plan.points[i + 1] ?? plan.exit;
+
+      let s: number, t: [number, number], depth: number;
+      if (u < ENTER_END) {
+        const e = smooth(span(u, 0, ENTER_END));
+        s = Math.exp(Math.log(sMax) * e);
+        t = here;
+        depth = e;
+      } else if (u < LEAVE_START) {
+        s = sMax;
+        t = here;
+        depth = 1;
+      } else {
+        const e = smooth(span(u, LEAVE_START, 1));
+        s = Math.exp(Math.log(sMax) * (1 - e));
+        t = [lerp(here[0], next[0], e), lerp(here[1], next[1], e)];
+        depth = 1 - e;
+      }
+
+      place(t, s);
+      grounds.forEach((g, j) => {
+        g.style.opacity = j === i ? depth.toFixed(3) : '0';
+      });
+
+      copies.forEach((c, j) => {
+        const out = 1 - span(u, COPY_OUT[0], COPY_OUT[1]);
+        c.style.opacity = j === i && out > 0 && u >= COPY_IN[0] ? '1' : '0';
+        [...c.children].forEach((line, k) => {
+          const el = line as HTMLElement;
+          const d = k * STAGGER;
+          const shown = j === i ? span(u, COPY_IN[0] + d, COPY_IN[1] + d) * out : 0;
+          el.style.opacity = shown.toFixed(3);
+          el.style.transform = `translateY(${((1 - shown) * 1.5).toFixed(3)}rem)`;
+        });
+      });
+    }
+
+    /* One render per frame at most, whatever the scroll event rate. */
+    let queued = 0;
+    const request = () => {
+      if (queued) return;
+      queued = requestAnimationFrame(() => {
+        queued = 0;
+        render();
+      });
+    };
+    const onResize = () => {
+      measure();
+      request();
+    };
+
+    measure();
+    render();
+    window.addEventListener('scroll', request, { passive: true });
+    window.addEventListener('resize', onResize);
+
+    return () => {
+      cancelAnimationFrame(queued);
+      window.removeEventListener('scroll', request);
+      window.removeEventListener('resize', onResize);
+    };
+  });
+</script>

@@ -12,8 +12,10 @@ import KineticBand from '../components/KineticBand.astro';
 import { PLATFORM_WORDS, PLATFORM_CORNERS, PLATFORM_ECHO } from '../platform';
 import NewsCard from '../components/NewsCard.astro';
 import CornerFigure from '../components/CornerFigure.astro';
-import AnniversaryIntro from '../components/AnniversaryIntro.astro';
-import { ANNIVERSARY_BAND } from '../anniversary';
+import { ANNIVERSARY_BAND, ANNIVERSARY, ANNIVERSARY_YEARS } from '../anniversary';
+import LetterDive, { type Stop } from '../components/LetterDive.astro';
+import { STEPS } from '../process';
+import { CLIENTS } from '../clients';
 
 /**
  * The three most recent articles. Real ones: the home used to carry two
@@ -98,6 +100,39 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
  */
 
 // Placeholder figures. Marketing has to confirm them before publishing.
+
+/**
+ * The letter dive that opens the page: B, B, D, O, then BBDO MÉXICO, then the
+ * banner. Which letter each step enters and the palette it lands in: grana
+ * first, nearest the brand red; cantera last, the one light ground, so the
+ * final stop reads as an arrival.
+ *
+ * Every figure is counted from the site's own data, never typed, so it moves
+ * when the data does. The clients carry the caveat in src/clients.ts: the
+ * agency has to confirm which are still live accounts.
+ */
+const everyone = await getCollection('people');
+const allWork = await getCollection('work', ({ data }) => !data.draft);
+const FACTS = [
+  { figure: String(CLIENTS.length), label: 'marcas en nuestro portafolio' },
+  { figure: String(ANNIVERSARY_YEARS), label: `años apostando, desde ${ANNIVERSARY.founded}` },
+  { figure: String(allWork.length), label: 'casos en The Work' },
+  { figure: String(everyone.length), label: 'personas creando todos los días' },
+];
+const PLACES = [
+  { at: 'b1', theme: 'grana' },
+  { at: 'b2', theme: 'tezontle' },
+  { at: 'd', theme: 'obsidiana' },
+  { at: 'o', theme: 'cantera' },
+] as const;
+const stops: Stop[] = STEPS.map((step, i) => ({
+  ...PLACES[i]!,
+  letter: step.letter,
+  name: step.name,
+  line: step.line,
+  detail: step.detail,
+  fact: FACTS[i]!,
+}));
 ---
 
 <Base
@@ -108,17 +143,17 @@ const cases = (await getCollection('work', ({ data }) => !data.draft && data.fea
   description="BBDO México es una de las agencias de publicidad más premiadas del país y forma parte de BBDO Worldwide, red creativa de Omnicom Group."
 >
   <main id="content">
+    <LetterDive stops={stops} exitTo="o" skipTo="#inicio" />
+
+    {/* Where "Saltar intro" lands: the banner, the home as it was. */}
+    <div id="inicio"></div>
+
     {
       /* In English and split across the two corners, like the global site:
           "Do Big Things" is a global campaign and the banner leaves it in its
           own language. The video in between is the missing word, "BIG". The
           Spanish localisation lives in the headline below, not here. */
     }
-    {
-      /* The 50th: hidden outside the celebration (9-12 Oct). It opens the banner
-         below, so it gets the banner's own poster. src/anniversary.ts. */
-    }
-    <AnniversaryIntro poster="/v/banner-home.webp" />
 
     <VideoBanner
       left={PLATFORM_CORNERS.left}
