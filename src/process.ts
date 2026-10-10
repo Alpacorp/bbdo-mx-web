@@ -56,6 +56,13 @@ export interface Step {
   /** What bbdomexico.com/our-process/ calls this step today. Verbatim. */
   sourceName: string;
   line: string;
+  /**
+   * PROPOSED. The long form the note above was waiting for, written for the
+   * letter dive (LetterDive.astro), where one line per step left each letter
+   * with too little to be worth entering. Two sentences that expand `line`
+   * without repeating it. Written by me; needs the creative director.
+   */
+  detail: string;
 }
 
 /**
@@ -77,6 +84,8 @@ export const STEPS: Step[] = [
     name: 'Buenos negocios',
     sourceName: 'Growth Value',
     line: 'Creamos valor, crecemos juntos, exponenciamos el negocio de nuestras marcas',
+    detail:
+      'Una idea vale por lo que mueve en el negocio de quien confía en ella. Medimos el trabajo en ventas, preferencia y crecimiento, no solo en aplausos.',
   },
   {
     letter: 'B',
@@ -85,6 +94,8 @@ export const STEPS: Step[] = [
     name: 'Bravura',
     sourceName: 'Purpose',
     line: 'Le apostamos a las compañías del futuro',
+    detail:
+      'Apostar por lo que todavía no existe pide nervio. Acompañamos a las marcas que quieren definir su categoría, no seguirla.',
   },
   {
     letter: 'D',
@@ -93,6 +104,8 @@ export const STEPS: Step[] = [
     // The source reads "categoria". Corrected here, the same way the site-wide
     // "Omincon" was corrected to Omnicom: a missing accent is a typo, not copy.
     line: 'Nuevas maneras de romper con la categoría',
+    detail:
+      'Romper no es hacer ruido. Es encontrar la verdad que nadie se atrevió a decir y convertirla en una idea que la gente quiera compartir.',
   },
   {
     letter: 'O',
@@ -101,5 +114,7 @@ export const STEPS: Step[] = [
     name: 'Obsesión',
     sourceName: 'Creative',
     line: 'Creatividad en todo momento',
+    detail:
+      'La creatividad no es un departamento ni un horario. Es la forma en que trabajamos todos, en cada brief, todos los días.',
   },
 ];

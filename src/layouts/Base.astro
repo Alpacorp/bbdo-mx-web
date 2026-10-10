@@ -167,18 +167,12 @@ const jsonLd = {
     </script>
 
     <!-- The 50th. Same shape as the 'js' flag above and for the same reasons:
-         before first paint, so the intro never flashes in or out, and again
-         after every swap, because ClientRouter wipes <html>'s classes.
+         before first paint, so nothing flashes in or out, and again after
+         every swap, because ClientRouter wipes <html>'s classes.
 
-         `anniversary` is the celebration, 9-12 October. `anniv-intro` is the intro about to play:
-         home only, once per tab session, never with reduced motion. It is set
-         here rather than by the intro's own script because the banner's
-         windows read it too, and their entrance starts with the first paint.
-         src/anniversary.ts has the rest. -->
-    <script
-      is:inline
-      define:vars={{ start: ANNIVERSARY.start, end: ANNIVERSARY.end, introPath: '/' }}
-    >
+         `anniversary` is the celebration, 9-12 October: the kinetic band reads
+         it. src/anniversary.ts has the rest. -->
+    <script is:inline define:vars={{ start: ANNIVERSARY.start, end: ANNIVERSARY.end }}>
       (function () {
         function read(key) {
           try {
@@ -197,27 +191,43 @@ const jsonLd = {
         }
 
         const preview = new URLSearchParams(location.search).get('aniversario');
-        /* Asking for the preview by URL also replays the intro: whoever types
-           the parameter is reviewing it and wants to see it again. */
-        if (preview === '50') {
-          write('bbdo-50-preview', '1');
-          write('bbdo-50-intro', null);
-        }
+        if (preview === '50') write('bbdo-50-preview', '1');
         if (preview === '0') write('bbdo-50-preview', null);
         const forced = preview === '50' || read('bbdo-50-preview') === '1';
 
         function flag() {
           const now = Date.now();
           const on = forced || (now >= Date.parse(start) && now < Date.parse(end));
-          if (!on) return;
-          const root = document.documentElement;
-          root.classList.add('anniversary');
-          if (
-            location.pathname === introPath &&
-            read('bbdo-50-intro') !== 'seen' &&
-            !matchMedia('(prefers-reduced-motion: reduce)').matches
-          ) {
-            root.classList.add('anniv-intro');
+          if (on) document.documentElement.classList.add('anniversary');
+        }
+        flag();
+        document.addEventListener('astro:after-swap', flag);
+      })();
+    </script>
+
+    <!-- The letter dive that opens the home (LetterDive.astro) is shown ONCE
+         per browser. Skipping it ("Saltar intro") or scrolling it to the end
+         both write this key, and from then on `dive-seen` hides the dive
+         before first paint, so the home starts at the banner with no jump.
+         A welcome repeated on every visit stops being one, and someone who
+         skipped it should not be asked again tomorrow: localStorage, not the
+         session. `?intro=1` clears it, for whoever needs to see it again. -->
+    <script is:inline>
+      (function () {
+        const KEY = 'bbdo-dive';
+        try {
+          if (new URLSearchParams(location.search).get('intro') === '1')
+            localStorage.removeItem(KEY);
+        } catch {
+          /* Blocked storage: nothing was remembered, so nothing to clear. */
+        }
+        function flag() {
+          try {
+            if (localStorage.getItem(KEY)) {
+              document.documentElement.classList.add('dive-seen');
+            }
+          } catch {
+            /* Blocked storage: the dive shows, as it would the first time. */
           }
         }
         flag();
