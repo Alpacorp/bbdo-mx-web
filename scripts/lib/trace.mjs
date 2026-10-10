@@ -136,8 +136,23 @@ function ringToPath(ring, { cornerAngle, round }) {
     // rounding through them.
     const before = corner[((i % n) + n) % n] ? p0 : at(i - 1);
     const after = corner[(((i + 1) % n) + n) % n] ? p1 : at(i + 2);
-    const c1 = [p0[0] + (p1[0] - before[0]) / 6, p0[1] + (p1[1] - before[1]) / 6];
-    const c2 = [p1[0] - (after[0] - p0[0]) / 6, p1[1] - (after[1] - p0[1]) / 6];
+    // The tangent's DIRECTION comes from the neighbours, but its LENGTH from
+    // this segment alone: a third of its chord. Plain Catmull-Rom takes the
+    // length from the neighbours too, (p1 - before) / 6, and where a long
+    // straight run meets a short arc — the top of every B, where the flat
+    // edge rolls into the bowl — that throws a handle several times longer
+    // than the segment it belongs to. The curve overshoots and comes back: a
+    // hook. Invisible at favicon size, a notch the size of the screen once
+    // the letter dive zooms 40x into the mark.
+    const chord = Math.hypot(p1[0] - p0[0], p1[1] - p0[1]) / 3;
+    const unit = (a, b) => {
+      const l = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
+      return [(b[0] - a[0]) / l, (b[1] - a[1]) / l];
+    };
+    const t0 = unit(before, p1);
+    const t1 = unit(p0, after);
+    const c1 = [p0[0] + t0[0] * chord, p0[1] + t0[1] * chord];
+    const c2 = [p1[0] - t1[0] * chord, p1[1] - t1[1] * chord];
     d += `C${round(c1[0])} ${round(c1[1])} ${round(c2[0])} ${round(c2[1])} ${round(p1[0])} ${round(p1[1])}`;
   }
   return d + 'Z';
