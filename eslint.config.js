@@ -14,7 +14,7 @@ export default defineConfig(
     // '.vercel/' holds the adapter's build output: bundled server chunks that
     // are generated, not written, and linting them reports hundreds of errors
     // about code nobody edits.
-    ignores: ['dist/', '.astro/', 'node_modules/', 'public/', '.vercel/'],
+    ignores: ['dist/', '.astro/', 'node_modules/', 'public/', '.vercel/', '.claude/'],
   },
   js.configs.recommended,
   ...ts.configs.recommended,

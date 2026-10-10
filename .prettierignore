@@ -12,3 +12,7 @@ src/content/
 # campos, checklist en el comentario de cabecera- está puesto a mano y es parte
 # de cómo se lee.
 jsonld-bbdo-mexico.html
+
+# Skills de terceros, copiadas tal cual de sus repos: no son código del
+# proyecto y reformatearlas haría imposible compararlas con el original.
+.claude/
