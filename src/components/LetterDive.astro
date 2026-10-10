@@ -19,6 +19,21 @@
  *   It works at any zoom because the mark is the traced vector in
  *   src/wordmark.ts. At 50x a raster logo would be mush.
  *
+ * DRAWN ON A CANVAS, NOT AN SVG MASK
+ *   The first version was an SVG <mask>: a dark rect with the wordmark cut out
+ *   of it, the cut-out scaled by a transform attribute. Chrome took it at
+ *   60fps. WebKit — Safari, and every browser on an iPhone, including the one
+ *   inside WhatsApp — rasterises masks on the CPU, into a bitmap sized to the
+ *   mask region, and that region had to be huge for the letters to zoom. It
+ *   came out downsampled, so the logo was BLURRED even at rest, and redrawn
+ *   on every scroll frame: 13.8fps measured in WebKit on a desktop, worse on
+ *   a phone. Reported from an iPhone on 2026-10-10 as "1FPS".
+ *
+ *   A 2D canvas the size of the screen, at the device's pixel ratio, filled
+ *   dark with the wordmark punched out (destination-out). The path is filled
+ *   again each frame at the exact zoom, so it is sharp at 1x and at 50x, and
+ *   filling ~80 curves is the kind of work every engine accelerates.
+ *
  * THE ZOOM IS A FIXED POINT
  *   The curtain scales around where the target point already sits on screen,
  *   so the letter grows in place instead of first sliding to the centre. The
@@ -128,6 +143,7 @@ const plan = {
   finale: FINALE,
   mxAspect: MX.height / MX.width,
   mxScale: MX_SCALE,
+  path: WORDMARK_PATH,
   points: stops.map((s) => LETTER_POINTS[s.at]),
   exit: LETTER_POINTS[exitTo],
 };
@@ -169,28 +185,8 @@ const plan = {
       }
     </div>
 
-    <svg class="dive__curtain" aria-hidden="true" focusable="false">
-      <defs>
-        <mask
-          id="dive-mask"
-          maskUnits="userSpaceOnUse"
-          x="-20000"
-          y="-20000"
-          width="40000"
-          height="40000"
-        >
-          <rect x="-20000" y="-20000" width="40000" height="40000" fill="white"></rect>
-          <g data-dive-mark><path d={WORDMARK_PATH} fill="black"></path></g>
-        </mask>
-      </defs>
-      <rect
-        x="-20000"
-        y="-20000"
-        width="40000"
-        height="40000"
-        fill="var(--color-dark)"
-        mask="url(#dive-mask)"></rect>
-    </svg>
+    {/* The curtain is drawn by the script; see DRAWN ON A CANVAS above. */}
+    <canvas class="dive__curtain" aria-hidden="true"></canvas>
 
     {/* The word is in the page's h1 as text; this is its picture. */}
     <svg
@@ -362,8 +358,11 @@ const plan = {
       top: 0;
       left: 0;
       margin: 0;
-      clip-path: inset(100% 0 0 0);
-      will-change: transform, clip-path;
+      /* Revealed with opacity and transform only: both stay on the
+         compositor. Animating clip-path repainted the word, ornament and all,
+         on every frame. */
+      opacity: 0;
+      will-change: transform, opacity;
     }
     :global(html.js) .dive__hint {
       display: block;
@@ -492,6 +491,7 @@ const plan = {
     finale: number;
     mxAspect: number;
     mxScale: number;
+    path: string;
     points: [number, number][];
     exit: [number, number];
   }
@@ -546,8 +546,12 @@ const plan = {
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const plan = JSON.parse(root.dataset.plan!) as Plan;
-    const svg = root.querySelector<SVGSVGElement>('.dive__curtain')!;
-    const mark = root.querySelector<SVGGElement>('[data-dive-mark]')!;
+    const canvas = root.querySelector<HTMLCanvasElement>('.dive__curtain')!;
+    const ctx = canvas.getContext('2d')!;
+    const letters = new Path2D(plan.path);
+    const stage = root.querySelector<HTMLElement>('.dive__stage')!;
+    /* The curtain's colour, read once from the token rather than repeated. */
+    const curtain = getComputedStyle(root).getPropertyValue('--color-dark').trim() || '#161616';
     const grounds = [...root.querySelectorAll<HTMLElement>('[data-dive-bg]')];
     const hint = root.querySelector<HTMLElement>('.dive__hint')!;
     const copies = [...root.querySelectorAll<HTMLElement>('[data-dive-copy]')];
@@ -557,6 +561,7 @@ const plan = {
 
     let W = 0,
       H = 0,
+      dpr = 1,
       base = 0,
       ox = 0,
       oy = 0,
@@ -567,9 +572,20 @@ const plan = {
       sMax = 1;
 
     function measure() {
-      W = svg.clientWidth;
-      H = svg.clientHeight;
-      svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+      /* The stage is 100svh, so the phone's toolbar sliding in and out does
+         not change it — but it does fire resize. Reallocating the canvas is
+         the expensive part, so it only happens when the size really moves. */
+      const w = stage.clientWidth;
+      const h = stage.clientHeight;
+      const d = Math.min(window.devicePixelRatio || 1, 3);
+      if (w !== W || h !== H || d !== dpr) {
+        W = w;
+        H = h;
+        dpr = d;
+        canvas.width = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        drawn = '';
+      }
       /* The mark at rest: centred, 84% of the width up to 900px. */
       base = Math.min(W * 0.84, 900);
       ox = (W - base) / 2;
@@ -587,15 +603,38 @@ const plan = {
       sMax = Math.max(W, H) / (base * 0.05);
     }
 
-    /** Places the curtain: zoom `s` around target point `t`, in place. */
+    /** What the curtain last showed, so an unchanged frame costs nothing. */
+    let drawn = '';
+
+    /** Draws the curtain: zoom `s` around target point `t`, in place. */
     function place(t: [number, number], s: number) {
       const px = ox + t[0] * base;
       const py = oy + t[1] * base;
       const k = base * s;
-      mark.setAttribute(
-        'transform',
-        `translate(${px} ${py}) scale(${k}) translate(${-t[0]} ${-t[1]})`
-      );
+      const key = `${px.toFixed(2)} ${py.toFixed(2)} ${k.toFixed(3)} ${t[0]} ${t[1]}`;
+      if (key === drawn) return;
+      drawn = key;
+
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = curtain;
+      ctx.fillRect(0, 0, W, H);
+      /* The letters, punched out: point t of the mark lands on (px, py) and
+         the mark is k pixels wide. */
+      ctx.setTransform(dpr * k, 0, 0, dpr * k, dpr * (px - t[0] * k), dpr * (py - t[1] * k));
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.fill(letters);
+    }
+
+    /** Writes a style only when it changes: most frames move one or two
+        things, and every write is a style recalculation. */
+    const last = new WeakMap<HTMLElement | SVGElement, Record<string, string>>();
+    function set(el: HTMLElement | SVGElement, prop: string, value: string) {
+      const seen = last.get(el) ?? {};
+      if (seen[prop] === value) return;
+      seen[prop] = value;
+      last.set(el, seen);
+      el.style.setProperty(prop, value);
     }
 
     function render() {
@@ -609,16 +648,24 @@ const plan = {
          not loaded. */
       const total = plan.lead + 3 * n + plan.finale;
       const x = p * total;
-      hint.style.opacity = String(1 - span(x, 0, plan.lead * 0.5));
+      set(hint, 'opacity', (1 - span(x, 0, plan.lead * 0.5)).toFixed(3));
 
       /* The finale: the first screen raises the word, the rest holds it. */
       const fin = smooth(span(x, plan.lead + 3 * n, plan.lead + 3 * n + 1));
       if (fin >= 1) rememberSeen();
       oy = lerp(oyRest, oyFinal, fin);
-      mx.style.transform = `translate(${ox + (base - mxW) / 2}px, ${oy + base * plan.aspect + mxGap}px) translateY(${((1 - fin) * 25).toFixed(2)}%)`;
-      mx.style.clipPath = `inset(${((1 - fin) * 100).toFixed(2)}% 0 0 0)`;
-      /* The stone turns with the scroll, slowly: 40 degrees across the page. */
-      sun.setAttribute('transform', `rotate(${(p * 40).toFixed(2)})`);
+      set(
+        mx,
+        'transform',
+        `translate(${(ox + (base - mxW) / 2).toFixed(1)}px, ${(oy + base * plan.aspect + mxGap).toFixed(1)}px) translateY(${((1 - fin) * 25).toFixed(2)}%)`
+      );
+      set(mx, 'opacity', fin.toFixed(3));
+      /* The stone turns with the scroll, slowly, and only while the word is
+         on screen: turning it repaints the ornament, which is not free. */
+      if (fin > 0) {
+        const angle = `rotate(${(p * 40).toFixed(1)})`;
+        if (sun.getAttribute('transform') !== angle) sun.setAttribute('transform', angle);
+      }
 
       const q = clamp(x - plan.lead, 0, 3 * n) / 3; // 0..n across the stops
       const i = Math.min(Math.floor(q), n - 1);
@@ -644,19 +691,17 @@ const plan = {
       }
 
       place(t, s);
-      grounds.forEach((g, j) => {
-        g.style.opacity = j === i ? depth.toFixed(3) : '0';
-      });
+      grounds.forEach((g, j) => set(g, 'opacity', j === i ? depth.toFixed(3) : '0'));
 
       copies.forEach((c, j) => {
         const out = 1 - span(u, COPY_OUT[0], COPY_OUT[1]);
-        c.style.opacity = j === i && out > 0 && u >= COPY_IN[0] ? '1' : '0';
+        set(c, 'opacity', j === i && out > 0 && u >= COPY_IN[0] ? '1' : '0');
         [...c.children].forEach((line, k) => {
           const el = line as HTMLElement;
           const d = k * STAGGER;
           const shown = j === i ? span(u, COPY_IN[0] + d, COPY_IN[1] + d) * out : 0;
-          el.style.opacity = shown.toFixed(3);
-          el.style.transform = `translateY(${((1 - shown) * 1.5).toFixed(3)}rem)`;
+          set(el, 'opacity', shown.toFixed(3));
+          set(el, 'transform', `translateY(${((1 - shown) * 1.5).toFixed(2)}rem)`);
         });
       });
     }
