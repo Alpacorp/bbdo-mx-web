@@ -161,11 +161,14 @@ const plan = {
   <div class="dive__stage">
     <div class="dive__scene">
       {
-        /* One ground per stop, stacked; the script fades in the one the
-           reader is entering. Gradients cannot be interpolated by colour-mix,
-           opacity can. */
-        stops.map((s) => <div class="dive__bg" data-dive-bg style={stopStyle(s.theme)} />)
+        /* ONE ground, not one per stop. The script gives it the palette of the
+           stop being entered and fades it in over the red; gradients cannot be
+           interpolated by colour-mix, opacity can. It changes palette only at
+           the hand-over between stops, where it is fully transparent, so the
+           swap is never seen. Four stacked full-screen layers cost about 12MB
+           each on a 3x phone, which is where iOS starts to drop frames. */
       }
+      <div class="dive__bg" data-dive-bg></div>
       {
         stops.map((s, i) => (
           <div class="dive__copy" data-dive-copy={i} style={stopStyle(s.theme)}>
@@ -307,11 +310,19 @@ const plan = {
     :global(html.js) .dive__static-mark {
       display: none;
     }
+    /* lvh, the LARGE viewport, not svh. Safari on an iPhone hides its
+       toolbar as the page scrolls down and the viewport grows; a 100svh stage
+       then stopped short of the bottom and the section's dark showed through
+       as a band under the red. A stage the height of the largest viewport is
+       always full, and it never changes size, so the canvas is never
+       reallocated mid-scroll either. What the toolbar covers when it is
+       showing is the bottom edge of the scene, and the skip button is lifted
+       clear of it below. */
     :global(html.js) .dive__stage {
       display: block;
       position: sticky;
       top: 0;
-      height: 100svh;
+      height: 100lvh;
       overflow: hidden;
     }
     :global(html.js) .dive__scene {
@@ -345,8 +356,10 @@ const plan = {
       opacity: 0;
     }
     /* The lines move, staggered by the script; the block only switches on
-       and off so the stops never overlap. */
-    :global(html.js) .dive__copy > * {
+       and off so the stops never overlap. Only the stop on screen gets
+       layers: twenty promoted lines for four stops, three of them invisible,
+       was memory for nothing. */
+    :global(html.js) .dive__copy.is-active > * {
       will-change: opacity, transform;
     }
     :global(html.js) .dive__curtain {
@@ -463,7 +476,10 @@ const plan = {
   .dive__skip {
     position: absolute;
     right: var(--gutter);
-    bottom: var(--space-l);
+    /* Above the browser's toolbar when it is showing: the stage is 100lvh,
+       and the difference to 100svh is exactly the part the toolbar covers.
+       Zero on a desktop. */
+    bottom: calc(var(--space-l) + (100lvh - 100svh));
     z-index: 5;
     padding: var(--space-xs) var(--space-s);
     border: 1px solid currentColor;
@@ -520,9 +536,14 @@ const plan = {
     const root = document.querySelector<HTMLElement>('[data-letter-dive]');
     if (!root) return;
 
+    /* Undoes everything the dive set up. Filled in below once there is
+       something to undo; the skip button needs it before then. */
+    let teardown = () => {};
+
     /* "Saltar intro" is remembered: see the flag in Base.astro. Hiding the
        dive at once collapses it, so the link's own jump to the banner lands
-       on a page that already starts there. */
+       on a page that already starts there — and the dive stops listening to
+       a scroll it no longer has anything to do with. */
     root.querySelector('.dive__skip')?.addEventListener('click', () => {
       try {
         localStorage.setItem('bbdo-dive', 'skipped');
@@ -530,6 +551,7 @@ const plan = {
         /* Blocked storage: it skips now and shows again next visit. */
       }
       document.documentElement.classList.add('dive-seen');
+      teardown();
     });
 
     if (document.documentElement.classList.contains('dive-seen')) return;
@@ -556,12 +578,17 @@ const plan = {
     const stage = root.querySelector<HTMLElement>('.dive__stage')!;
     /* The curtain's colour, read once from the token rather than repeated. */
     const curtain = getComputedStyle(root).getPropertyValue('--color-dark').trim() || '#161616';
-    const grounds = [...root.querySelectorAll<HTMLElement>('[data-dive-bg]')];
+    const ground = root.querySelector<HTMLElement>('[data-dive-bg]')!;
     const hint = root.querySelector<HTMLElement>('.dive__hint')!;
     const copies = [...root.querySelectorAll<HTMLElement>('[data-dive-copy]')];
+    /* Each stop's palette, as the copy carries it inline. */
+    const palettes = copies.map((c) => c.style.getPropertyValue('--stop-bg'));
     const mx = root.querySelector<SVGSVGElement>('.dive__mx')!;
     const sun = root.querySelector<SVGGElement>('[data-dive-sun]')!;
     const n = plan.points.length;
+    /* The sun stone turns only where it is cheap: turning it repaints the
+       ornament, and on a phone that frame budget is better spent elsewhere. */
+    const turns = matchMedia('(hover: hover) and (pointer: fine)').matches;
 
     let W = 0,
       H = 0,
@@ -575,8 +602,11 @@ const plan = {
       mxW = 0,
       sMax = 1;
 
+    /** What the curtain last showed, so an unchanged frame costs nothing. */
+    let drawn = '';
+
     function measure() {
-      /* The stage is 100svh, so the phone's toolbar sliding in and out does
+      /* The stage is 100lvh, so the phone's toolbar sliding in and out does
          not change it — but it does fire resize. Reallocating the canvas is
          the expensive part, so it only happens when the size really moves. */
       const w = stage.clientWidth;
@@ -610,9 +640,6 @@ const plan = {
          mark's width in every direction — covers the longest side. */
       sMax = Math.max(W, H) / (base * 0.05);
     }
-
-    /** What the curtain last showed, so an unchanged frame costs nothing. */
-    let drawn = '';
 
     /** Draws the curtain: zoom `s` around target point `t`, in place. */
     function place(t: [number, number], s: number) {
@@ -702,9 +729,11 @@ const plan = {
       }
 
       place(t, s);
-      grounds.forEach((g, j) => set(g, 'opacity', j === i ? depth.toFixed(3) : '0'));
+      set(ground, 'background', palettes[i] ?? '');
+      set(ground, 'opacity', depth.toFixed(3));
 
       copies.forEach((c, j) => {
+        c.classList.toggle('is-active', j === i);
         const out = 1 - span(u, COPY_OUT[0], COPY_OUT[1]);
         set(c, 'opacity', j === i && out > 0 && u >= COPY_IN[0] ? '1' : '0');
         [...c.children].forEach((line, k) => {
@@ -726,7 +755,15 @@ const plan = {
        which is what sites built on this effect do. The time constant is in
        seconds, so the glide is the same at 60Hz and at 120Hz. */
     const LAG = 0.07;
+    /* Measured BEFORE the first position is read: target() divides by the
+       stage height, and read first it took a zero and started a reload in
+       the middle of the dive from the wrong place. */
+    measure();
     let shown = target();
+    /* What was last drawn. Once the reader is past the dive the listener
+       still fires on every scroll of the home, and every one of them would
+       redo the whole frame for nothing. */
+    let rendered = NaN;
     let queued = 0;
     let lastT = 0;
     function tick(now: number) {
@@ -737,7 +774,10 @@ const plan = {
       shown += (goal - shown) * (1 - Math.exp(-dt / LAG));
       /* Close enough that nothing on screen would move: land exactly, stop. */
       if (Math.abs(goal - shown) < 0.00002) shown = goal;
-      render(shown);
+      if (shown !== rendered) {
+        render(shown);
+        rendered = shown;
+      }
       if (shown !== goal) queued = requestAnimationFrame(tick);
       else lastT = 0;
     }
@@ -746,22 +786,21 @@ const plan = {
     };
     const onResize = () => {
       measure();
+      rendered = NaN;
       request();
     };
 
-    /* The sun stone turns only where it is cheap: turning it repaints the
-       ornament, and on a phone that frame budget is better spent elsewhere. */
-    const turns = matchMedia('(hover: hover) and (pointer: fine)').matches;
-
-    measure();
     render(shown);
+    rendered = shown;
     window.addEventListener('scroll', request, { passive: true });
     window.addEventListener('resize', onResize);
 
-    return () => {
+    teardown = () => {
       cancelAnimationFrame(queued);
+      queued = 0;
       window.removeEventListener('scroll', request);
       window.removeEventListener('resize', onResize);
     };
+    return teardown;
   });
 </script>
