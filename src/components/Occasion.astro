@@ -1,0 +1,44 @@
+---
+/**
+ * Occasion.astro — shows one thing usually and another during an occasion.
+ *
+ *   <Occasion id="aniversario-50">
+ *     <KineticBand />
+ *     <KineticBand slot="on" text={ANNIVERSARY_BAND} />
+ *   </Occasion>
+ *
+ * The default slot is what shows the rest of the year; `on` is what replaces
+ * it while the occasion lasts. Leave the default slot empty for something that
+ * only appears during it. The dates live in src/occasions.ts.
+ *
+ * Both versions are in the HTML and CSS shows one, because the page is static
+ * and the date is the visitor's, not the build's. The hidden one is
+ * display:none, so it is out of the layout and out of the accessibility tree;
+ * its cost is its markup, and any images in it should be lazy. The wrappers are
+ * display:contents, so the content lays out exactly as it would unwrapped.
+ */
+import type { OccasionId } from '../occasions';
+
+interface Props {
+  id: OccasionId;
+}
+
+const { id } = Astro.props;
+---
+
+<div class="occasion" data-occasion-of={id}>
+  <div class="occasion__usual"><slot /></div>
+  <div class="occasion__on"><slot name="on" /></div>
+</div>
+
+<style>
+  /* The swap itself is in occasionStyles(), inlined by Base.astro; its
+     selectors outrank these, so these only set the usual state. */
+  .occasion,
+  .occasion__usual {
+    display: contents;
+  }
+  .occasion__on {
+    display: none;
+  }
+</style>
