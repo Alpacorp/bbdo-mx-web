@@ -13,6 +13,7 @@ import { PLATFORM_WORDS, PLATFORM_CORNERS, PLATFORM_ECHO } from '../platform';
 import NewsCard from '../components/NewsCard.astro';
 import CornerFigure from '../components/CornerFigure.astro';
 import { ANNIVERSARY_BAND, ANNIVERSARY, ANNIVERSARY_YEARS } from '../anniversary';
+import Occasion from '../components/Occasion.astro';
 import LetterDive, { type Stop } from '../components/LetterDive.astro';
 import { STEPS } from '../process';
 import { CLIENTS } from '../clients';
@@ -253,16 +254,11 @@ const stops: Stop[] = STEPS.map((step, i) => ({
            news on --color-dark-alt — and it is the only thing on the page that
            moves because the reader moves. */
       }
-      {
-        /* Both lines are built; CSS shows one. Which one depends on the
-           visitor's date, and the page is static, so the choice cannot be made
-           here. The band is aria-hidden, so the hidden copy costs no one
-           anything but a few spans. */
-      }
-      <div class="band-swap band-swap--regular"><KineticBand /></div>
-      <div class="band-swap band-swap--anniversary">
-        <KineticBand text={ANNIVERSARY_BAND} />
-      </div>
+      {/* The platform all year, the 50th during its days. */}
+      <Occasion id="aniversario-50">
+        <KineticBand />
+        <KineticBand slot="on" text={ANNIVERSARY_BAND} />
+      </Occasion>
 
       <section class="news greca" aria-labelledby="news-title">
         <div class="news__inner section-shell">
@@ -290,22 +286,6 @@ const stops: Stop[] = STEPS.map((step, i) => ({
 </Base>
 
 <style>
-  /* The kinetic band's two lines: the platform all year, the 50th during its
-     days. `contents` so the wrapper adds no box and the band lays out exactly
-     as it did unwrapped. */
-  .band-swap--regular {
-    display: contents;
-  }
-  .band-swap--anniversary {
-    display: none;
-  }
-  :global(html.anniversary) .band-swap--regular {
-    display: none;
-  }
-  :global(html.anniversary) .band-swap--anniversary {
-    display: contents;
-  }
-
   .work {
     position: relative;
     z-index: 0;

@@ -8,7 +8,7 @@ import CurtainTransition from '../components/CurtainTransition.astro';
 import Wordmark from '../components/Wordmark.astro';
 import { LEGAL_LINKS } from '../navigation';
 import { grecaMask, GRECA_OPACITY } from '../pattern';
-import { ANNIVERSARY } from '../anniversary';
+import { OCCASIONS, occasionStyles } from '../occasions';
 
 /**
  * Base.astro — root layout: head, meta, canonical, JSON-LD.
@@ -166,44 +166,41 @@ const jsonLd = {
       })();
     </script>
 
-    <!-- The 50th. Same shape as the 'js' flag above and for the same reasons:
-         before first paint, so nothing flashes in or out, and again after
-         every swap, because ClientRouter wipes <html>'s classes.
-
-         `anniversary` is the celebration, 9-12 October: the kinetic band reads
-         it. src/anniversary.ts has the rest. -->
-    <script is:inline define:vars={{ start: ANNIVERSARY.start, end: ANNIVERSARY.end }}>
+    <!-- Occasions (src/occasions.ts). Same shape as the 'js' flag above and
+         for the same reasons: before first paint, so nothing flashes in or
+         out, and again after every swap, because ClientRouter wipes <html>'s
+         attributes. Lists the active ones in data-occasion; the rules below
+         swap each <Occasion> on it. -->
+    <script is:inline define:vars={{ occasions: OCCASIONS }}>
       (function () {
-        function read(key) {
-          try {
-            return sessionStorage.getItem(key);
-          } catch {
-            return null;
-          }
+        const KEY = 'bbdo-occasion-preview';
+        let forced = null;
+        try {
+          const preview = new URLSearchParams(location.search).get('ocasion');
+          if (preview === '0') sessionStorage.removeItem(KEY);
+          else if (preview) sessionStorage.setItem(KEY, preview);
+          forced = sessionStorage.getItem(KEY);
+        } catch {
+          /* Private mode or blocked storage: the preview lasts one page. */
+          forced = new URLSearchParams(location.search).get('ocasion');
         }
-        function write(key, value) {
-          try {
-            if (value === null) sessionStorage.removeItem(key);
-            else sessionStorage.setItem(key, value);
-          } catch {
-            /* Private mode or blocked storage: the preview lasts one page. */
-          }
-        }
-
-        const preview = new URLSearchParams(location.search).get('aniversario');
-        if (preview === '50') write('bbdo-50-preview', '1');
-        if (preview === '0') write('bbdo-50-preview', null);
-        const forced = preview === '50' || read('bbdo-50-preview') === '1';
 
         function flag() {
           const now = Date.now();
-          const on = forced || (now >= Date.parse(start) && now < Date.parse(end));
-          if (on) document.documentElement.classList.add('anniversary');
+          const on = occasions
+            .filter(function (o) {
+              return o.id === forced || (now >= Date.parse(o.start) && now < Date.parse(o.end));
+            })
+            .map(function (o) {
+              return o.id;
+            });
+          if (on.length) document.documentElement.dataset.occasion = on.join(' ');
         }
         flag();
         document.addEventListener('astro:after-swap', flag);
       })();
     </script>
+    <style is:inline set:html={occasionStyles()}></style>
 
     <!-- The letter dive that opens the home (LetterDive.astro) is shown ONCE
          per browser. Skipping it ("Saltar intro") or scrolling it to the end
@@ -211,7 +208,16 @@ const jsonLd = {
          before first paint, so the home starts at the banner with no jump.
          A welcome repeated on every visit stops being one, and someone who
          skipped it should not be asked again tomorrow: localStorage, not the
-         session. `?intro=1` clears it, for whoever needs to see it again. -->
+         session. `?intro=1` clears it, for whoever needs to see it again.
+
+         Hiding the dive takes its whole height off the top of the page, so a
+         scroll position saved while it was there has to lose it too.
+         LetterDive marks such a position with `diveOffset` in its history
+         entry. On a reload it comes off the saved position here, before the
+         router reads it, and the browser's own restoration is turned off so
+         it cannot put the old one back. On a back navigation the router has
+         already scrolled with the dive still there, so the dive is measured
+         and taken off live. -->
     <script is:inline>
       (function () {
         const KEY = 'bbdo-dive';
@@ -221,17 +227,34 @@ const jsonLd = {
         } catch {
           /* Blocked storage: nothing was remembered, so nothing to clear. */
         }
-        function flag() {
+        function flag(swapped) {
           try {
-            if (localStorage.getItem(KEY)) {
-              document.documentElement.classList.add('dive-seen');
-            }
+            if (!localStorage.getItem(KEY)) return;
           } catch {
             /* Blocked storage: the dive shows, as it would the first time. */
+            return;
           }
+          /* Measured before the class hides it. Only a swap has a body yet. */
+          const dive = swapped && document.querySelector('[data-letter-dive]');
+          const lift = dive ? dive.getBoundingClientRect().height : 0;
+          document.documentElement.classList.add('dive-seen');
+
+          const state = history.state;
+          if (!state || !('diveOffset' in state)) return;
+          const rest = Object.assign({}, state);
+          delete rest.diveOffset;
+          if (swapped) {
+            if (lift) scrollTo(0, Math.max(0, scrollY - lift));
+          } else {
+            history.scrollRestoration = 'manual';
+            rest.scrollY = Math.max(0, (state.scrollY || 0) - state.diveOffset);
+          }
+          history.replaceState(rest, '');
         }
-        flag();
-        document.addEventListener('astro:after-swap', flag);
+        flag(false);
+        document.addEventListener('astro:after-swap', function () {
+          flag(true);
+        });
       })();
     </script>
 
