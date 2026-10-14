@@ -551,6 +551,7 @@ const plan = {
         /* Blocked storage: it skips now and shows again next visit. */
       }
       document.documentElement.classList.add('dive-seen');
+      markOffset(null);
       teardown();
     });
 
@@ -567,7 +568,22 @@ const plan = {
         localStorage.setItem('bbdo-dive', 'seen');
       } catch {
         /* Blocked storage: it shows again next visit. */
+        return;
       }
+      markOffset(root!.offsetHeight);
+    }
+    /* Coming back to this page, by reload or by the back button, restores the
+       old scroll position, but the dive above it will be hidden by then, so
+       that position lands deep in the home. The dive's height goes into this
+       history entry for the flag in Base.astro to take off. The router keeps
+       it when it saves the scroll, which it does on every scroll end. Written
+       now rather than on the way out: Chrome drops a history write made in
+       `pagehide` during a reload. Null takes it off again, for when the dive
+       is hidden on this page and positions stop including it. */
+    function markOffset(height: number | null) {
+      if (!history.state) return;
+      const { diveOffset: _, ...state } = history.state;
+      history.replaceState(height === null ? state : { ...state, diveOffset: height }, '');
     }
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
@@ -785,6 +801,7 @@ const plan = {
       if (!queued) queued = requestAnimationFrame(tick);
     };
     const onResize = () => {
+      if (remembered) markOffset(root.offsetHeight);
       measure();
       rendered = NaN;
       request();

@@ -211,7 +211,16 @@ const jsonLd = {
          before first paint, so the home starts at the banner with no jump.
          A welcome repeated on every visit stops being one, and someone who
          skipped it should not be asked again tomorrow: localStorage, not the
-         session. `?intro=1` clears it, for whoever needs to see it again. -->
+         session. `?intro=1` clears it, for whoever needs to see it again.
+
+         Hiding the dive takes its whole height off the top of the page, so a
+         scroll position saved while it was there has to lose it too.
+         LetterDive marks such a position with `diveOffset` in its history
+         entry. On a reload it comes off the saved position here, before the
+         router reads it, and the browser's own restoration is turned off so
+         it cannot put the old one back. On a back navigation the router has
+         already scrolled with the dive still there, so the dive is measured
+         and taken off live. -->
     <script is:inline>
       (function () {
         const KEY = 'bbdo-dive';
@@ -221,17 +230,34 @@ const jsonLd = {
         } catch {
           /* Blocked storage: nothing was remembered, so nothing to clear. */
         }
-        function flag() {
+        function flag(swapped) {
           try {
-            if (localStorage.getItem(KEY)) {
-              document.documentElement.classList.add('dive-seen');
-            }
+            if (!localStorage.getItem(KEY)) return;
           } catch {
             /* Blocked storage: the dive shows, as it would the first time. */
+            return;
           }
+          /* Measured before the class hides it. Only a swap has a body yet. */
+          const dive = swapped && document.querySelector('[data-letter-dive]');
+          const lift = dive ? dive.getBoundingClientRect().height : 0;
+          document.documentElement.classList.add('dive-seen');
+
+          const state = history.state;
+          if (!state || !('diveOffset' in state)) return;
+          const rest = Object.assign({}, state);
+          delete rest.diveOffset;
+          if (swapped) {
+            if (lift) scrollTo(0, Math.max(0, scrollY - lift));
+          } else {
+            history.scrollRestoration = 'manual';
+            rest.scrollY = Math.max(0, (state.scrollY || 0) - state.diveOffset);
+          }
+          history.replaceState(rest, '');
         }
-        flag();
-        document.addEventListener('astro:after-swap', flag);
+        flag(false);
+        document.addEventListener('astro:after-swap', function () {
+          flag(true);
+        });
       })();
     </script>
 
