@@ -654,5 +654,29 @@
     "name": "Ana Karen Osornio Medina",
     "role": "Bussiness Executive",
     "photo": "ana-karen-osornio-medina.webp"
+  },
+  {
+    "id": "luis-alfredo-vallejo-juarez",
+    "name": "Luis Alfredo Vallejo Juárez",
+    "role": "Art Director",
+    "photo": "luis-alfredo-vallejo-juarez.webp"
+  },
+  {
+    "id": "paola-estefania-del-angel-perez",
+    "name": "Paola Estefanía Del Ángel Pérez",
+    "role": "Copywriter Sr",
+    "photo": "paola-estefania-del-angel-perez.webp"
+  },
+  {
+    "id": "frida-hernandez-delgado",
+    "name": "Frida Hernández Delgado",
+    "role": "Art Director",
+    "photo": "frida-hernandez-delgado.webp"
+  },
+  {
+    "id": "jocelyn-ponce-saucedo",
+    "name": "Jocelyn Ponce Saucedo",
+    "role": "Art Director Jr 360",
+    "photo": "jocelyn-ponce-saucedo.webp"
   }
 ]
