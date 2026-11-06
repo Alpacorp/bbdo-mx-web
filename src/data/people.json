@@ -337,12 +337,6 @@
     "photo": "monica-suarez.webp"
   },
   {
-    "id": "edith-gomez",
-    "name": "Edith Gomez",
-    "role": "Data Analyst",
-    "photo": "edith-gomez.webp"
-  },
-  {
     "id": "rodrigo-hernandez",
     "name": "Rodrigo Hernandez",
     "role": "Community Manager",
@@ -611,12 +605,6 @@
     "name": "Federico Vázquez Gómez Sánchez",
     "role": "Digital Strategist",
     "photo": "federico-vazquez-gomez-sanchez.webp"
-  },
-  {
-    "id": "sofia-selene-hernandez-miron",
-    "name": "Sofía Selene Hernández Mirón",
-    "role": "Business Supervisor",
-    "photo": "sofia-selene-hernandez-miron.webp"
   },
   {
     "id": "oscar-alessandro-garza-arzate",
